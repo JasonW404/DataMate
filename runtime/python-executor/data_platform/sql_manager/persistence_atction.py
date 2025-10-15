@@ -24,7 +24,7 @@ class TaskInfoPersistence:
             return json.load(f)
 
     def persistence_task_info(self, sample: Dict[str, Any]):
-        flow_id = str(sample.get("flow_id"))
+        instance_id = str(sample.get("instance_id"))
         meta_file_name = str(sample.get("sourceFileName"))
         meta_file_type = str(sample.get("sourceFileType"))
         meta_file_id = int(sample.get("sourceFileId"))
@@ -34,7 +34,6 @@ class TaskInfoPersistence:
         file_type = str(sample.get("fileType"))
         file_name = str(sample.get("fileName"))
         file_path = str(sample.get("filePath"))
-        source_file_modify_time = int(sample.get("sourceFileModifyTime") if sample.get("sourceFileModifyTime") else "0")
         status = int(sample.get("execute_status"))
         failed_reason = sample.get("failed_reason")
         operator_id = str(failed_reason.get("op_name")) if failed_reason else ""
@@ -43,7 +42,7 @@ class TaskInfoPersistence:
         child_id = sample.get("childId")
         slice_num = sample.get('slice_num', 0)
         insert_data = {
-            "flow_id": flow_id,
+            "instance_id": instance_id,
             "meta_file_id": meta_file_id,
             "meta_file_type": meta_file_type,
             "meta_file_name": meta_file_name,
@@ -53,7 +52,6 @@ class TaskInfoPersistence:
             "file_type": file_type,
             "file_name": file_name,
             "file_path": file_path,
-            "source_file_modify_time": source_file_modify_time,
             "status": status,
             "operator_id": operator_id,
             "error_code": error_code,
@@ -88,40 +86,40 @@ class TaskInfoPersistence:
             conn.execute(text(insert_sql), insert_data)
 
 
-    def query_task_info(self, flow_ids: list[str]):
+    def query_task_info(self, instance_ids: list[str]):
         result = {}
         current_result = None
-        for flow_id in flow_ids:
+        for instance_id in instance_ids:
             try:
-                current_result = self.execute_sql_query(flow_id)
+                current_result = self.execute_sql_query(instance_id)
             except Exception as e:
-                logger.warning("flow_id: {}, query job result error: {}", flow_id, str(e))
+                logger.warning("instance_id: {}, query job result error: {}", instance_id, str(e))
             if current_result:
-                result[flow_id] = current_result
+                result[instance_id] = current_result
         return result
 
-    def execute_sql_query(self, flow_id):
+    def execute_sql_query(self, instance_id):
         result = None
         create_tables_sql = str(self.sql_dict.get("create_tables_sql"))
         query_sql = str(self.sql_dict.get("query_sql"))
         with SQLManager.create_connect() as conn:
             conn.execute(text(create_tables_sql))
-            execute_result = conn.execute(text(query_sql), {"flow_id": flow_id})
+            execute_result = conn.execute(text(query_sql), {"instance_id": instance_id})
             result = execute_result.fetchall()
         return result
 
     # todo 删除接口和sql待实现
-    def delete_task_info(self, flow_id: str):
+    def delete_task_info(self, instance_id: str):
         create_tables_sql = self.sql_dict.get("create_tables_sql")
         delete_task_instance_sql = self.sql_dict.get("delete_task_instance_sql")
         try:
             with SQLManager.create_connect() as conn:
                 conn.execute(text(create_tables_sql))
-                conn.execute(text(delete_task_instance_sql), {"flow_id": flow_id})
+                conn.execute(text(delete_task_instance_sql), {"instance_id": instance_id})
         except Exception as e:
-            logger.warning(f"delete database for flow: {flow_id}", e)
+            logger.warning(f"delete database for flow: {instance_id}", e)
 
-    def delete_task_operate_info(self, flow_id: str):
+    def delete_task_operate_info(self, instance_id: str):
         create_duplicate_img_tables_sql = self.sql_dict.get("create_duplicate_img_tables_sql")
         create_similar_img_tables_sql = self.sql_dict.get("create_similar_img_tables_sql")
         create_similar_text_tables_sql = self.sql_dict.get("create_similar_text_tables_sql")
@@ -131,10 +129,10 @@ class TaskInfoPersistence:
         try:
             with SQLManager.create_connect() as conn:
                 conn.execute(text(create_duplicate_img_tables_sql))
-                conn.execute(text(delete_duplicate_img_tables_sql), {"flow_id": flow_id})
+                conn.execute(text(delete_duplicate_img_tables_sql), {"instance_id": instance_id})
                 conn.execute(text(create_similar_img_tables_sql))
-                conn.execute(text(delete_similar_img_tables_sql), {"flow_id": flow_id})
+                conn.execute(text(delete_similar_img_tables_sql), {"instance_id": instance_id})
                 conn.execute(text(create_similar_text_tables_sql))
-                conn.execute(text(delete_similar_text_tables_sql), {"flow_id": flow_id})
+                conn.execute(text(delete_similar_text_tables_sql), {"instance_id": instance_id})
         except Exception as e:
-            logger.warning(f"delete database for flow: {flow_id} error", e)
+            logger.warning(f"delete database for flow: {instance_id} error", e)
