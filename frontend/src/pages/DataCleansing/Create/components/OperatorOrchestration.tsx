@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Card, Input, Tag, Select, Button } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { CleansingTemplate, OperatorI } from "../../cleansing.model";
+import { CleansingTemplate } from "../../cleansing.model";
 import { Workflow } from "lucide-react";
+import { OperatorI } from "@/pages/OperatorMarket/operator.model";
 
 interface OperatorFlowProps {
   selectedOperators: OperatorI[];

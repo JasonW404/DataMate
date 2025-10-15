@@ -1,3 +1,5 @@
+import Loading from "./loading";
+
 /**
  * 通用请求工具类
  */
@@ -8,6 +10,71 @@ class Request {
       "Content-Type": "application/json",
       Accept: "*/*",
     };
+    // 请求拦截器列表
+    this.requestInterceptors = [];
+    // 响应拦截器列表
+    this.responseInterceptors = [];
+  }
+
+  _count = 0;
+  $interval;
+
+  get count() {
+    return this._count;
+  }
+
+  set count(value) {
+    clearTimeout(this.$interval);
+    if (value > 0) {
+      Loading.show();
+    }
+    if (value <= 0) {
+      this.$interval = setTimeout(() => {
+        Loading.hide();
+      }, 300);
+    }
+    this._count = value >= 0 ? value : 0;
+  }
+
+  /**
+   * 添加请求拦截器
+   */
+  addRequestInterceptor(interceptor) {
+    this.requestInterceptors.push(interceptor);
+  }
+
+  /**
+   * 添加响应拦截器
+   */
+  addResponseInterceptor(interceptor) {
+    this.responseInterceptors.push(interceptor);
+  }
+
+  /**
+   * 执行请求拦截器
+   */
+  async executeRequestInterceptors(config) {
+    let processedConfig = { ...config };
+
+    for (const interceptor of this.requestInterceptors) {
+      processedConfig = (await interceptor(processedConfig)) || processedConfig;
+    }
+
+    return processedConfig;
+  }
+
+  /**
+   * 执行响应拦截器
+   */
+  async executeResponseInterceptors(response, config) {
+    let processedResponse = response;
+
+    for (const interceptor of this.responseInterceptors) {
+      processedResponse =
+        (await interceptor(processedResponse, config)) || processedResponse;
+    }
+
+    return processedResponse;
   }
 
   /**
@@ -31,14 +98,27 @@ class Request {
   /**
    * 处理响应
    */
-  async handleResponse(response) {
-    if (!response.ok) {
-      const error = new Error(`HTTP error! status: ${response.status}`);
-      error.status = response.status;
-      error.statusText = response.statusText;
+  async handleResponse(response, config) {
+    // 如果显示了loading，需要隐藏
+    if (config.showLoading) {
+      this.count--;
+    }
+
+    // 执行响应拦截器
+    const processedResponse = await this.executeResponseInterceptors(
+      response,
+      config
+    );
+
+    if (!processedResponse.ok) {
+      const error = new Error(
+        `HTTP error! status: ${processedResponse.status}`
+      );
+      error.status = processedResponse.status;
+      error.statusText = processedResponse.statusText;
 
       try {
-        const errorData = await response.json();
+        const errorData = await processedResponse.json();
         error.data = errorData;
       } catch {
         // 忽略JSON解析错误
@@ -48,19 +128,46 @@ class Request {
     }
 
     // 检查响应是否为空
-    const contentType = response.headers.get("content-type");
+    const contentType = processedResponse.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      return await response.json();
+      return await processedResponse.json();
     }
 
-    return await response.text();
+    return await processedResponse.text();
+  }
+
+  /**
+   * 通用请求方法
+   */
+  async request(url, config) {
+    // 处理showLoading参数
+    if (config.showLoading) {
+      this.count++;
+    }
+
+    try {
+      // 执行请求拦截器
+      const processedConfig = await this.executeRequestInterceptors(config);
+
+      // 发送请求
+      const response = await fetch(url, processedConfig);
+
+      // 处理响应
+      return await this.handleResponse(response, processedConfig);
+    } catch (error) {
+      // 确保在出错时隐藏loading
+      if (config.showLoading) {
+        this.count--;
+      }
+      throw error;
+    }
   }
 
   /**
    * GET请求
    * @param {string} url - 请求URL
    * @param {object} params - 查询参数
-   * @param {object} options - 额外的fetch选项
+   * @param {object} options - 额外的fetch选项，包括showLoading
    */
   async get(url, params = null, options = {}) {
     const fullURL = this.buildURL(url, params);
@@ -74,15 +181,14 @@ class Request {
       ...options,
     };
 
-    const response = await fetch(fullURL, config);
-    return this.handleResponse(response);
+    return this.request(fullURL, { ...config, ...options });
   }
 
   /**
    * POST请求
    * @param {string} url - 请求URL
    * @param {object} data - 请求体数据
-   * @param {object} options - 额外的fetch选项
+   * @param {object} options - 额外的fetch选项，包括showLoading
    */
   async post(url, data = {}, options = {}) {
     let config = {
@@ -107,15 +213,14 @@ class Request {
       };
     }
 
-    const response = await fetch(this.baseURL + url, config);
-    return this.handleResponse(response);
+    return this.request(this.baseURL + url, { ...config, ...options });
   }
 
   /**
    * PUT请求
    * @param {string} url - 请求URL
    * @param {object} data - 请求体数据
-   * @param {object} options - 额外的fetch选项
+   * @param {object} options - 额外的fetch选项，包括showLoading
    */
   async put(url, data = null, options = {}) {
     const config = {
@@ -128,35 +233,53 @@ class Request {
       ...options,
     };
 
-    const response = await fetch(this.baseURL + url, config);
-    return this.handleResponse(response);
+    return this.request(this.baseURL + url, { ...config, ...options });
   }
 
   /**
    * DELETE请求
    * @param {string} url - 请求URL
-   * @param {object} params - 查询参数
-   * @param {object} options - 额外的fetch选项
+   * @param {object} params - 查询参数或请求体数据
+   * @param {object} options - 额外的fetch选项，包括showLoading
    */
   async delete(url, params = null, options = {}) {
-    const fullURL = this.buildURL(url, params);
-
-    const config = {
+    let fullURL = this.baseURL + url;
+    let config = {
       method: "DELETE",
       redirect: "follow",
       headers: {
         ...this.defaultHeaders,
         ...options.headers,
-        "X-Requested-With": "XMLHttpRequest", // 添加此行以确保某些服务器接受请求
+        "X-Requested-With": "XMLHttpRequest",
       },
-      ...options,
       credentials: "include",
-      mode: "cors", // 确保 CORS 模式
+      mode: "cors",
+      ...options,
     };
-    console.log(config);
 
-    const response = await fetch(fullURL, config);
-    return this.handleResponse(response);
+    // 判断params是否应该作为查询参数或请求体
+    if (params && typeof params === "object" && !Array.isArray(params)) {
+      // 如果params是普通对象，检查是否应该作为查询参数
+      const isQueryParams =
+        Object.keys(params).length === 1 &&
+        (Object.prototype.hasOwnProperty.call(params, "id") ||
+          Object.prototype.hasOwnProperty.call(params, "ids"));
+
+      if (isQueryParams) {
+        fullURL = this.buildURL(url, params);
+      } else {
+        // 作为请求体发送
+        config.body = JSON.stringify(params);
+      }
+    } else if (Array.isArray(params)) {
+      // 数组形式的数据作为请求体发送
+      config.body = JSON.stringify(params);
+    } else if (params) {
+      // 其他情况作为查询参数
+      fullURL = this.buildURL(url, { id: params });
+    }
+
+    return this.request(fullURL, { ...config, ...options });
   }
 
   /**
@@ -164,7 +287,7 @@ class Request {
    * @param {string} url - 请求URL
    * @param {object} params - 查询参数
    * @param {string} filename - 下载文件名
-   * @param {object} options - 额外的fetch选项
+   * @param {object} options - 额外的fetch选项，包括showLoading
    */
   async download(url, params = null, filename = "download", options = {}) {
     const fullURL = this.buildURL(url, params);
@@ -174,13 +297,22 @@ class Request {
       ...options,
     };
 
-    const response = await fetch(fullURL, config);
+    // 执行请求拦截器
+    const processedConfig = await this.executeRequestInterceptors(config);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const response = await fetch(fullURL, processedConfig);
+
+    // 执行响应拦截器
+    const processedResponse = await this.executeResponseInterceptors(
+      response,
+      processedConfig
+    );
+
+    if (!processedResponse.ok) {
+      throw new Error(`HTTP error! status: ${processedResponse.status}`);
     }
 
-    const blob = await response.blob();
+    const blob = await processedResponse.blob();
 
     // 创建下载链接
     const downloadUrl = window.URL.createObjectURL(blob);
@@ -188,7 +320,7 @@ class Request {
     link.href = downloadUrl;
 
     // 尝试从响应头获取文件名
-    const disposition = response.headers.get("Content-Disposition");
+    const disposition = processedResponse.headers.get("Content-Disposition");
     if (disposition && disposition.includes("filename=")) {
       const filenameMatch = disposition.match(
         /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
@@ -212,6 +344,26 @@ class Request {
 
 // 创建默认实例
 const request = new Request();
+
+// 添加默认请求拦截器 - Token处理
+request.addRequestInterceptor((config, options) => {
+  const token =
+    localStorage.getItem("token") || sessionStorage.getItem("token");
+  if (token) {
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return config;
+});
+
+// 添加默认响应拦截器 - 错误处理
+request.addResponseInterceptor((response, config) => {
+  // 可以在这里添加全局错误处理逻辑
+  // 比如token过期自动跳转登录页等
+  return response;
+});
 
 // 导出方法
 export const get = request.get.bind(request);

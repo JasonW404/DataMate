@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { CleansingTemplate, OperatorI } from "../../cleansing.model";
+import { OperatorI } from "@/pages/OperatorMarket/operator.model";
+import { CleansingTemplate } from "../../cleansing.model";
 import { queryCleaningTemplatesUsingGet } from "../../cleansing.api";
 import {
   queryCategoryTreeUsingGet,

@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Card, Input, Select, Tooltip, Collapse, Tag, Checkbox } from "antd";
 import { StarFilled, StarOutlined, SearchOutlined } from "@ant-design/icons";
-import type { OperatorI } from "@/pages/DataCleansing/cleansing.model";
-import { CategoryI } from "@/pages/OperatorMarket/operator.model";
+import { CategoryI, OperatorI } from "@/pages/OperatorMarket/operator.model";
 import { Layers } from "lucide-react";
 
 interface OperatorListProps {

@@ -10,9 +10,11 @@ import {
 import { TaskStatus, type CollectionTask } from "../../collection.model";
 import { StatusMap, SyncModeMap } from "../../collection.const";
 import useFetchData from "@/hooks/useFetchData";
+import { useNavigate } from "react-router";
 
 export default function TaskManagement() {
   const { message } = App.useApp();
+  const navigate = useNavigate();
   const filters = [
     {
       key: "status",
@@ -52,11 +54,6 @@ export default function TaskManagement() {
     fetchData();
   };
 
-  const handleViewDetail = (record: CollectionTask) => {
-    // Implement your view detail logic here
-    console.log("Viewing details for task:", record);
-  };
-
   const columns = [
     {
       title: "任务名称",
@@ -64,7 +61,10 @@ export default function TaskManagement() {
       key: "name",
       fixed: "left",
       render: (text: string, record: CollectionTask) => (
-        <Button type="link" onClick={() => handleViewDetail(record)}>
+        <Button
+          type="link"
+          onClick={() => navigate("`/data-collection/tasks/${record.id}`)}>")}
+        >
           {text}
         </Button>
       ),

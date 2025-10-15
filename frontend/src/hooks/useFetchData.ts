@@ -55,13 +55,14 @@ export default function useFetchData<T>(
     return arr[0];
   }
 
-  async function fetchData() {
+  async function fetchData(extraParams = {}) {
     const { keywords, filter, current, pageSize } = searchParams;
     Loading.show();
     setLoading(true);
     try {
       const { data } = await fetchFunc({
         ...filter,
+        ...extraParams,
         keywords,
         type: getFirstOfArray(filter?.type) || undefined,
         status: getFirstOfArray(filter?.status) || undefined,

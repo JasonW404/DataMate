@@ -1,5 +1,5 @@
+import { OperatorI } from "@/pages/OperatorMarket/operator.model";
 import React, { useState } from "react";
-import { OperatorI } from "../../cleansing.model";
 
 export function useDragOperators({
   operators,

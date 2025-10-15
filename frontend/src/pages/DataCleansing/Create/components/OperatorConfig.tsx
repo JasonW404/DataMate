@@ -1,8 +1,8 @@
 import React from "react";
 import { Tag, Divider, Form } from "antd";
 import ParamConfig from "./ParamConfig";
-import { OperatorI } from "../../cleansing.model";
 import { Settings } from "lucide-react";
+import { OperatorI } from "@/pages/OperatorMarket/operator.model";
 
 // OperatorConfig/OperatorTemplate 类型需根据主文件实际导入
 interface OperatorConfigProps {

@@ -7,14 +7,9 @@ import {
   FileTextOutlined,
   DatabaseOutlined,
   FileImageOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons";
 import DetailHeader from "@/components/DetailHeader";
-import {
-  mapDataset,
-  datasetStatusMap,
-  datasetSubTypeMap,
-} from "../dataset.const";
+import { mapDataset, datasetSubTypeMap } from "../dataset.const";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
 import { Link, useParams } from "react-router";
 import { useFilesOperation, useImportFile } from "../hooks";
@@ -22,7 +17,7 @@ import { downloadFile, queryDatasetByIdUsingGet } from "../dataset.api";
 import DataQuality from "./components/DataQuality";
 import DataLineageFlow from "./components/DataLineageFlow";
 import Overview from "./components/Overview";
-import { Activity, Clock, Dock, File, FileType } from "lucide-react";
+import { Activity, Clock, File, FileType } from "lucide-react";
 
 const navigateItems = [
   {
