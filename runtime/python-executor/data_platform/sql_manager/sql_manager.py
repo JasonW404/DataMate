@@ -24,7 +24,7 @@ class SQLManager:
             drivername="mysql+pymysql",
             username=os.getenv("MYSQL_USER", "root"),
             password=os.getenv("MYSQL_PASSWORD", "Huawei@123"),
-            host=os.getenv("MYSQL_HOST", "mysql"),
+            host=os.getenv("MYSQL_HOST", "mysql-service"),
             port=os.getenv("MYSQL_PORT", 3306),
             database=os.getenv("MYSQL_DATABASE", "dataengine"),
             query={"charset": "utf8mb4"},

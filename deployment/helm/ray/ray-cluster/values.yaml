@@ -129,13 +129,10 @@ head:
       image: runtime
       imagePullPolicy: IfNotPresent
       command:
-        - tail
-        - -f
-        - /dev/null
-#        - python
-#        - /opt/runtime/data_platform/operator_runtime.py
-#        - --port
-#        - "8081"
+        - python
+        - /opt/runtime/data_platform/operator_runtime.py
+        - --port
+        - "8081"
       env: []
       ports:
         - containerPort: 8080
