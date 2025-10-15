@@ -1,10 +1,11 @@
 # -- encoding: utf-8 --
-
+import os
 import time
 from random import uniform
 
 from loguru import logger
 from sqlalchemy import create_engine, inspect
+from sqlalchemy.engine import URL
 
 
 class SQLManager:
@@ -19,13 +20,21 @@ class SQLManager:
         """
 
         # todo 需要从环境变量中获取数据库配置
-        connection_url = f"mysql+pymysql://root:Huawei%40123@101.201.105.190:9988/dataengine"
+        connection_url = URL.create(
+            drivername="mysql+pymysql",
+            username=os.getenv("MYSQL_USER", "root"),
+            password=os.getenv("MYSQL_PASSWORD", "Huawei@123"),
+            host=os.getenv("MYSQL_HOST", "mysql-service"),
+            port=os.getenv("MYSQL_PORT", 3306),
+            database=os.getenv("MYSQL_DATABASE", "dataengine"),
+            query={"charset": "utf8mb4"},
+        )
 
         attempt = 0
 
         while True:
             try:
-                engine = create_engine(connection_url, pool_pre_ping=True)
+                engine = create_engine(connection_url, pool_pre_ping=True, isolation_level="AUTOCOMMIT")
                 return engine.connect()
             except Exception as e:
                 logger.error(f"Attempt {attempt + 1} failed with error: {str(e)}")

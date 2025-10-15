@@ -78,8 +78,9 @@ class ImgDuplicatedImagesCleaner(Filter):
         query_sql = str(self.sql_dict.get("query_sql"))
         insert_sql = str(self.sql_dict.get("insert_sql"))
         create_tables_sql = str(self.sql_dict.get("create_tables_sql"))
-        query_sql_params = [self.task_uuid, md5]
-        insert_sql_params = [self.task_uuid, md5, file_name.encode("utf-8"), timestamp]
+        query_sql_params = {"task_uuid": self.task_uuid, "file_feature": md5}
+        insert_sql_params = {"task_uuid": self.task_uuid, "file_feature": md5, "file_name": file_name.encode("utf-8"),
+                             "timestamp": timestamp}
 
         db_manager = SQLManager()
         try:
@@ -95,7 +96,6 @@ class ImgDuplicatedImagesCleaner(Filter):
             # 查询记录为空，无重复图片, 插入新文件特征
             if not result:
                 connection.execute(text(insert_sql, insert_sql_params))
-                connection.commit()
                 return img_bytes
             logger.info("fileName: %s, method: Duplicate ImagesCleaner. The image is duplicated and filtered ",
                         file_name)

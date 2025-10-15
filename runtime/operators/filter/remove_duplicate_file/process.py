@@ -103,19 +103,24 @@ class DuplicateFilesFilter(Filter):
             raise RuntimeError(82000, str(e)) from None
         with self.conn as connection:
             connection.execute(text(create_tables_sql))
-            result = connection.execute(query_task_uuid_sql, [self.task_uuid]).fetchall()
+            result = connection.execute(query_task_uuid_sql, {"task_uuid": self.task_uuid}).fetchall()
             total_count = len(result)
             if self.has_similar_text(connection, file_name, text_minhash, total_count):
                 return ""
-            connection.execute(text(insert_sql, [self.task_uuid, minhash_values_string, file_name.encode("utf-8").hex(),
-                                            timestamp]))
-            connection.commit()
+            insert_data = {
+                "task_uuid": self.task_uuid,
+               "file_feature": minhash_values_string,
+               "file_name": file_name.encode("utf-8").hex(),
+               "timestamp": timestamp
+            }
+            connection.execute(text(insert_sql), insert_data)
         return input_text
 
     def has_similar_text(self, connection, file_name, text_minhash, total_count) -> bool:
         query_sql = self.sql_dict.get("query_sql")
         for i in range(0, total_count, self.page_size):
-            rows = connection.execute(text(query_sql, [self.task_uuid, self.page_size, i])).fetchall()
+            rows = connection.execute(
+                text(query_sql), {"task_uuid": self.task_uuid, "ge": self.page_size, "le": i}).fetchall()
             # 对应任务uuid，最后一页没有数据，跳出循环
             if not rows:
                 break

@@ -42,9 +42,25 @@ class TaskInfoPersistence:
         incremental = str(sample.get("incremental") if sample.get("incremental") else '')
         child_id = sample.get("childId")
         slice_num = sample.get('slice_num', 0)
-        insert_data = [flow_id, meta_file_name, meta_file_type, meta_file_id, meta_file_size, file_id, file_size,
-                       file_type, file_name, file_path, source_file_modify_time, status, operator_id, error_code,
-                       incremental, child_id, slice_num]
+        insert_data = {
+            "flow_id": flow_id,
+            "meta_file_id": meta_file_id,
+            "meta_file_type": meta_file_type,
+            "meta_file_name": meta_file_name,
+            "meta_file_size": meta_file_size,
+            "file_id": file_id,
+            "file_size": file_size,
+            "file_type": file_type,
+            "file_name": file_name,
+            "file_path": file_path,
+            "source_file_modify_time": source_file_modify_time,
+            "status": status,
+            "operator_id": operator_id,
+            "error_code": error_code,
+            "incremental": incremental,
+            "child_id": child_id,
+            "slice_num": slice_num,
+        }
         self.insert_clean_result(insert_data)
 
     def insert_clean_result(self, insert_data):
@@ -69,8 +85,7 @@ class TaskInfoPersistence:
         create_tables_sql = str(self.sql_dict.get("create_tables_sql"))
         with SQLManager.create_connect() as conn:
             conn.execute(text(create_tables_sql))
-            conn.execute(text(insert_sql, insert_data))
-            conn.commit()
+            conn.execute(text(insert_sql), insert_data)
 
 
     def query_task_info(self, flow_ids: list[str]):
@@ -91,7 +106,7 @@ class TaskInfoPersistence:
         query_sql = str(self.sql_dict.get("query_sql"))
         with SQLManager.create_connect() as conn:
             conn.execute(text(create_tables_sql))
-            execute_result = conn.execute(text(query_sql, [flow_id]))
+            execute_result = conn.execute(text(query_sql), {"flow_id": flow_id})
             result = execute_result.fetchall()
         return result
 
@@ -102,8 +117,7 @@ class TaskInfoPersistence:
         try:
             with SQLManager.create_connect() as conn:
                 conn.execute(text(create_tables_sql))
-                conn.execute(text(delete_task_instance_sql, [flow_id]))
-                conn.commit()
+                conn.execute(text(delete_task_instance_sql), {"flow_id": flow_id})
         except Exception as e:
             logger.warning(f"delete database for flow: {flow_id}", e)
 
@@ -117,11 +131,10 @@ class TaskInfoPersistence:
         try:
             with SQLManager.create_connect() as conn:
                 conn.execute(text(create_duplicate_img_tables_sql))
-                conn.execute(text(delete_duplicate_img_tables_sql, [flow_id]))
+                conn.execute(text(delete_duplicate_img_tables_sql), {"flow_id": flow_id})
                 conn.execute(text(create_similar_img_tables_sql))
-                conn.execute(text(delete_similar_img_tables_sql, [flow_id]))
+                conn.execute(text(delete_similar_img_tables_sql), {"flow_id": flow_id})
                 conn.execute(text(create_similar_text_tables_sql))
-                conn.execute(text(delete_similar_text_tables_sql, [flow_id]))
-                conn.commit()
+                conn.execute(text(delete_similar_text_tables_sql), {"flow_id": flow_id})
         except Exception as e:
             logger.warning(f"delete database for flow: {flow_id} error", e)
