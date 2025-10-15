@@ -1,27 +1,39 @@
 package com.dataengine.datamanagement.application.service;
 
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
-import com.dataengine.datamanagement.domain.model.dataset.StatusConstants;
+import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
 import com.dataengine.datamanagement.domain.model.dataset.Tag;
+import com.dataengine.datamanagement.infrastructure.client.CollectionTaskClient;
+import com.dataengine.datamanagement.infrastructure.client.dto.CollectionTaskDetailResponse;
+import com.dataengine.datamanagement.infrastructure.client.dto.LocalCollectionConfig;
 import com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetFileMapper;
 import com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetMapper;
 import com.dataengine.datamanagement.infrastructure.persistence.mapper.TagMapper;
+import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
 import com.dataengine.datamanagement.interfaces.dto.AllDatasetStatisticsResponse;
+import com.dataengine.datamanagement.interfaces.dto.CreateDatasetRequest;
+import com.dataengine.datamanagement.interfaces.dto.DatasetPagingQuery;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 数据集应用服务（对齐 DB schema，使用 UUID 字符串主键）
  */
+@Slf4j
 @Service
 @Transactional
 public class DatasetApplicationService {
@@ -29,46 +41,54 @@ public class DatasetApplicationService {
     private final DatasetMapper datasetMapper;
     private final TagMapper tagMapper;
     private final DatasetFileMapper datasetFileMapper;
+    private final CollectionTaskClient collectionTaskClient;
+    private final FileMetadataService fileMetadataService;
+    private final ObjectMapper objectMapper;
+
+    @Value("${dataset.base.path:/dataset}")
+    private String datasetBasePath;
 
     @Autowired
-    public DatasetApplicationService(DatasetMapper datasetMapper, TagMapper tagMapper, DatasetFileMapper datasetFileMapper) {
+    public DatasetApplicationService(DatasetMapper datasetMapper,
+                                     TagMapper tagMapper,
+                                     DatasetFileMapper datasetFileMapper,
+                                     CollectionTaskClient collectionTaskClient,
+                                     FileMetadataService fileMetadataService,
+                                     ObjectMapper objectMapper) {
         this.datasetMapper = datasetMapper;
         this.tagMapper = tagMapper;
         this.datasetFileMapper = datasetFileMapper;
+        this.collectionTaskClient = collectionTaskClient;
+        this.fileMetadataService = fileMetadataService;
+        this.objectMapper = objectMapper;
     }
 
     /**
      * 创建数据集
      */
-    public Dataset createDataset(String name, String description, String datasetType,
-                                 List<String> tagNames, Long dataSourceId,
-                                 String path, String format, String createdBy) {
-        if (datasetMapper.findByName(name) != null) {
-            throw new IllegalArgumentException("Dataset with name '" + name + "' already exists");
+    @Transactional
+    public Dataset createDataset(CreateDatasetRequest createDatasetRequest) {
+        if (datasetMapper.findByName(createDatasetRequest.getName()) != null) {
+            throw new IllegalArgumentException("Dataset with name '" + createDatasetRequest.getName() + "' already exists");
         }
 
-        Dataset dataset = new Dataset();
-        dataset.setId(UUID.randomUUID().toString());
-        dataset.setName(name);
-        dataset.setDescription(description);
-        dataset.setDatasetType(datasetType);
-        dataset.setDataSourceId(dataSourceId);
-        dataset.setPath(path);
-        dataset.setFormat(format);
-        dataset.setStatus(StatusConstants.DatasetStatuses.ACTIVE);
-        dataset.setCreatedBy(createdBy);
-        dataset.setUpdatedBy(createdBy);
-        dataset.setCreatedAt(LocalDateTime.now());
-        dataset.setUpdatedAt(LocalDateTime.now());
-        datasetMapper.insert(dataset); // 手动设定 UUID 主键
+        // 创建数据集对象
+        Dataset dataset = DatasetConverter.INSTANCE.convertToDataset(createDatasetRequest);
+        dataset.initCreateParam(datasetBasePath);
+        datasetMapper.insert(dataset);
 
         // 处理标签
         Set<Tag> processedTags = new HashSet<>();
-        if (tagNames != null && !tagNames.isEmpty()) {
-            processedTags = processTagNames(tagNames);
+        if (CollectionUtils.isNotEmpty(createDatasetRequest.getTags())) {
+            processedTags = processTagNames(createDatasetRequest.getTags());
             for (Tag t : processedTags) {
                 tagMapper.insertDatasetTag(dataset.getId(), t.getId());
             }
+        }
+
+        if (StringUtils.isNotBlank(createDatasetRequest.getDataSource())) {
+            // 数据源id不为空，使用异步线程进行文件扫盘落库
+            processDataSourceAsync(dataset.getId(), createDatasetRequest.getDataSource());
         }
 
         // 返回创建的数据集，包含标签信息
@@ -150,13 +170,13 @@ public class DatasetApplicationService {
      * 分页查询数据集
      */
     @Transactional(readOnly = true)
-    public Page<Dataset> getDatasets(String typeCode, String status, String keyword,
-                                   List<String> tagNames, Pageable pageable) {
-        RowBounds bounds = new RowBounds(pageable.getPageNumber() * pageable.getPageSize(), pageable.getPageSize());
-        List<Dataset> content = datasetMapper.findByCriteria(typeCode, status, keyword, tagNames, bounds);
+    public Page<Dataset> getDatasets(DatasetPagingQuery query) {
+        RowBounds bounds = new RowBounds(query.getPage() * query.getSize(), query.getSize());
+        List<Dataset> content = datasetMapper.findByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList(), bounds);
+        long total = datasetMapper.countByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList());
 
         // 为每个数据集填充标签信息
-        if (content != null && !content.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(content)) {
             for (Dataset dataset : content) {
                 List<Tag> tags = tagMapper.findByDatasetId(dataset.getId());
                 if (tags != null) {
@@ -164,9 +184,7 @@ public class DatasetApplicationService {
                 }
             }
         }
-
-        long total = datasetMapper.countByCriteria(typeCode, status, keyword, tagNames);
-        return new PageImpl<>(content, pageable, total);
+        return new PageImpl<>(content, PageRequest.of(query.getPage(), query.getSize()), total);
     }
 
     /**
@@ -247,5 +265,79 @@ public class DatasetApplicationService {
      */
     public AllDatasetStatisticsResponse getAllDatasetStatistics() {
         return datasetMapper.getAllDatasetStatistics();
+    }
+
+    /**
+     * 异步处理数据源文件扫描
+     * @param datasetId 数据集ID
+     * @param dataSourceId 数据源ID（归集任务ID）
+     */
+    @Async
+    public void processDataSourceAsync(String datasetId, String dataSourceId) {
+        try {
+            log.info("开始处理数据源文件扫描，数据集ID: {}, 数据源ID: {}", datasetId, dataSourceId);
+
+            // 1. 调用数据归集服务获取任务详情
+            CollectionTaskDetailResponse taskDetail = collectionTaskClient.getTaskDetail(dataSourceId);
+            if (taskDetail == null) {
+                log.error("获取归集任务详情失败，任务ID: {}", dataSourceId);
+                return;
+            }
+
+            log.info("获取到归集任务详情: {}", taskDetail.getName());
+
+            // 2. 解析任务配置
+            LocalCollectionConfig config = parseTaskConfig(taskDetail.getConfig());
+            if (config == null) {
+                log.error("解析任务配置失败，任务ID: {}", dataSourceId);
+                return;
+            }
+
+            // 3. 检查任务类型是否为 LOCAL_COLLECTION
+            if (!"LOCAL_COLLECTION".equalsIgnoreCase(config.getType())) {
+                log.info("任务类型不是 LOCAL_COLLECTION，跳过文件扫描。任务类型: {}", config.getType());
+                return;
+            }
+
+            // 4. 获取文件路径列表
+            List<String> filePaths = config.getFilePaths();
+            if (CollectionUtils.isEmpty(filePaths)) {
+                log.warn("文件路径列表为空，任务ID: {}", dataSourceId);
+                return;
+            }
+
+            log.info("开始扫描文件，共 {} 个文件路径", filePaths.size());
+
+            // 5. 扫描文件元数据
+            List<DatasetFile> datasetFiles = fileMetadataService.scanFiles(filePaths, datasetId);
+
+            // 6. 批量插入数据集文件表
+            if (CollectionUtils.isNotEmpty(datasetFiles)) {
+                for (DatasetFile datasetFile : datasetFiles) {
+                    datasetFileMapper.insert(datasetFile);
+                }
+                log.info("文件元数据写入完成，共写入 {} 条记录", datasetFiles.size());
+            } else {
+                log.warn("未扫描到有效文件");
+            }
+
+        } catch (Exception e) {
+            log.error("处理数据源文件扫描失败，数据集ID: {}, 数据源ID: {}", datasetId, dataSourceId, e);
+        }
+    }
+
+    /**
+     * 解析任务配置
+     */
+    private LocalCollectionConfig parseTaskConfig(Map<String, Object> configMap) {
+        try {
+            if (configMap == null || configMap.isEmpty()) {
+                return null;
+            }
+            return objectMapper.convertValue(configMap, LocalCollectionConfig.class);
+        } catch (Exception e) {
+            log.error("解析任务配置失败", e);
+            return null;
+        }
     }
 }

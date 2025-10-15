@@ -29,7 +29,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -49,13 +48,15 @@ public class CleaningTaskService {
 
     private final String FLOW_PATH = "/flow";
 
-    public List<CleaningTask> getTasks(String status) {
-        return cleaningTaskMapper.findTasksByStatus(status);
+    public List<CleaningTask> getTasks(String status, String keywords, Integer page, Integer size) {
+        Integer offset = page * size;
+        return cleaningTaskMapper.findTasksByStatus(status, keywords, size, offset);
     }
 
     @Transactional
     public CleaningTask createTask(CreateCleaningTaskRequest request) {
-        DatasetResponse datasetResponse = DatasetClient.createDataset(request.getDestDatasetName(), request.getDestDatasetType());
+        DatasetResponse datasetResponse = DatasetClient.createDataset(request.getDestDatasetName(),
+                request.getDestDatasetType());
 
         CleaningTask task = new CleaningTask();
         task.setName(request.getName());
@@ -64,6 +65,7 @@ public class CleaningTaskService {
         String taskId = UUID.randomUUID().toString();
         task.setId(taskId);
         task.setSrcDatasetId(request.getSrcDatasetId());
+        task.setSrcDatasetName(request.getSrcDatasetName());
         task.setDestDatasetId(datasetResponse.getId());
         task.setDestDatasetName(datasetResponse.getName());
         cleaningTaskMapper.insertTask(task);
@@ -72,7 +74,7 @@ public class CleaningTaskService {
                 .map(OperatorInstanceConverter.INSTANCE::operatorToDo).toList();
         operatorInstanceMapper.insertInstance(taskId, instancePos);
 
-        taskExecutor.submit(() -> executeTask(task, request, datasetResponse.getId()));
+        taskExecutor.submit(() -> executeTask(task, request));
         return task;
     }
 
@@ -85,7 +87,7 @@ public class CleaningTaskService {
         cleaningTaskMapper.deleteTask(taskId);
     }
 
-    private void executeTask(CleaningTask task, CreateCleaningTaskRequest request, String destDatasetId) {
+    private void executeTask(CleaningTask task, CreateCleaningTaskRequest request) {
         task.setStatus(CleaningTask.StatusEnum.RUNNING);
         cleaningTaskMapper.updateTaskStatus(task);
         prepareTask(task, request.getInstance());
@@ -96,7 +98,7 @@ public class CleaningTaskService {
     private void prepareTask(CleaningTask task, List<OperatorInstance> instances) {
         TaskProcess process = new TaskProcess();
         process.setInstanceId(task.getId());
-        process.setDatasetPath(DATASET_PATH + "/" + task.getSrcDatasetId());
+        process.setDatasetPath(FLOW_PATH + "/" + task.getId() + "/dataset.jsonl");
         process.setExportPath(DATASET_PATH + "/" + task.getDestDatasetId());
         process.setExecutorType(ExecutorType.DATA_PLATFORM.getValue());
         process.setProcess(instances.stream()
@@ -137,9 +139,7 @@ public class CleaningTaskService {
                             "fileSize", content.getSize() + "B",
                             "filePath", content.getFilePath(),
                             "fileType", content.getFileType(),
-                            "fileId", content.getId(),
-                            "sourceFileModifyTime",
-                            content.getLastAccessTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()))
+                            "fileId", content.getId()))
                     .toList();
             writeListMapToJsonlFile(files, FLOW_PATH + "/" + taskId + "/dataset.jsonl");
             pageNumber += 1;
