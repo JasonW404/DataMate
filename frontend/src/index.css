@@ -37,3 +37,9 @@
     transform: translateX(0);
   }
 }
+
+.show-task-popover {
+  opacity: 100%;
+  visibility: visible;
+  transform: translateX(0);
+}

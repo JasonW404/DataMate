@@ -25,7 +25,7 @@ const OperatorConfig: React.FC<OperatorConfigProps> = ({
   handleConfigChange,
 }) => {
   return (
-    <div className="w-1/4 flex flex-col h-screen">
+    <div className="w-1/4 min-w-3xs flex flex-col h-full">
       <div className="px-4 pb-4 border-b border-gray-200">
         <span className="font-semibold text-base flex items-center gap-2">
           <Settings />
@@ -69,7 +69,7 @@ const OperatorConfig: React.FC<OperatorConfigProps> = ({
           </div>
         ) : (
           <div className="text-center py-12 text-gray-400">
-            <Settings className="text-5xl mb-4 opacity-50" />
+            <Settings className="w-full w-10 h-10 mb-4 opacity-50" />
             <div>请选择一个算子进行参数配置</div>
           </div>
         )}

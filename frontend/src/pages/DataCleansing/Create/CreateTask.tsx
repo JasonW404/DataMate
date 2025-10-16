@@ -85,7 +85,7 @@ export default function CleansingTaskCreate() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -105,9 +105,9 @@ export default function CleansingTaskCreate() {
         </div>
       </div>
       {/* Step Content */}
-      <Card>
-        {renderStepContent()}
-        <div className="flex justify-end gap-3 mt-8">
+      <div className="h-full mb-4 flex flex-col overflow-auto flex-1 bg-white rounded shadow-sm">
+        <div className="flex-1 overflow-auto m-6">{renderStepContent()}</div>
+        <div className="flex justify-end p-6 gap-3 border-t border-gray-200">
           <Button onClick={() => navigate("/data/cleansing")}>取消</Button>
           {currentStep > 1 && <Button onClick={handlePrev}>上一步</Button>}
           {currentStep === 2 ? (
@@ -129,7 +129,7 @@ export default function CleansingTaskCreate() {
             </Button>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

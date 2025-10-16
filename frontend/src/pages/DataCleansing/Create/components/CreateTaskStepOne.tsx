@@ -71,14 +71,14 @@ export default function CreateTaskStepOne({
       initialValues={taskConfig}
       onValuesChange={handleValuesChange}
     >
-      <h2 className="font-medium text-gray-900 text-lg mb-2">任务信息</h2>
+      <h2 className="font-medium text-gray-900 text-base mb-2">任务信息</h2>
       <Form.Item label="任务名称" name="name" required>
         <Input placeholder="输入清洗任务名称" />
       </Form.Item>
       <Form.Item label="任务描述" name="description">
         <TextArea placeholder="描述清洗任务的目标和要求" rows={4} />
       </Form.Item>
-      <h2 className="font-medium text-gray-900 mt-4 mb-2 text-lg">
+      <h2 className="font-medium text-gray-900 pt-6 mb-2 text-base">
         数据源选择
       </h2>
       <Form.Item label="源数据集" name="srcDatasetId" required>

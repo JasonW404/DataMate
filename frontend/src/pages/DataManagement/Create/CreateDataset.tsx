@@ -214,7 +214,7 @@ export default function DatasetCreate() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="h-full flex flex-col flex-1">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
@@ -230,396 +230,399 @@ export default function DatasetCreate() {
       </div>
 
       {/* form */}
-      <Card className="overflow-y-auto p-2">
-        <Form
-          form={form}
-          initialValues={newDataset}
-          onValuesChange={handleValuesChange}
-          layout="vertical"
-        >
-          <h2 className="font-medium text-gray-900 text-base mb-2">基本信息</h2>
-          <Form.Item
-            label="数据集名称"
-            name="name"
-            rules={[{ required: true, message: "请输入数据集名称" }]}
+      <div className="h-full flex flex-col flex-1 overflow-auto bg-white border-gray-200 rounded shadow-sm">
+        <div className="flex-1 p-6 overflow-auto">
+          <Form
+            form={form}
+            initialValues={newDataset}
+            onValuesChange={handleValuesChange}
+            layout="vertical"
           >
-            <Input placeholder="输入数据集名称" />
-          </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input.TextArea placeholder="描述数据集的用途和内容" rows={3} />
-          </Form.Item>
-
-          {/* 数据集类型选择 - 使用卡片形式 */}
-          <Form.Item
-            label="数据集类型"
-            name="datasetType"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Radio.Group
-              buttonStyle="solid"
-              options={datasetTypes}
-              optionType="button"
-            />
-          </Form.Item>
-          <Form.Item
-            name="type"
-            rules={[{ required: true, message: "请选择使用场景" }]}
-          >
-            <RadioCard
-              options={
-                datasetTypes.find(
-                  (item) => item.value === newDataset.datasetType
-                )?.options ?? []
-              }
-              value={newDataset.type}
-              onChange={(type) => setNewDataset({ ...newDataset, type })}
-            />
-          </Form.Item>
-          <Form.Item name="tags" label="标签">
-            <Select className="w-full" mode="tags" options={tagOptions} />
-          </Form.Item>
-
-          {/* Import Configuration */}
-          <div className="space-y-4 pt-4">
-            <h2 className="font-medium text-gray-900 mt-4 text-base">
-              数据导入配置
+            <h2 className="font-medium text-gray-900 text-base mb-2">
+              基本信息
             </h2>
             <Form.Item
-              label="数据源"
-              name="source"
-              rules={[{ required: true, message: "请选择数据源" }]}
+              label="数据集名称"
+              name="name"
+              rules={[{ required: true, message: "请输入数据集名称" }]}
+            >
+              <Input placeholder="输入数据集名称" />
+            </Form.Item>
+            <Form.Item name="description" label="描述">
+              <Input.TextArea placeholder="描述数据集的用途和内容" rows={3} />
+            </Form.Item>
+
+            {/* 数据集类型选择 - 使用卡片形式 */}
+            <Form.Item
+              label="数据集类型"
+              name="datasetType"
+              rules={[
+                { required: true, message: "Please input your password!" },
+              ]}
             >
               <Radio.Group
                 buttonStyle="solid"
-                options={dataSourceOptions}
+                options={datasetTypes}
                 optionType="button"
-                value={importConfig.source}
-                onChange={handleDatasourceChange}
               />
             </Form.Item>
             <Form.Item
-              label="目标位置"
-              name="target"
-              rules={[{ required: true, message: "请选择目标位置" }]}
+              name="type"
+              rules={[{ required: true, message: "请选择使用场景" }]}
             >
-              <Select
-                className="w-full"
-                options={[
-                  { label: "本地文件夹", value: DataSource.UPLOAD },
-                  { label: "数据库", value: DataSource.DATABASE },
-                ]}
-                disabled
-                value={importConfig.target || DataSource.UPLOAD}
-                defaultValue={importConfig.target || DataSource.UPLOAD}
-                onChange={(value) =>
-                  setImportConfig({ ...importConfig, target: value })
+              <RadioCard
+                options={
+                  datasetTypes.find(
+                    (item) => item.value === newDataset.datasetType
+                  )?.options ?? []
                 }
-              ></Select>
+                value={newDataset.type}
+                onChange={(type) => setNewDataset({ ...newDataset, type })}
+              />
             </Form.Item>
-            {importConfig.source === DataSource.COLLECTION && (
+            <Form.Item name="tags" label="标签">
+              <Select className="w-full" mode="tags" options={tagOptions} />
+            </Form.Item>
+
+            {/* Import Configuration */}
+            <div className="space-y-4 pt-4">
+              <h2 className="font-medium text-gray-900 mt-4 text-base">
+                数据导入配置
+              </h2>
               <Form.Item
-                name={["config", "collectionId"]}
-                label="归集任务"
-                required
+                label="数据源"
+                name="source"
+                rules={[{ required: true, message: "请选择数据源" }]}
               >
-                <Select
-                  placeholder="请选择归集任务"
-                  options={collectionOptions}
-                  value={importConfig.sourceConfig.collectionName || ""}
-                  onChange={(value) =>
-                    setImportConfig({
-                      ...importConfig,
-                      sourceConfig: {
-                        ...importConfig.sourceConfig,
-                        collectionName: value,
-                      },
-                    })
-                  }
+                <Radio.Group
+                  buttonStyle="solid"
+                  options={dataSourceOptions}
+                  optionType="button"
+                  value={importConfig.source}
+                  onChange={handleDatasourceChange}
                 />
               </Form.Item>
-            )}
-
-            {/* nas import */}
-            {importConfig.source === DataSource.NAS && (
-              <div className="grid grid-cols-2 gap-3 p-4 bg-blue-50 rounded-lg">
-                <Form.Item
-                  name={["config", "nasPath"]}
-                  rules={[{ required: true }]}
-                  label="NAS地址"
-                >
-                  <Input
-                    placeholder="192.168.1.100"
-                    value={importConfig.sourceConfig.nasHost || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          nasHost: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={["config", "sharePath"]}
-                  rules={[{ required: true }]}
-                  label="共享路径"
-                >
-                  <Input
-                    placeholder="/share/data"
-                    value={importConfig.sourceConfig.sharePath || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          sharePath: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={["config", "sharePath"]}
-                  rules={[{ required: true }]}
-                  label="用户名"
-                >
-                  <Input
-                    placeholder="用户名"
-                    value={importConfig.sourceConfig.username || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          username: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={["config", "password"]}
-                  rules={[{ required: true }]}
-                  label="密码"
-                >
-                  <Input
-                    type="password"
-                    placeholder="密码"
-                    value={importConfig.sourceConfig.password || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          password: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-              </div>
-            )}
-            {/* obs import */}
-            {importConfig.source === DataSource.OBS && (
-              <div className="grid grid-cols-2 gap-3 p-4 bg-blue-50 rounded-lg">
-                <Form.Item
-                  name={["config", "endpoint"]}
-                  rules={[{ required: true }]}
-                  label="Endpoint"
-                >
-                  <Input
-                    className="h-8 text-xs"
-                    placeholder="obs.cn-north-4.myhuaweicloud.com"
-                    value={importConfig.sourceConfig.endpoint || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          endpoint: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={["config", "bucket"]}
-                  rules={[{ required: true }]}
-                  label="Bucket"
-                >
-                  <Input
-                    className="h-8 text-xs"
-                    placeholder="my-bucket"
-                    value={importConfig.sourceConfig.bucket || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          bucket: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={["config", "accessKey"]}
-                  rules={[{ required: true }]}
-                  label="Access Key"
-                >
-                  <Input
-                    className="h-8 text-xs"
-                    placeholder="Access Key"
-                    value={importConfig.sourceConfig.accessKey || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          accessKey: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={["config", "secretKey"]}
-                  rules={[{ required: true }]}
-                  label="Secret Key"
-                >
-                  <Input
-                    type="password"
-                    className="h-8 text-xs"
-                    placeholder="Secret Key"
-                    value={importConfig.sourceConfig.secretKey || ""}
-                    onChange={(e) =>
-                      setImportConfig({
-                        ...importConfig,
-                        sourceConfig: {
-                          ...importConfig.sourceConfig,
-                          secretKey: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Form.Item>
-              </div>
-            )}
-
-            {/* Local Upload Component */}
-            {importConfig.source === DataSource.UPLOAD && (
               <Form.Item
-                label="上传文件"
-                name="files"
-                rules={[
-                  {
-                    required: true,
-                    message: "请上传文件",
-                  },
-                  () => ({
-                    validator(_, value) {
-                      if (fileList.length > 0) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject();
-                    },
-                  }),
-                ]}
+                label="目标位置"
+                name="target"
+                rules={[{ required: true, message: "请选择目标位置" }]}
               >
-                {importFileRender()}
+                <Select
+                  className="w-full"
+                  options={[
+                    { label: "本地文件夹", value: DataSource.UPLOAD },
+                    { label: "数据库", value: DataSource.DATABASE },
+                  ]}
+                  disabled
+                  value={importConfig.target || DataSource.UPLOAD}
+                  defaultValue={importConfig.target || DataSource.UPLOAD}
+                  onChange={(value) =>
+                    setImportConfig({ ...importConfig, target: value })
+                  }
+                ></Select>
               </Form.Item>
-            )}
+              {importConfig.source === DataSource.COLLECTION && (
+                <Form.Item
+                  name={["config", "collectionId"]}
+                  label="归集任务"
+                  required
+                >
+                  <Select
+                    placeholder="请选择归集任务"
+                    options={collectionOptions}
+                    value={importConfig.sourceConfig.collectionName || ""}
+                    onChange={(value) =>
+                      setImportConfig({
+                        ...importConfig,
+                        sourceConfig: {
+                          ...importConfig.sourceConfig,
+                          collectionName: value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Item>
+              )}
 
-            {/* Target Configuration */}
-            {importConfig.target &&
-              importConfig.target !== DataSource.UPLOAD && (
-                <div className="space-y-3 p-4 bg-blue-50 rounded-lg">
-                  {importConfig.target === DataSource.DATABASE && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <Form.Item
-                        name={["config", "datasetType"]}
-                        rules={[{ required: true }]}
-                        label="数据库类型"
-                      >
-                        <Select
-                          className="w-full"
-                          value={importConfig.targetConfig.dbType || ""}
-                          options={[
-                            { label: "MySQL", value: "mysql" },
-                            { label: "PostgreSQL", value: "postgresql" },
-                            { label: "MongoDB", value: "mongodb" },
-                          ]}
-                          onChange={(value) =>
-                            setImportConfig({
-                              ...importConfig,
-                              targetConfig: {
-                                ...importConfig.targetConfig,
-                                dbType: value,
-                              },
-                            })
-                          }
-                        ></Select>
-                      </Form.Item>
-                      <Form.Item
-                        name={["config", "tableName"]}
-                        rules={[{ required: true }]}
-                        label="表名"
-                      >
-                        <Input
-                          className="h-8 text-xs"
-                          placeholder="dataset_table"
-                          value={importConfig.targetConfig.tableName || ""}
-                          onChange={(e) =>
-                            setImportConfig({
-                              ...importConfig,
-                              targetConfig: {
-                                ...importConfig.targetConfig,
-                                tableName: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        name={["config", "connectionString"]}
-                        rules={[{ required: true }]}
-                        label="连接字符串"
-                      >
-                        <Input
-                          className="h-8 text-xs col-span-2"
-                          placeholder="数据库连接字符串"
-                          value={
-                            importConfig.targetConfig.connectionString || ""
-                          }
-                          onChange={(e) =>
-                            setImportConfig({
-                              ...importConfig,
-                              targetConfig: {
-                                ...importConfig.targetConfig,
-                                connectionString: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </Form.Item>
-                    </div>
-                  )}
+              {/* nas import */}
+              {importConfig.source === DataSource.NAS && (
+                <div className="grid grid-cols-2 gap-3 p-4 bg-blue-50 rounded-lg">
+                  <Form.Item
+                    name={["config", "nasPath"]}
+                    rules={[{ required: true }]}
+                    label="NAS地址"
+                  >
+                    <Input
+                      placeholder="192.168.1.100"
+                      value={importConfig.sourceConfig.nasHost || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            nasHost: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={["config", "sharePath"]}
+                    rules={[{ required: true }]}
+                    label="共享路径"
+                  >
+                    <Input
+                      placeholder="/share/data"
+                      value={importConfig.sourceConfig.sharePath || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            sharePath: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={["config", "sharePath"]}
+                    rules={[{ required: true }]}
+                    label="用户名"
+                  >
+                    <Input
+                      placeholder="用户名"
+                      value={importConfig.sourceConfig.username || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            username: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={["config", "password"]}
+                    rules={[{ required: true }]}
+                    label="密码"
+                  >
+                    <Input
+                      type="password"
+                      placeholder="密码"
+                      value={importConfig.sourceConfig.password || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            password: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
                 </div>
               )}
-          </div>
-          <Divider />
-          <div className="flex gap-2 justify-end">
-            <Button onClick={() => navigate("/dataset-management")}>
-              取消
-            </Button>
-            <Button type="primary" onClick={handleSubmit}>
-              创建
-            </Button>
-          </div>
-        </Form>
-      </Card>
+              {/* obs import */}
+              {importConfig.source === DataSource.OBS && (
+                <div className="grid grid-cols-2 gap-3 p-4 bg-blue-50 rounded-lg">
+                  <Form.Item
+                    name={["config", "endpoint"]}
+                    rules={[{ required: true }]}
+                    label="Endpoint"
+                  >
+                    <Input
+                      className="h-8 text-xs"
+                      placeholder="obs.cn-north-4.myhuaweicloud.com"
+                      value={importConfig.sourceConfig.endpoint || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            endpoint: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={["config", "bucket"]}
+                    rules={[{ required: true }]}
+                    label="Bucket"
+                  >
+                    <Input
+                      className="h-8 text-xs"
+                      placeholder="my-bucket"
+                      value={importConfig.sourceConfig.bucket || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            bucket: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={["config", "accessKey"]}
+                    rules={[{ required: true }]}
+                    label="Access Key"
+                  >
+                    <Input
+                      className="h-8 text-xs"
+                      placeholder="Access Key"
+                      value={importConfig.sourceConfig.accessKey || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            accessKey: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={["config", "secretKey"]}
+                    rules={[{ required: true }]}
+                    label="Secret Key"
+                  >
+                    <Input
+                      type="password"
+                      className="h-8 text-xs"
+                      placeholder="Secret Key"
+                      value={importConfig.sourceConfig.secretKey || ""}
+                      onChange={(e) =>
+                        setImportConfig({
+                          ...importConfig,
+                          sourceConfig: {
+                            ...importConfig.sourceConfig,
+                            secretKey: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Form.Item>
+                </div>
+              )}
+
+              {/* Local Upload Component */}
+              {importConfig.source === DataSource.UPLOAD && (
+                <Form.Item
+                  label="上传文件"
+                  name="files"
+                  rules={[
+                    {
+                      required: true,
+                      message: "请上传文件",
+                    },
+                    () => ({
+                      validator(_, value) {
+                        if (fileList.length > 0) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject();
+                      },
+                    }),
+                  ]}
+                >
+                  {importFileRender()}
+                </Form.Item>
+              )}
+
+              {/* Target Configuration */}
+              {importConfig.target &&
+                importConfig.target !== DataSource.UPLOAD && (
+                  <div className="space-y-3 p-4 bg-blue-50 rounded-lg">
+                    {importConfig.target === DataSource.DATABASE && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <Form.Item
+                          name={["config", "datasetType"]}
+                          rules={[{ required: true }]}
+                          label="数据库类型"
+                        >
+                          <Select
+                            className="w-full"
+                            value={importConfig.targetConfig.dbType || ""}
+                            options={[
+                              { label: "MySQL", value: "mysql" },
+                              { label: "PostgreSQL", value: "postgresql" },
+                              { label: "MongoDB", value: "mongodb" },
+                            ]}
+                            onChange={(value) =>
+                              setImportConfig({
+                                ...importConfig,
+                                targetConfig: {
+                                  ...importConfig.targetConfig,
+                                  dbType: value,
+                                },
+                              })
+                            }
+                          ></Select>
+                        </Form.Item>
+                        <Form.Item
+                          name={["config", "tableName"]}
+                          rules={[{ required: true }]}
+                          label="表名"
+                        >
+                          <Input
+                            className="h-8 text-xs"
+                            placeholder="dataset_table"
+                            value={importConfig.targetConfig.tableName || ""}
+                            onChange={(e) =>
+                              setImportConfig({
+                                ...importConfig,
+                                targetConfig: {
+                                  ...importConfig.targetConfig,
+                                  tableName: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          name={["config", "connectionString"]}
+                          rules={[{ required: true }]}
+                          label="连接字符串"
+                        >
+                          <Input
+                            className="h-8 text-xs col-span-2"
+                            placeholder="数据库连接字符串"
+                            value={
+                              importConfig.targetConfig.connectionString || ""
+                            }
+                            onChange={(e) =>
+                              setImportConfig({
+                                ...importConfig,
+                                targetConfig: {
+                                  ...importConfig.targetConfig,
+                                  connectionString: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </Form.Item>
+                      </div>
+                    )}
+                  </div>
+                )}
+            </div>
+          </Form>
+        </div>
+        <div className="flex gap-2 justify-end p-6 border-t border-gray-200">
+          <Button onClick={() => navigate("/dataset-management")}>取消</Button>
+          <Button type="primary" onClick={handleSubmit}>
+            创建
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

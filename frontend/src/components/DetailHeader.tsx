@@ -71,8 +71,8 @@ function DetailHeader<T>({
               </div>
             )}
             <div className="flex items-center gap-6 text-sm">
-              {statistics.map((stat, idx) => (
-                <div key={idx} className="flex items-center gap-1">
+              {statistics.map((stat) => (
+                <div key={stat.label} className="flex items-center gap-1">
                   {stat.icon}
                   <span>
                     {stat.value} {stat.label}
@@ -100,7 +100,7 @@ function DetailHeader<T>({
               );
             }
             return (
-              <Tooltip title={op.label}>
+              <Tooltip key={op.key} title={op.label}>
                 <Button
                   key={op.key}
                   onClick={op.onClick}
@@ -114,14 +114,6 @@ function DetailHeader<T>({
               </Tooltip>
             );
           })}
-          {/* <Dropdown trigger={['click']} menu={{
-                        items: operations as ItemType[], onClick: ({ key }) => {
-                            const operation = operations.find(op => op.key === key);
-                            if (operation?.onClick) {
-                                operation.onClick(item);
-                            }
-                        }
-                    }}><div className="cursor-pointer"><Ellipsis /></div></Dropdown> */}
         </div>
       </div>
     </Card>

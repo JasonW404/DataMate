@@ -148,7 +148,7 @@ const OperatorLibrary: React.FC<OperatorLibraryProps> = ({
   };
 
   return (
-    <div className="w-1/4 h-screen flex flex-col">
+    <div className="w-1/4 h-full min-w-3xs flex flex-col">
       <div className="pb-4 border-b border-gray-200">
         <span className="flex items-center font-semibold text-base">
           <Layers className="w-4 h-4 mr-2" />
@@ -157,7 +157,7 @@ const OperatorLibrary: React.FC<OperatorLibraryProps> = ({
       </div>
       <div className="flex flex-col h-full pt-4 pr-4 overflow-hidden">
         {/* 过滤器 */}
-        <div className="flex gap-2 border-b border-gray-100 pb-4">
+        <div className="flex flex-wrap gap-2 border-b border-gray-100 pb-4">
           <Input
             prefix={<SearchOutlined />}
             placeholder="搜索算子..."

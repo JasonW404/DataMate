@@ -240,7 +240,7 @@ export default function DatasetManagementPage() {
         dataSource={tableData}
         pagination={pagination}
         rowKey="id"
-        scroll={{ x: "max-content", y: "calc(100vh - 34rem)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 30rem)" }}
       />
     </Card>
   );

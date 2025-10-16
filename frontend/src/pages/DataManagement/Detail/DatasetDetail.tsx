@@ -78,25 +78,31 @@ export default function DatasetDetail() {
   // 基本信息描述项
   const statistics = [
     {
-      icon: <File className="text-blue-500 w-4 h-4" />,
+      icon: <File className="text-blue-400 w-4 h-4" />,
       label: "",
+      key: "file",
       value: dataset?.itemCount || 0,
     },
     {
-      icon: <Activity className="text-purple-500 w-4 h-4" />,
+      icon: <Activity className="text-blue-400 w-4 h-4" />,
       label: "",
+      key: "size",
       value: dataset?.size || "0 B",
     },
     {
-      icon: <FileType className="text-green-500 w-4 h-4" />,
+      icon: <FileType className="text-blue-400 w-4 h-4" />,
       label: "",
+      key: "type",
       value:
-        datasetSubTypeMap[dataset?.type?.code as keyof typeof datasetSubTypeMap]
-          ?.label || dataset?.type?.code,
+        datasetSubTypeMap[dataset?.type as keyof typeof datasetSubTypeMap]
+          ?.label ||
+        dataset?.type ||
+        "未知",
     },
     {
-      icon: <Clock className="text-orange-500 w-4 h-4" />,
+      icon: <Clock className="text-blue-400 w-4 h-4" />,
       label: "",
+      key: "time",
       value: dataset?.createdAt,
     },
   ];
