@@ -79,7 +79,7 @@ data-engine-platform/
 │   ├── datax/                         # datax扩展
 │   ├── labelstudio/                         # labelstudio扩展
 │   ├── datajuicer/                         # datajuicer扩展
-│   └── operators/                     # 算子仓库 (规范、模板、示例)
+│   └── ops/                     # 算子仓库 (规范、模板、示例)
 │       ├── README.md
 │       │── filter/
 │       │── formatter/
