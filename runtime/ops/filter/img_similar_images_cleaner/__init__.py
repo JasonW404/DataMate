@@ -5,5 +5,5 @@
 
 from data_platform.core.base_op import OPERATORS
 
-OPERATORS.register_module(module_name='FileWithHighRepeatPhraseRateFilter',
-                          module_path="ops.filters.file_with_high_repeat_phrase_rate_filter.process")
+OPERATORS.register_module(module_name='ImgSimilarImagesCleaner',
+                          module_path="ops.filter.img_similar_images_cleaner.process")

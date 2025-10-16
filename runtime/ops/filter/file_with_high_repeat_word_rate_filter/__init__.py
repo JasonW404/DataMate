@@ -3,8 +3,7 @@
 #  This file is a part of the ModelEngine Project.
 #  Licensed under the MIT License. See License.txt in the project root for license information.
 
-
 from data_platform.core.base_op import OPERATORS
 
-OPERATORS.register_module(module_name='FileWithManySensitiveWordsFilter',
-                          module_path="ops.filters.remove_file_with_many_sensitive_words.process")
+OPERATORS.register_module(module_name='FileWithHighRepeatWordRateFilter',
+                          module_path="ops.filter.file_with_high_repeat_word_rate_filter.process")

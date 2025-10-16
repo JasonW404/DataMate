@@ -3,8 +3,7 @@
 #  This file is a part of the ModelEngine Project.
 #  Licensed under the MIT License. See License.txt in the project root for license information.
 
-
 from data_platform.core.base_op import OPERATORS
 
-OPERATORS.register_module(module_name='FileWithHighSpecialCharRateFilter',
-                          module_path="ops.filters.file_with_high_special_char_rate_filter.process")
+OPERATORS.register_module(module_name='FileWithHighRepeatPhraseRateFilter',
+                          module_path="ops.filter.file_with_high_repeat_phrase_rate_filter.process")

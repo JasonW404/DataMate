@@ -5,5 +5,5 @@
 
 from data_platform.core.base_op import OPERATORS
 
-OPERATORS.register_module(module_name='FileWithHighRepeatWordRateFilter',
-                          module_path="ops.filters.file_with_high_repeat_word_rate_filter.process")
+OPERATORS.register_module(module_name='DuplicateFilesFilter',
+                          module_path="ops.filter.remove_duplicate_file.process")

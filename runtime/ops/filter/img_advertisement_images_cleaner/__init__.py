@@ -3,8 +3,7 @@
 #  This file is a part of the ModelEngine Project.
 #  Licensed under the MIT License. See License.txt in the project root for license information.
 
-
 from data_platform.core.base_op import OPERATORS
 
-OPERATORS.register_module(module_name='ImgBlurredImagesCleaner',
-                          module_path="ops.filters.img_blurred_images_cleaner.process")
+OPERATORS.register_module(module_name='ImgAdvertisementImagesCleaner',
+                          module_path="ops.filter.img_advertisement_images_cleaner.process")
