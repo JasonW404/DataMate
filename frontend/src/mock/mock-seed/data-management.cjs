@@ -426,4 +426,19 @@ module.exports = function (router) {
       data: newTag,
     });
   });
+
+  router.post(API.preUploadFileUsingPost, (req, res) => {
+    res.status(201).send(Mock.Random.guid());
+  });
+
+  // 上传
+  router.post(API.uploadFileChunkUsingPost, (req, res) => {
+    res.status(500).send({ message: "Simulated upload failure" });
+    // res.status(201).send({ data: "success" });
+  });
+
+  // 取消上传
+  router.put(API.cancelUploadUsingPut, (req, res) => {
+    res.status(201).send({ data: "success" });
+  });
 };

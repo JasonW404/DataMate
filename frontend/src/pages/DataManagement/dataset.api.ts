@@ -1,4 +1,4 @@
-import { get, post, put, del, download } from "@/utils/request";
+import { get, post, put, del, download, upload } from "@/utils/request";
 
 // 数据集统计接口
 export function getDatasetStatisticsUsingGet() {
@@ -104,7 +104,7 @@ export function updateDatasetTagByIdUsingPut(id: string | number, data: any) {
 // 删除数据集标签
 export function deleteDatasetTagByIdUsingDelete(tag) {
   console.log(tag);
-  
+
   return del(`/api/data-management/tags/${tag.id}`);
 }
 
@@ -167,4 +167,35 @@ export function deleteDatasetVersionUsingDelete(
   versionId: string | number
 ) {
   return del(`/api/data-management/datasets/${id}/versions/${versionId}`);
+}
+
+/**
+ * 文件上传相关接口
+ */
+
+export function preUploadUsingPost(id: string | number, data: any) {
+  console.log('pre upload');
+  
+  return post(`/api/data-management/datasets/${id}/upload/pre-upload`, data);
+}
+
+export function cancelUploadUsingPut(id) {
+  return put(
+    `/api/data-management/datasets/upload/cancel-upload/${id}`,
+    {},
+    { showLoading: false }
+  );
+}
+
+export function uploadFileChunkUsingPost(id: string | number, params, config) {
+  console.log('upload chunk');
+  return upload(`/api/data-management/datasets/${id}/upload/chunk`, params, {
+    headers: {
+      accept: "*/*",
+      "Content-Type": "multipart/form-data;charset=UTF-8",
+    },
+    showLoading: false,
+    isUploading: true,
+    ...config,
+  });
 }

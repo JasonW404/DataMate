@@ -1,3 +1,4 @@
+import { message } from "antd";
 import Loading from "./loading";
 
 /**
@@ -78,6 +79,92 @@ class Request {
   }
 
   /**
+   * 创建支持进度监听的XMLHttpRequest
+   */
+  createXHRWithProgress(url, config, onUploadProgress, onDownloadProgress) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // 配置请求
+      xhr.open(config.method || "GET", url, true);
+
+      // 设置请求头
+      if (config.headers) {
+        Object.keys(config.headers).forEach((key) => {
+          xhr.setRequestHeader(key, config.headers[key]);
+        });
+      }
+
+      // 设置响应类型
+      if (config.responseType) {
+        xhr.responseType = config.responseType;
+      }
+
+      // 上传进度监听
+      if (onUploadProgress && xhr.upload) {
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            onUploadProgress(event);
+          }
+        });
+      }
+
+      // 下载进度监听
+      if (onDownloadProgress) {
+        xhr.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            onDownloadProgress(event);
+          }
+        });
+      }
+
+      // 请求完成处理
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          let response;
+          try {
+            // 尝试解析JSON
+            const contentType = xhr.getResponseHeader("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              response = JSON.parse(xhr.responseText);
+            } else {
+              response = xhr.responseText;
+            }
+          } catch (e) {
+            response = xhr.responseText;
+          }
+
+          resolve({
+            data: response,
+            status: xhr.status,
+            statusText: xhr.statusText,
+            headers: xhr.getAllResponseHeaders(),
+            xhr: xhr,
+          });
+        } else {
+          reject(new Error(`HTTP error! status: ${xhr.status}`));
+        }
+      });
+
+      // 错误处理
+      xhr.addEventListener("error", () => {
+        reject(new Error("Network error"));
+      });
+
+      // 超时处理
+      if (config.timeout) {
+        xhr.timeout = config.timeout;
+        xhr.addEventListener("timeout", () => {
+          reject(new Error("Request timeout"));
+        });
+      }
+
+      // 发送请求
+      xhr.send(config.body || null);
+    });
+  }
+
+  /**
    * 构建完整URL
    */
   buildURL(url, params) {
@@ -103,7 +190,7 @@ class Request {
     if (config.showLoading) {
       this.count--;
     }
-
+    
     // 执行响应拦截器
     const processedResponse = await this.executeResponseInterceptors(
       response,
@@ -120,6 +207,7 @@ class Request {
       try {
         const errorData = await processedResponse.json();
         error.data = errorData;
+        message.error(`请求失败，错误信息: ${processedResponse.statusText}`);
       } catch {
         // 忽略JSON解析错误
       }
@@ -137,6 +225,36 @@ class Request {
   }
 
   /**
+   * 处理XHR响应
+   */
+  async handleXHRResponse(xhrResponse, config) {
+    // 模拟fetch响应格式用于拦截器
+    const mockResponse = {
+      ok: xhrResponse.status >= 200 && xhrResponse.status < 300,
+      status: xhrResponse.status,
+      statusText: xhrResponse.statusText,
+      headers: {
+        get: (key) => xhrResponse.xhr.getResponseHeader(key),
+      },
+    };
+    console.log(xhrResponse);
+    
+    // 执行响应拦截器
+    await this.executeResponseInterceptors(mockResponse, config);
+
+    if (!mockResponse.ok) {
+      const error = new Error(`HTTP error! status: ${xhrResponse.status}`);
+      error.status = xhrResponse.status;
+      error.statusText = xhrResponse.statusText;
+      error.data = xhrResponse.data;
+      message.error(`请求失败，错误信息: ${xhrResponse.statusText}`);
+      throw error;
+    }
+
+    return xhrResponse.data;
+  }
+
+  /**
    * 通用请求方法
    */
   async request(url, config) {
@@ -145,29 +263,29 @@ class Request {
       this.count++;
     }
 
-    try {
-      // 执行请求拦截器
-      const processedConfig = await this.executeRequestInterceptors(config);
+    // 执行请求拦截器
+    const processedConfig = await this.executeRequestInterceptors(config);
 
-      // 发送请求
-      const response = await fetch(url, processedConfig);
-
-      // 处理响应
-      return await this.handleResponse(response, processedConfig);
-    } catch (error) {
-      // 确保在出错时隐藏loading
-      if (config.showLoading) {
-        this.count--;
-      }
-      throw error;
+    // 如果需要进度监听，使用XMLHttpRequest
+    if (config.onUploadProgress || config.onDownloadProgress) {
+      const xhrResponse = await this.createXHRWithProgress(
+        url,
+        processedConfig,
+        config.onUploadProgress,
+        config.onDownloadProgress
+      );
+      return await this.handleXHRResponse(xhrResponse, processedConfig);
     }
+    // 否则使用fetch
+    const response = await fetch(url, processedConfig);
+    return await this.handleResponse(response, processedConfig);
   }
 
   /**
    * GET请求
    * @param {string} url - 请求URL
    * @param {object} params - 查询参数
-   * @param {object} options - 额外的fetch选项，包括showLoading
+   * @param {object} options - 额外的fetch选项，包括showLoading, onDownloadProgress
    */
   async get(url, params = null, options = {}) {
     const fullURL = this.buildURL(url, params);
@@ -181,14 +299,14 @@ class Request {
       ...options,
     };
 
-    return this.request(fullURL, { ...config, ...options });
+    return this.request(fullURL, config);
   }
 
   /**
    * POST请求
    * @param {string} url - 请求URL
    * @param {object} data - 请求体数据
-   * @param {object} options - 额外的fetch选项，包括showLoading
+   * @param {object} options - 额外的fetch选项，包括showLoading, onUploadProgress, onDownloadProgress
    */
   async post(url, data = {}, options = {}) {
     let config = {
@@ -206,21 +324,21 @@ class Request {
       config = {
         method: "POST",
         headers: {
-          ...options.headers,
+          ...options.headers, // FormData不需要Content-Type
         },
         body: data,
         ...options,
       };
     }
 
-    return this.request(this.baseURL + url, { ...config, ...options });
+    return this.request(this.baseURL + url, config);
   }
 
   /**
    * PUT请求
    * @param {string} url - 请求URL
    * @param {object} data - 请求体数据
-   * @param {object} options - 额外的fetch选项，包括showLoading
+   * @param {object} options - 额外的fetch选项，包括showLoading, onUploadProgress, onDownloadProgress
    */
   async put(url, data = null, options = {}) {
     const config = {
@@ -233,7 +351,7 @@ class Request {
       ...options,
     };
 
-    return this.request(this.baseURL + url, { ...config, ...options });
+    return this.request(this.baseURL + url, config);
   }
 
   /**
@@ -279,7 +397,7 @@ class Request {
       fullURL = this.buildURL(url, { id: params });
     }
 
-    return this.request(fullURL, { ...config, ...options });
+    return this.request(fullURL, config);
   }
 
   /**
@@ -287,50 +405,60 @@ class Request {
    * @param {string} url - 请求URL
    * @param {object} params - 查询参数
    * @param {string} filename - 下载文件名
-   * @param {object} options - 额外的fetch选项，包括showLoading
+   * @param {object} options - 额外的fetch选项，包括showLoading, onDownloadProgress
    */
   async download(url, params = null, filename = "download", options = {}) {
     const fullURL = this.buildURL(url, params);
 
     const config = {
       method: "GET",
+      responseType: "blob",
       ...options,
     };
 
     // 执行请求拦截器
     const processedConfig = await this.executeRequestInterceptors(config);
 
-    const response = await fetch(fullURL, processedConfig);
+    let blob;
 
-    // 执行响应拦截器
-    const processedResponse = await this.executeResponseInterceptors(
-      response,
-      processedConfig
-    );
+    // 如果需要下载进度监听，使用XMLHttpRequest
+    if (config.onDownloadProgress) {
+      const xhrResponse = await this.createXHRWithProgress(
+        fullURL,
+        { ...processedConfig, responseType: "blob" },
+        null,
+        config.onDownloadProgress
+      );
 
-    if (!processedResponse.ok) {
-      throw new Error(`HTTP error! status: ${processedResponse.status}`);
+      if (xhrResponse.status < 200 || xhrResponse.status >= 300) {
+        throw new Error(`HTTP error! status: ${xhrResponse.status}`);
+      }
+
+      blob = xhrResponse.xhr.response;
+    } else {
+      // 使用fetch
+      const response = await fetch(fullURL, processedConfig);
+
+      // 执行响应拦截器
+      const processedResponse = await this.executeResponseInterceptors(
+        response,
+        processedConfig
+      );
+
+      if (!processedResponse.ok) {
+        throw new Error(`HTTP error! status: ${processedResponse.status}`);
+      }
+
+      blob = await processedResponse.blob();
     }
-
-    const blob = await processedResponse.blob();
 
     // 创建下载链接
     const downloadUrl = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = downloadUrl;
-
-    // 尝试从响应头获取文件名
-    const disposition = processedResponse.headers.get("Content-Disposition");
-    if (disposition && disposition.includes("filename=")) {
-      const filenameMatch = disposition.match(
-        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-      );
-      if (filenameMatch) {
-        filename = filenameMatch[1].replace(/['"]/g, "");
-      }
-    }
-
     link.download = filename;
+
+    // 添加到DOM并触发下载
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -340,13 +468,35 @@ class Request {
 
     return blob;
   }
+
+  /**
+   * 上传文件（专门的上传方法）
+   * @param {string} url - 上传URL
+   * @param {FormData|File} data - 文件数据
+   * @param {object} options - 选项，包括onUploadProgress回调
+   */
+  async upload(url, data, options = {}) {
+    let formData = data;
+
+    // 如果传入的是File对象，包装成FormData
+    if (data instanceof File) {
+      formData = new FormData();
+      formData.append("file", data);
+    }
+
+    return this.post(url, formData, {
+      ...options,
+      showLoading: options.showLoading !== false, // 上传默认显示loading
+      onUploadProgress: options.onUploadProgress, // 上传进度回调
+    });
+  }
 }
 
 // 创建默认实例
 const request = new Request();
 
 // 添加默认请求拦截器 - Token处理
-request.addRequestInterceptor((config, options) => {
+request.addRequestInterceptor((config) => {
   const token =
     localStorage.getItem("token") || sessionStorage.getItem("token");
   if (token) {
@@ -371,6 +521,7 @@ export const post = request.post.bind(request);
 export const put = request.put.bind(request);
 export const del = request.delete.bind(request);
 export const download = request.download.bind(request);
+export const upload = request.upload.bind(request);
 
 // 导出类，允许创建自定义实例
 export { Request };

@@ -31,6 +31,10 @@ const MockAPI = {
   updateTagUsingPost: "/data-management/tags", // 更新数据集标签
   deleteTagUsingPost: "/data-management/tags", // 删除数据集标签
   queryDatasetStatisticsUsingGet: "/data-management/datasets/statistics", // 获取数据集统计信息
+  preUploadFileUsingPost:
+    "/data-management/datasets/:id/upload/pre-upload", // 预上传文件
+  cancelUploadUsingPut: "/data-management/datasets/upload/cancel-upload/:id", // 取消上传
+  uploadFileChunkUsingPost: "/data-management/datasets/:id/upload/chunk", // 上传切片
 
   // 数据清洗接口
   queryCleaningTasksUsingGet: "/cleaning/tasks", // 获取清洗任务列表
