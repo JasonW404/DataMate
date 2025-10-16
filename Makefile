@@ -13,14 +13,12 @@ build: backend-docker-build frontend-docker-build runtime-docker-build
 install-%:
 	@echo "Choose a deployment method:"
 	@echo "1. Docker"
-	@echo "2. Kubernetes"
-	@echo "3. Helm"
+	@echo "2. Kubernetes/Helm"
 	@echo -n "Enter choice: "
 	@read choice; \
 	case $$choice in \
 		1) INSTALLER=docker ;; \
 		2) INSTALLER=k8s ;; \
-		3) INSTALLER=helm ;; \
 		*) echo "Invalid choice" && exit 1 ;; \
 	esac; \
 	$(MAKE) $*-$$INSTALLER-install
@@ -32,14 +30,12 @@ install: install-data-platform
 uninstall-%:
 	@echo "Choose a deployment method:"
 	@echo "1. Docker"
-	@echo "2. Kubernetes"
-	@echo "3. Helm"
+	@echo "2. Kubernetes/Helm"
 	@echo -n "Enter choice: "
 	@read choice; \
 	case $$choice in \
 		1) INSTALLER=docker ;; \
 		2) INSTALLER=k8s ;; \
-		3) INSTALLER=helm ;; \
 		*) echo "Invalid choice" && exit 1 ;; \
 	esac; \
     $(MAKE) $*-$$INSTALLER-uninstall
@@ -92,13 +88,25 @@ frontend-docker-install:
 frontend-docker-uninstall:
 	cd deployment/docker/data-platform && docker-compose down frontend
 
-.PHONY: runtime-helm-install
-runtime-helm-install:
-	helm repo add kuberay https://ray-project.github.io/kuberay-helm/
-	helm repo update
-	helm upgrade kuberay-operator kuberay/kuberay-operator --version 1.4.0 --install
+.PHONY: runtime-docker-install
+runtime-docker-install:
+	cd deployment/docker/data-platform && docker-compose up -d runtime
+
+.PHONY: runtime-docker-uninstall
+runtime-docker-uninstall:
+	cd deployment/docker/data-platform && docker-compose down runtime
+
+.PHONY: runtime-k8s-install
+runtime-k8s-install:
+	helm upgrade kuberay-operator deployment/helm/ray/kuberay-operator --install
 	helm upgrade raycluster deployment/helm/ray/ray-cluster/ --install
 	kubectl apply -f deployment/helm/ray/service.yaml
+
+.PHONY: runtime-k8s-uninstall
+runtime-k8s-uninstall:
+	helm uninstall raycluster
+	helm uninstall kuberay-operator
+	kubectl delete -f deployment/helm/ray/service.yaml
 
 .PHONY: unstructured-k8s-install
 unstructured-k8s-install:
@@ -106,8 +114,7 @@ unstructured-k8s-install:
 
 .PHONY: mysql-k8s-install
 mysql-k8s-install:
-	kubectl create configmap init-sql --from-file=scripts/db/ --dry-run=client -o yaml > deployment/kubernetes/mysql/init-sql.yaml
-	kubectl apply -f deployment/kubernetes/mysql/init-sql.yaml
+	kubectl create configmap init-sql --from-file=scripts/db/ --dry-run=client -o yaml | kubectl apply -f -
 	kubectl apply -f deployment/kubernetes/mysql/deploy.yaml
 
 .PHONY: mysql-k8s-uninstall
@@ -140,7 +147,7 @@ data-platform-docker-uninstall:
 	cd deployment/docker/data-platform && docker-compose down
 
 .PHONY: data-platform-k8s-install
-data-platform-k8s-install: mysql-k8s-install backend-k8s-install frontend-k8s-install runtime-helm-install
+data-platform-k8s-install: mysql-k8s-install backend-k8s-install frontend-k8s-install runtime-k8s-install
 
 .PHONY: data-platform-k8s-uninstall
-data-platform-k8s-uninstall: mysql-k8s-uninstall backend-k8s-uninstall frontend-k8s-uninstall
+data-platform-k8s-uninstall: mysql-k8s-uninstall backend-k8s-uninstall frontend-k8s-uninstall runtime-k8s-uninstall
