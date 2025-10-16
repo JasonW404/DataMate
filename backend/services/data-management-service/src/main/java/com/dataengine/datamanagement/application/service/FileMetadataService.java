@@ -22,71 +22,99 @@ public class FileMetadataService {
 
     /**
      * 扫描文件路径列表，提取文件元数据
-     * @param filePaths 文件路径列表
      * @param datasetId 数据集ID
      * @return 数据集文件列表
      */
     public List<DatasetFile> scanFiles(List<String> filePaths, String datasetId) {
         List<DatasetFile> datasetFiles = new ArrayList<>();
-        
+
         if (filePaths == null || filePaths.isEmpty()) {
             log.warn("文件路径列表为空，跳过扫描");
             return datasetFiles;
         }
-        
+
         for (String filePath : filePaths) {
             try {
-                DatasetFile datasetFile = extractFileMetadata(filePath, datasetId);
+                Path path = Paths.get(filePath);
+
+                if (!Files.exists(path)) {
+                    log.warn("路径不存在: {}", filePath);
+                    continue;
+                }
+
+                if (Files.isDirectory(path)) {
+                    scanDirectory(datasetId, filePath, path, datasetFiles);
+                } else {
+                    // 如果是文件，直接处理
+                    DatasetFile datasetFile = extractFileMetadata(filePath, datasetId);
+                    if (datasetFile != null) {
+                        datasetFiles.add(datasetFile);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("扫描路径失败: {}, 错误: {}", filePath, e.getMessage(), e);
+            }
+        }
+
+        log.info("文件扫描完成，共扫描 {} 个文件", datasetFiles.size());
+        return datasetFiles;
+    }
+
+    private void scanDirectory(String datasetId, String filePath, Path path, List<DatasetFile> datasetFiles) throws IOException {
+        // 如果是目录，扫描该目录下的所有文件（非递归）
+        List<Path> filesInDir = Files.list(path)
+                .filter(Files::isRegularFile)
+                .toList();
+
+        for (Path file : filesInDir) {
+            try {
+                DatasetFile datasetFile = extractFileMetadata(file.toString(), datasetId);
                 if (datasetFile != null) {
                     datasetFiles.add(datasetFile);
                 }
             } catch (Exception e) {
-                log.error("扫描文件失败: {}, 错误: {}", filePath, e.getMessage(), e);
+                log.error("处理目录中的文件失败: {}, 错误: {}", file, e.getMessage(), e);
             }
         }
-        
-        log.info("文件扫描完成，共扫描 {} 个文件", datasetFiles.size());
-        return datasetFiles;
+        log.info("已扫描目录 {} 下的 {} 个文件", filePath, filesInDir.size());
     }
-    
+
     /**
-     * 提取单个文件的元数据
      * @param filePath 文件路径
      * @param datasetId 数据集ID
      * @return 数据集文件对象
      */
     private DatasetFile extractFileMetadata(String filePath, String datasetId) throws IOException {
         Path path = Paths.get(filePath);
-        
+
         if (!Files.exists(path)) {
             log.warn("文件不存在: {}", filePath);
             return null;
         }
-        
+
         if (!Files.isRegularFile(path)) {
             log.warn("路径不是文件: {}", filePath);
             return null;
         }
-        
+
         String fileName = path.getFileName().toString();
         long fileSize = Files.size(path);
-        String fileFormat = getFileExtension(fileName);
-        String fileType = determineFileType(fileFormat);
-        
+        String fileType = getFileExtension(fileName);
+
         return DatasetFile.builder()
                 .id(UUID.randomUUID().toString())
                 .datasetId(datasetId)
                 .fileName(fileName)
                 .filePath(filePath)
                 .fileSize(fileSize)
-                .fileFormat(fileFormat)
+                .fileFormat(fileType)
                 .fileType(fileType)
                 .uploadTime(LocalDateTime.now())
                 .lastAccessTime(LocalDateTime.now())
                 .status("UPLOADED")
                 .build();
     }
-    
+
     /**
      * 获取文件扩展名
      */
@@ -96,41 +124,5 @@ public class FileMetadataService {
             return fileName.substring(lastDotIndex + 1).toLowerCase();
         }
         return "unknown";
-    }
-    
-    /**
-     * 根据文件扩展名判断文件类型
-     */
-    private String determineFileType(String fileFormat) {
-        if (fileFormat == null) {
-            return "UNKNOWN";
-        }
-        
-        // 图片类型
-        if (fileFormat.matches("jpg|jpeg|png|gif|bmp|webp|svg|tiff|ico")) {
-            return "IMAGE";
-        }
-        
-        // 视频类型
-        if (fileFormat.matches("mp4|avi|mov|wmv|flv|mkv|webm|m4v")) {
-            return "VIDEO";
-        }
-        
-        // 音频类型
-        if (fileFormat.matches("mp3|wav|flac|aac|ogg|wma|m4a")) {
-            return "AUDIO";
-        }
-        
-        // 文本类型
-        if (fileFormat.matches("txt|md|json|xml|csv|log|yaml|yml|properties|conf")) {
-            return "TEXT";
-        }
-        
-        // 文档类型
-        if (fileFormat.matches("pdf|doc|docx|xls|xlsx|ppt|pptx")) {
-            return "DOCUMENT";
-        }
-        
-        return "OTHER";
     }
 }
