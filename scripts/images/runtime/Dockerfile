@@ -5,7 +5,8 @@ COPY runtime/ops /opt/runtime/data_platform/ops
 
 ENV PYTHONPATH=/opt/runtime/data_platform/
 
-RUN apt update \
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources \
+    && apt update \
     && apt install -y libgl1 libglib2.0-0 vim \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*

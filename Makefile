@@ -1,7 +1,5 @@
 MAKEFLAGS += --no-print-directory
 
-override INSTALLER = docker
-
 .PHONY: build-%
 build-%:
 	$(MAKE) $*-docker-build
@@ -11,6 +9,7 @@ build: backend-docker-build frontend-docker-build runtime-docker-build
 
 .PHONY: install-%
 install-%:
+ifeq ($(origin INSTALLER), undefined)
 	@echo "Choose a deployment method:"
 	@echo "1. Docker"
 	@echo "2. Kubernetes/Helm"
@@ -22,12 +21,16 @@ install-%:
 		*) echo "Invalid choice" && exit 1 ;; \
 	esac; \
 	$(MAKE) $*-$$INSTALLER-install
+else
+	$(MAKE) $*-$(INSTALLER)-install
+endif
 
 .PHONY: install
 install: install-data-platform
 
 .PHONY: uninstall-%
 uninstall-%:
+ifeq ($(origin INSTALLER), undefined)
 	@echo "Choose a deployment method:"
 	@echo "1. Docker"
 	@echo "2. Kubernetes/Helm"
@@ -39,6 +42,9 @@ uninstall-%:
 		*) echo "Invalid choice" && exit 1 ;; \
 	esac; \
     $(MAKE) $*-$$INSTALLER-uninstall
+else
+	$(MAKE) $*-$(INSTALLER)-uninstall
+endif
 
 .PHONY: uninstall
 uninstall: uninstall-data-platform
