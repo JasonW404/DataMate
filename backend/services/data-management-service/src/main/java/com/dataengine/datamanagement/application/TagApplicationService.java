@@ -1,4 +1,4 @@
-package com.dataengine.datamanagement.application.service;
+package com.dataengine.datamanagement.application;
 
 import com.dataengine.datamanagement.domain.model.dataset.Tag;
 import com.dataengine.datamanagement.infrastructure.persistence.mapper.TagMapper;

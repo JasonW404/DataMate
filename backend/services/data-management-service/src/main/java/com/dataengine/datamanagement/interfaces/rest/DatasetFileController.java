@@ -1,10 +1,10 @@
 package com.dataengine.datamanagement.interfaces.rest;
 
-import com.dataengine.datamanagement.application.service.DatasetFileApplicationService;
+import com.dataengine.common.interfaces.Response;
+import com.dataengine.datamanagement.application.DatasetFileApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
 import com.dataengine.datamanagement.interfaces.dto.DatasetFileResponse;
 import com.dataengine.datamanagement.interfaces.dto.PagedDatasetFileResponse;
-import com.dataengine.common.interfaces.Response;
 import com.dataengine.datamanagement.interfaces.dto.UploadFileRequest;
 import com.dataengine.datamanagement.interfaces.dto.UploadFilesPreRequest;
 import jakarta.validation.Valid;

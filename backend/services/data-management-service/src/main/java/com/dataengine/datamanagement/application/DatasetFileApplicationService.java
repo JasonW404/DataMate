@@ -1,4 +1,4 @@
-package com.dataengine.datamanagement.application.service;
+package com.dataengine.datamanagement.application;
 
 import com.dataengine.common.domain.model.ChunkUploadPreRequest;
 import com.dataengine.common.domain.model.FileUploadResult;
