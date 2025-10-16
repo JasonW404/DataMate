@@ -1,7 +1,7 @@
 FROM python:3.11
 
 COPY runtime/python-executor /opt/runtime
-COPY runtime/operators /opt/runtime/data_platform/ops
+COPY runtime/ops /opt/runtime/data_platform/ops
 
 ENV PYTHONPATH=/opt/runtime/data_platform/
 
