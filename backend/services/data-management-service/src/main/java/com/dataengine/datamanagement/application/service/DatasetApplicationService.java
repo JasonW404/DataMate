@@ -29,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 数据集应用服务（对齐 DB schema，使用 UUID 字符串主键）
@@ -310,17 +312,31 @@ public class DatasetApplicationService {
 
             // 5. 扫描文件元数据
             List<DatasetFile> datasetFiles = fileMetadataService.scanFiles(filePaths, datasetId);
+            // 查询数据集中已存在的文件
+            List<DatasetFile> existDatasetFileList = datasetFileMapper.findAllByDatasetId(datasetId);
+            Map<String, DatasetFile> existDatasetFilePathMap = existDatasetFileList.
+                stream().collect(Collectors.toMap(DatasetFile::getFilePath, Function.identity()));
+            Dataset dataset = datasetMapper.findById(datasetId);
 
             // 6. 批量插入数据集文件表
             if (CollectionUtils.isNotEmpty(datasetFiles)) {
                 for (DatasetFile datasetFile : datasetFiles) {
-                    datasetFileMapper.insert(datasetFile);
+                    if (existDatasetFilePathMap.containsKey(datasetFile.getFilePath())) {
+                        DatasetFile existDatasetFile = existDatasetFilePathMap.get(datasetFile.getFilePath());
+                        dataset.removeFile(existDatasetFile);
+                        existDatasetFile.setFileSize(datasetFile.getFileSize());
+                        dataset.addFile(existDatasetFile);
+                        datasetFileMapper.update(existDatasetFile);
+                    } else {
+                        dataset.addFile(datasetFile);
+                        datasetFileMapper.insert(datasetFile);
+                    }
                 }
                 log.info("文件元数据写入完成，共写入 {} 条记录", datasetFiles.size());
             } else {
                 log.warn("未扫描到有效文件");
             }
-
+            datasetMapper.update(dataset);
         } catch (Exception e) {
             log.error("处理数据源文件扫描失败，数据集ID: {}, 数据源ID: {}", datasetId, dataSourceId, e);
         }
