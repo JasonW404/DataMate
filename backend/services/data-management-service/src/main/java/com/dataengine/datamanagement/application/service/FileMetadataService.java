@@ -60,7 +60,8 @@ public class FileMetadataService {
         return datasetFiles;
     }
 
-    private void scanDirectory(String datasetId, String filePath, Path path, List<DatasetFile> datasetFiles) throws IOException {
+    private void scanDirectory(String datasetId, String filePath, Path path,
+                               List<DatasetFile> datasetFiles) throws IOException {
         // 如果是目录，扫描该目录下的所有文件（非递归）
         List<Path> filesInDir = Files.list(path)
                 .filter(Files::isRegularFile)
@@ -78,7 +79,6 @@ public class FileMetadataService {
         }
         log.info("已扫描目录 {} 下的 {} 个文件", filePath, filesInDir.size());
     }
-
     /**
      * @param filePath 文件路径
      * @param datasetId 数据集ID
@@ -107,7 +107,6 @@ public class FileMetadataService {
                 .fileName(fileName)
                 .filePath(filePath)
                 .fileSize(fileSize)
-                .fileFormat(fileType)
                 .fileType(fileType)
                 .uploadTime(LocalDateTime.now())
                 .lastAccessTime(LocalDateTime.now())

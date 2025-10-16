@@ -1,5 +1,6 @@
 package com.dataengine.datamanagement.infrastructure.persistence.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.interfaces.dto.AllDatasetStatisticsResponse;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,7 +10,7 @@ import org.apache.ibatis.session.RowBounds;
 import java.util.List;
 
 @Mapper
-public interface DatasetMapper {
+public interface DatasetMapper extends BaseMapper<Dataset> {
     Dataset findById(@Param("id") String id);
     Dataset findByName(@Param("name") String name);
     List<Dataset> findByStatus(@Param("status") String status);
@@ -27,8 +28,6 @@ public interface DatasetMapper {
                          @Param("keyword") String keyword,
                          @Param("tagNames") List<String> tagNames);
 
-    int insert(Dataset dataset);
-    int update(Dataset dataset);
     int deleteById(@Param("id") String id);
     AllDatasetStatisticsResponse getAllDatasetStatistics();
 }

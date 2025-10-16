@@ -6,9 +6,9 @@ import com.dataengine.datamanagement.domain.model.dataset.Tag;
 import com.dataengine.datamanagement.infrastructure.client.CollectionTaskClient;
 import com.dataengine.datamanagement.infrastructure.client.dto.CollectionTaskDetailResponse;
 import com.dataengine.datamanagement.infrastructure.client.dto.LocalCollectionConfig;
-import com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetFileMapper;
-import com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetMapper;
 import com.dataengine.datamanagement.infrastructure.persistence.mapper.TagMapper;
+import com.dataengine.datamanagement.infrastructure.persistence.repository.DatasetFileRepository;
+import com.dataengine.datamanagement.infrastructure.persistence.repository.DatasetRepository;
 import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
 import com.dataengine.datamanagement.interfaces.dto.AllDatasetStatisticsResponse;
 import com.dataengine.datamanagement.interfaces.dto.CreateDatasetRequest;
@@ -40,9 +40,9 @@ import java.util.stream.Collectors;
 @Transactional
 public class DatasetApplicationService {
 
-    private final DatasetMapper datasetMapper;
+    private final DatasetRepository datasetRepository;
     private final TagMapper tagMapper;
-    private final DatasetFileMapper datasetFileMapper;
+    private final DatasetFileRepository datasetFileRepository;
     private final CollectionTaskClient collectionTaskClient;
     private final FileMetadataService fileMetadataService;
     private final ObjectMapper objectMapper;
@@ -51,15 +51,15 @@ public class DatasetApplicationService {
     private String datasetBasePath;
 
     @Autowired
-    public DatasetApplicationService(DatasetMapper datasetMapper,
+    public DatasetApplicationService(DatasetRepository datasetRepository,
                                      TagMapper tagMapper,
-                                     DatasetFileMapper datasetFileMapper,
+                                     DatasetFileRepository datasetFileRepository,
                                      CollectionTaskClient collectionTaskClient,
                                      FileMetadataService fileMetadataService,
                                      ObjectMapper objectMapper) {
-        this.datasetMapper = datasetMapper;
+        this.datasetRepository = datasetRepository;
         this.tagMapper = tagMapper;
-        this.datasetFileMapper = datasetFileMapper;
+        this.datasetFileRepository = datasetFileRepository;
         this.collectionTaskClient = collectionTaskClient;
         this.fileMetadataService = fileMetadataService;
         this.objectMapper = objectMapper;
@@ -70,14 +70,14 @@ public class DatasetApplicationService {
      */
     @Transactional
     public Dataset createDataset(CreateDatasetRequest createDatasetRequest) {
-        if (datasetMapper.findByName(createDatasetRequest.getName()) != null) {
+        if (datasetRepository.findByName(createDatasetRequest.getName()) != null) {
             throw new IllegalArgumentException("Dataset with name '" + createDatasetRequest.getName() + "' already exists");
         }
 
         // 创建数据集对象
         Dataset dataset = DatasetConverter.INSTANCE.convertToDataset(createDatasetRequest);
         dataset.initCreateParam(datasetBasePath);
-        datasetMapper.insert(dataset);
+        datasetRepository.save(dataset);
 
         // 处理标签
         Set<Tag> processedTags = new HashSet<>();
@@ -94,7 +94,7 @@ public class DatasetApplicationService {
         }
 
         // 返回创建的数据集，包含标签信息
-        Dataset createdDataset = datasetMapper.findById(dataset.getId());
+        Dataset createdDataset = datasetRepository.getById(dataset.getId());
         createdDataset.getTags().addAll(processedTags);
         return createdDataset;
     }
@@ -104,7 +104,7 @@ public class DatasetApplicationService {
      */
     public Dataset updateDataset(String datasetId, String name, String description,
                                  List<String> tagNames, String status) {
-        Dataset dataset = datasetMapper.findById(datasetId);
+        Dataset dataset = datasetRepository.getById(datasetId);
         if (dataset == null) {
             throw new IllegalArgumentException("Dataset not found: " + datasetId);
         }
@@ -131,10 +131,10 @@ public class DatasetApplicationService {
             }
         }
 
-        datasetMapper.update(dataset);
+        datasetRepository.updateById(dataset);
 
         // 返回更新后的数据集，包含标签信息
-        Dataset updatedDataset = datasetMapper.findById(datasetId);
+        Dataset updatedDataset = datasetRepository.getById(datasetId);
         updatedDataset.getTags().addAll(processedTags);
         return updatedDataset;
     }
@@ -143,12 +143,12 @@ public class DatasetApplicationService {
      * 删除数据集
      */
     public void deleteDataset(String datasetId) {
-        Dataset dataset = datasetMapper.findById(datasetId);
+        Dataset dataset = datasetRepository.getById(datasetId);
         if (dataset == null) {
             throw new IllegalArgumentException("Dataset not found: " + datasetId);
         }
         tagMapper.deleteDatasetTagsByDatasetId(datasetId);
-        datasetMapper.deleteById(datasetId);
+        datasetRepository.removeById(datasetId);
     }
 
     /**
@@ -156,7 +156,7 @@ public class DatasetApplicationService {
      */
     @Transactional(readOnly = true)
     public Dataset getDataset(String datasetId) {
-        Dataset dataset = datasetMapper.findById(datasetId);
+        Dataset dataset = datasetRepository.getById(datasetId);
         if (dataset == null) {
             throw new IllegalArgumentException("Dataset not found: " + datasetId);
         }
@@ -174,8 +174,8 @@ public class DatasetApplicationService {
     @Transactional(readOnly = true)
     public Page<Dataset> getDatasets(DatasetPagingQuery query) {
         RowBounds bounds = new RowBounds(query.getPage() * query.getSize(), query.getSize());
-        List<Dataset> content = datasetMapper.findByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList(), bounds);
-        long total = datasetMapper.countByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList());
+        List<Dataset> content = datasetRepository.findByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList(), bounds);
+        long total = datasetRepository.countByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList());
 
         // 为每个数据集填充标签信息
         if (CollectionUtils.isNotEmpty(content)) {
@@ -215,7 +215,7 @@ public class DatasetApplicationService {
      */
     @Transactional(readOnly = true)
     public Map<String, Object> getDatasetStatistics(String datasetId) {
-        Dataset dataset = datasetMapper.findById(datasetId);
+        Dataset dataset = datasetRepository.getById(datasetId);
         if (dataset == null) {
             throw new IllegalArgumentException("Dataset not found: " + datasetId);
         }
@@ -223,9 +223,9 @@ public class DatasetApplicationService {
         Map<String, Object> statistics = new HashMap<>();
 
         // 基础统计
-        Long totalFiles = datasetFileMapper.countByDatasetId(datasetId);
-        Long completedFiles = datasetFileMapper.countCompletedByDatasetId(datasetId);
-        Long totalSize = datasetFileMapper.sumSizeByDatasetId(datasetId);
+        Long totalFiles = datasetFileRepository.countByDatasetId(datasetId);
+        Long completedFiles = datasetFileRepository.countCompletedByDatasetId(datasetId);
+        Long totalSize = datasetFileRepository.sumSizeByDatasetId(datasetId);
 
         statistics.put("totalFiles", totalFiles != null ? totalFiles.intValue() : 0);
         statistics.put("completedFiles", completedFiles != null ? completedFiles.intValue() : 0);
@@ -240,9 +240,9 @@ public class DatasetApplicationService {
 
         // 文件类型分布统计
         Map<String, Integer> fileTypeDistribution = new HashMap<>();
-        List<com.dataengine.datamanagement.domain.model.dataset.DatasetFile> allFiles = datasetFileMapper.findAllByDatasetId(datasetId);
+        List<DatasetFile> allFiles = datasetFileRepository.findAllByDatasetId(datasetId);
         if (allFiles != null) {
-            for (com.dataengine.datamanagement.domain.model.dataset.DatasetFile file : allFiles) {
+            for (DatasetFile file : allFiles) {
                 String fileType = file.getFileType() != null ? file.getFileType() : "unknown";
                 fileTypeDistribution.put(fileType, fileTypeDistribution.getOrDefault(fileType, 0) + 1);
             }
@@ -252,7 +252,7 @@ public class DatasetApplicationService {
         // 状态分布统计
         Map<String, Integer> statusDistribution = new HashMap<>();
         if (allFiles != null) {
-            for (com.dataengine.datamanagement.domain.model.dataset.DatasetFile file : allFiles) {
+            for (DatasetFile file : allFiles) {
                 String status = file.getStatus() != null ? file.getStatus() : "unknown";
                 statusDistribution.put(status, statusDistribution.getOrDefault(status, 0) + 1);
             }
@@ -266,7 +266,7 @@ public class DatasetApplicationService {
      * 获取所有数据集的汇总统计信息
      */
     public AllDatasetStatisticsResponse getAllDatasetStatistics() {
-        return datasetMapper.getAllDatasetStatistics();
+        return datasetRepository.getAllDatasetStatistics();
     }
 
     /**
@@ -313,10 +313,10 @@ public class DatasetApplicationService {
             // 5. 扫描文件元数据
             List<DatasetFile> datasetFiles = fileMetadataService.scanFiles(filePaths, datasetId);
             // 查询数据集中已存在的文件
-            List<DatasetFile> existDatasetFileList = datasetFileMapper.findAllByDatasetId(datasetId);
+            List<DatasetFile> existDatasetFileList = datasetFileRepository.findAllByDatasetId(datasetId);
             Map<String, DatasetFile> existDatasetFilePathMap = existDatasetFileList.
                 stream().collect(Collectors.toMap(DatasetFile::getFilePath, Function.identity()));
-            Dataset dataset = datasetMapper.findById(datasetId);
+            Dataset dataset = datasetRepository.getById(datasetId);
 
             // 6. 批量插入数据集文件表
             if (CollectionUtils.isNotEmpty(datasetFiles)) {
@@ -326,17 +326,17 @@ public class DatasetApplicationService {
                         dataset.removeFile(existDatasetFile);
                         existDatasetFile.setFileSize(datasetFile.getFileSize());
                         dataset.addFile(existDatasetFile);
-                        datasetFileMapper.update(existDatasetFile);
+                        datasetFileRepository.updateById(existDatasetFile);
                     } else {
                         dataset.addFile(datasetFile);
-                        datasetFileMapper.insert(datasetFile);
+                        datasetFileRepository.save(datasetFile);
                     }
                 }
                 log.info("文件元数据写入完成，共写入 {} 条记录", datasetFiles.size());
             } else {
                 log.warn("未扫描到有效文件");
             }
-            datasetMapper.update(dataset);
+            datasetRepository.updateById(dataset);
         } catch (Exception e) {
             log.error("处理数据源文件扫描失败，数据集ID: {}, 数据源ID: {}", datasetId, dataSourceId, e);
         }

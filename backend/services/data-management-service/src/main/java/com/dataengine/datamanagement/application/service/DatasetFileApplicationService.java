@@ -9,8 +9,8 @@ import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFileUploadCheckInfo;
 import com.dataengine.datamanagement.domain.model.dataset.StatusConstants;
-import com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetFileMapper;
-import com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetMapper;
+import com.dataengine.datamanagement.infrastructure.persistence.repository.DatasetFileRepository;
+import com.dataengine.datamanagement.infrastructure.persistence.repository.DatasetRepository;
 import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
 import com.dataengine.datamanagement.interfaces.dto.UploadFileRequest;
 import com.dataengine.datamanagement.interfaces.dto.UploadFilesPreRequest;
@@ -49,8 +49,8 @@ import java.util.UUID;
 @Transactional
 public class DatasetFileApplicationService {
 
-    private final DatasetFileMapper datasetFileMapper;
-    private final DatasetMapper datasetMapper;
+    private final DatasetFileRepository datasetFileRepository;
+    private final DatasetRepository datasetRepository;
     private final Path fileStorageLocation;
     private final FileService fileService;
 
@@ -58,11 +58,11 @@ public class DatasetFileApplicationService {
     private String datasetBasePath;
 
     @Autowired
-    public DatasetFileApplicationService(DatasetFileMapper datasetFileMapper,
-                                       DatasetMapper datasetMapper, FileService fileService,
+    public DatasetFileApplicationService(DatasetFileRepository datasetFileRepository,
+                                         DatasetRepository datasetRepository, FileService fileService,
                                        @Value("${app.file.upload-dir:./dataset}") String uploadDir) {
-        this.datasetFileMapper = datasetFileMapper;
-        this.datasetMapper = datasetMapper;
+        this.datasetFileRepository = datasetFileRepository;
+        this.datasetRepository = datasetRepository;
         this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         this.fileService = fileService;
         try {
@@ -76,7 +76,7 @@ public class DatasetFileApplicationService {
      * 上传文件到数据集
      */
     public DatasetFile uploadFile(String datasetId, MultipartFile file, String description, String uploadedBy) {
-        Dataset dataset = datasetMapper.findById(datasetId);
+        Dataset dataset = datasetRepository.getById(datasetId);
         if (dataset == null) {
             throw new IllegalArgumentException("Dataset not found: " + datasetId);
         }
@@ -97,19 +97,18 @@ public class DatasetFileApplicationService {
             datasetFile.setFileName(fileName);
             datasetFile.setFilePath(targetLocation.toString());
             datasetFile.setFileType(getFileExtension(originalFilename));
-            datasetFile.setFileFormat(file.getContentType());
             datasetFile.setFileSize(file.getSize());
             datasetFile.setUploadTime(LocalDateTime.now());
             datasetFile.setStatus(StatusConstants.DatasetFileStatuses.COMPLETED);
 
             // 保存到数据库
-            datasetFileMapper.insert(datasetFile);
+            datasetFileRepository.save(datasetFile);
 
             // 更新数据集统计
             dataset.addFile(datasetFile);
-            datasetMapper.update(dataset);
+            datasetRepository.updateById(dataset);
 
-            return datasetFileMapper.findByDatasetIdAndFileName(datasetId, fileName);
+            return datasetFileRepository.findByDatasetIdAndFileName(datasetId, fileName);
 
         } catch (IOException ex) {
             log.error("Could not store file {}", fileName, ex);
@@ -124,7 +123,7 @@ public class DatasetFileApplicationService {
     public Page<DatasetFile> getDatasetFiles(String datasetId, String fileType,
                                            String status, Pageable pageable) {
         RowBounds bounds = new RowBounds(pageable.getPageNumber() * pageable.getPageSize(), pageable.getPageSize());
-        List<DatasetFile> content = datasetFileMapper.findByCriteria(datasetId, fileType, status, bounds);
+        List<DatasetFile> content = datasetFileRepository.findByCriteria(datasetId, fileType, status, bounds);
         long total = content.size() < pageable.getPageSize() && pageable.getPageNumber() == 0 ? content.size() : content.size() + (long) pageable.getPageNumber() * pageable.getPageSize();
         return new PageImpl<>(content, pageable, total);
     }
@@ -134,7 +133,7 @@ public class DatasetFileApplicationService {
      */
     @Transactional(readOnly = true)
     public DatasetFile getDatasetFile(String datasetId, String fileId) {
-        DatasetFile file = datasetFileMapper.findById(fileId);
+        DatasetFile file = datasetFileRepository.getById(fileId);
         if (file == null) {
             throw new IllegalArgumentException("File not found: " + fileId);
         }
@@ -155,13 +154,13 @@ public class DatasetFileApplicationService {
         } catch (IOException ex) {
             // ignore
         }
-        datasetFileMapper.deleteById(fileId);
+        datasetFileRepository.removeById(fileId);
 
-        Dataset dataset = datasetMapper.findById(datasetId);
+        Dataset dataset = datasetRepository.getById(datasetId);
         // 简单刷新统计（精确处理可从DB统计）
         dataset.setFileCount(Math.max(0, dataset.getFileCount() - 1));
         dataset.setSizeBytes(Math.max(0, dataset.getSizeBytes() - (file.getFileSize() != null ? file.getFileSize() : 0)));
-        datasetMapper.update(dataset);
+        datasetRepository.updateById(dataset);
     }
 
     /**
@@ -251,6 +250,6 @@ public class DatasetFileApplicationService {
             .fileType(AnalyzerUtils.getExtension(uploadFile.getFileName()))
             .build();
 
-        datasetFileMapper.insert(datasetFile);
+        datasetFileRepository.save(datasetFile);
     }
 }
