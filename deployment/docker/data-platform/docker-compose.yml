@@ -3,6 +3,7 @@ services:
   backend:
     container_name: backend
     image: backend
+    restart: on-failure
     ports:
       - "8080:8080"
     volumes:
@@ -17,6 +18,7 @@ services:
   frontend:
     container_name: frontend
     image: frontend
+    restart: on-failure
     ports:
       - "30000:80"            # nodePort → hostPort
     volumes:
@@ -29,6 +31,7 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8
+    restart: on-failure
     environment:
       MYSQL_ROOT_PASSWORD: Huawei@123
     ports:
@@ -42,6 +45,7 @@ services:
   runtime:
     container_name: runtime
     image: runtime
+    restart: on-failure
     environment:
       RAY_DEDUP_LOGS: "0"
       RAY_TQDM_PATCH_PRINT: "0"

@@ -4,6 +4,7 @@
 
 - Git (用于源码安装)
 - Docker (用于构建镜像和部署服务)
+- Docker-Compose (用于部署服务)
 - kubernetes (用于部署服务)
 - Helm (用于部署服务)
 

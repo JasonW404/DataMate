@@ -17,6 +17,7 @@
 ```bash
 make install
 ```
+详见 [安装部署指导](docs/Installation.md)
 
 ## 📁 项目结构
 
