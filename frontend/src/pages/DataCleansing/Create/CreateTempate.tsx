@@ -18,7 +18,13 @@ export default function CleansingTemplateCreate() {
   const handleSave = async () => {
     const template = {
       ...templateConfig,
-      instance: selectedOperators,
+      instance: selectedOperators.map((item) => ({
+        id: item.id,
+        overrides: {
+          ...item.defaultParams,
+          ...item.overrides,
+        },
+      })),
     };
 
     await createCleaningTemplateUsingPost(template);
