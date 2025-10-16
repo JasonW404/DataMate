@@ -15,14 +15,7 @@
 
 ### 社区版部署
 ```bash
-cd deployment/docker
-docker-compose -f docker-compose.ce.yml up -d
-```
-
-### 企业版部署
-```bash
-cd deployment/kubernetes
-kubectl apply -f ../editions/enterprise/k8s/
+make install
 ```
 
 ## 📁 项目结构

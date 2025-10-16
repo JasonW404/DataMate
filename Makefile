@@ -115,6 +115,7 @@ unstructured-k8s-install:
 .PHONY: mysql-k8s-install
 mysql-k8s-install:
 	kubectl create configmap init-sql --from-file=scripts/db/ --dry-run=client -o yaml | kubectl apply -f -
+	kubectl apply -f deployment/kubernetes/mysql/configmap.yaml
 	kubectl apply -f deployment/kubernetes/mysql/deploy.yaml
 
 .PHONY: mysql-k8s-uninstall

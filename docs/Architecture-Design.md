@@ -20,14 +20,9 @@ data-engine-platform/
 │   └── ops/                           # 运维规程与应急预案
 │
 ├── frontend/                           # 🎨 前端应用
-│   ├── apps/                          # 多前端应用
-│   │   ├── console/                   # 数据工作台&运营控制台
-│   │   │   ├── next.config.js
-│   │   │   ├── package.json
-│   │   │   └── src/
-│   │   └── annotation-studio/         # 标注工作台（可分离部署）
-│   ├── packages/                      # 共享UI组件/SDK
-│   └── config/                        # 构建与环境配置
+│   ├── src/                           # 多前端应用
+│   ├── public/                        # logo
+│   └── package.json                        # 构建与环境配置
 │
 ├── backend/                            # 🔧 后端服务架构
 │   ├── api-gateway/                   # API网关微服务 (独立部署)
@@ -48,8 +43,7 @@ data-engine-platform/
 |   │   │   ├── data-annotation.yaml
 |   │   │   ├── data-evaluation.yaml
 |   │   │   ├── pipeline-orchestration.yaml
-|   │   │   ├── execution-engine.yaml
-|   │   │   └── rag-services.yaml
+|   │   │   └── execution-engine.yaml
 │   ├── services/                      # 业务服务目录
 │   │   ├── main-application/          # 主应用微服务 (聚合器)
 │   │   │   ├── src/main/java/com/dataengine/
@@ -73,70 +67,56 @@ data-engine-platform/
 │   │
 │   └── shared/                        # 共享库与通用组件
 │       ├── domain-common/             # 共享值对象、通用异常、规范
-│       ├── security-common/           # JWT/OAuth2/RBAC
-│       ├── monitoring-common/         # 指标、日志、链路追踪
-│       └── storage-common/            # MinIO/S3/FS抽象
+│       └── security-common/           # JWT/OAuth2/RBAC
 │
 ├── runtime/                            # 🚀 三方软件适配及扩展
 │   ├── python-executor/               # Python执行器 (Ray Actor/Job)
 │   │   ├── operator_runtime.py
 │   │   ├── wrappers/                  # 各类算子包装器
 │   │   │   ├── data_juicer_wrapper.py
-│   │   │   ├── dingo_wrapper.py
-│   │   │   ├── unstructured_io_wrapper.py
-│   │   │   └── custom_operator_loader.py
+│   │   │   └── data_platform_wrapper.py
 │   │   └── requirements.txt
 │   ├── datax/                         # datax扩展
 │   ├── labelstudio/                         # labelstudio扩展
 │   ├── datajuicer/                         # datajuicer扩展
 │   └── operators/                     # 算子仓库 (规范、模板、示例)
 │       ├── README.md
-│       └── examples/
-│           └── text_length_filter/
-│               ├── metadata.json
-│               └── operator.py
-│
+│       │── filter/
+│       │── formatter/
+│       │   └── text_formatter
+│       │       ├── __init__.py        # 算子注册 
+│       │       ├── process.py         # 算子实现
+│       │       └── metadata.yml       # 算子元数据
+│       │── llms/
+│       │── mapper/
+│       │── slicer/
+│       └── user/
 │
 ├── deployment/                         # 🐳 部署与环境
 │   ├── docker/                        # 通用Dockerfile与Compose模版
-│   │   └── docker-compose.yml
+│   │   └── data-platform
+│   │       └── docker-compose.yml
 │   ├── kubernetes/                    # 通用K8s清单
-│   │   ├── api-gateway.yaml
-│   │   └── mysql.yaml
-│   ├── monitoring/                    # Prometheus/Grafana配置
-│   └── scripts/                       # 部署脚本CI/CD钩子
-│   └── db/                       #  数据库脚本 
-│       └── data-management-init.sql  # 数据管理初始化
+│   │   └── backend
+│   │       └── deploy.yaml
+│   └── helm/                    # helm安装包
 │
 ├── editions/                           # 📦 版本差异化配置
 │   ├── community/                     # 社区版配置
-│   │   ├── docker/                    # CE专属Dockerfile/Compose
-│   │   │   └── docker-compose.yml
-│   │   ├── k8s/                       # CE专属K8s清单
-│   │   │   └── mysql.yaml
 │   │   └── config/                    # CE专属应用配置
 │   │       └── application.yml
 │   └── enterprise/                    # 企业版配置
-│       ├── docker/                    # EE专属Dockerfile/Compose
-│       │   └── docker-compose.yml
-│       ├── k8s/                       # EE专属K8s清单
 │       └── config/                    # EE专属应用配置
 │
-├── monitoring/                         # 📊 监控与告警
-│   ├── prometheus/
-│   ├── grafana/
-│   └── alerting/   
-│
-├── tests/                              # 🧪 自动化测试
-│   ├── unit/                          # 单元测试
-│   ├── integration/                   # 集成测试
-│   ├── e2e/                           # 端到端测试
-│   └── performance/                   # 性能测试、算子性能脚本
+├── scripts/                       # 部署脚本CI/CD钩子
+│   ├── db/                       #  数据库脚本 
+│   │   └── data-management-init.sql  # 数据管理初始化
+│   └── images/                       #  镜像构建脚本 
 │
 ├── README.md                           # 项目说明
 ├── RELEASENOTE.md                        # 更新日志
 ├── LICENSE                             # 开源协议
-└── pom.xml                            # Maven根配置
+└── Makefile                            # Makefile构建部署命令
 ```
 
 ## 微服务架构设计
