@@ -113,8 +113,8 @@ export function useOperatorOperations() {
         op.id === operatorId
           ? {
               ...op,
-              params: {
-                ...(op?.params || op?.defaultParams),
+              overrides: {
+                ...(op?.overrides || op?.defaultParams),
                 [paramKey]: value,
               },
             }

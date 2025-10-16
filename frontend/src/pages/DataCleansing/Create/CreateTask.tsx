@@ -35,7 +35,13 @@ export default function CleansingTaskCreate() {
   const handleSave = async () => {
     const task = {
       ...taskConfig,
-      instance: selectedOperators,
+      instance: selectedOperators.map((item) => ({
+        id: item.id,
+        overrides: {
+          ...item.defaultParams,
+          ...item.overrides,
+        },
+      })),
     };
     console.log("创建任务:", task);
     navigate("/data/cleansing");
