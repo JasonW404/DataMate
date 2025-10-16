@@ -18,9 +18,8 @@ export default function CleansingTemplateCreate() {
   const handleSave = async () => {
     const template = {
       ...templateConfig,
-      operators: selectedOperators,
+      instance: selectedOperators,
     };
-    console.log("创建模板:", template);
 
     await createCleaningTemplateUsingPost(template);
     navigate("/data/cleansing");
