@@ -24,18 +24,33 @@ public abstract class BaseEntity<ID> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 实体ID
+     */
     @TableId(type = IdType.ASSIGN_ID)
     protected ID id;
 
+    /**
+     * 创建时间
+     */
     @TableField(fill = FieldFill.INSERT)
     protected LocalDateTime createdAt;
 
+    /**
+     * 更新时间
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     protected LocalDateTime updatedAt;
 
+    /**
+     * 创建人
+     */
     @TableField(fill = FieldFill.INSERT)
     protected String createdBy;
 
+    /**
+     * 更新人
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     protected String updatedBy;
 
