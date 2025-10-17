@@ -350,9 +350,9 @@ export default function DataAnnotation() {
 
       {/* Filters Toolbar */}
       <SearchControls
-        searchTerm={searchParams.keywords}
-        onSearchChange={(keywords) =>
-          setSearchParams({ ...searchParams, keywords })
+        searchTerm={searchParams.keyword}
+        onSearchChange={(keyword) =>
+          setSearchParams({ ...searchParams, keyword })
         }
         searchPlaceholder="搜索任务..."
         filters={filterOptions}

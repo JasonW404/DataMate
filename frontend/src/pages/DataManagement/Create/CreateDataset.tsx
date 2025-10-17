@@ -77,7 +77,7 @@ export default function DatasetCreate() {
   // 获取归集任务列表
   const fetchCollectionTasks = async () => {
     try {
-      const { data } = await queryTasksUsingGet({ page: 1, size: 100 });
+      const { data } = await queryTasksUsingGet({ page: 0, size: 100 });
       const options = data.map((task: any) => ({
         label: task.name,
         value: task.id,

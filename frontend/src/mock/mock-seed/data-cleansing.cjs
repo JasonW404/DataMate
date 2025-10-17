@@ -51,7 +51,7 @@ function cleaningTaskItem() {
     id: Mock.Random.guid().replace(/[^a-zA-Z0-9]/g, ""),
     name: Mock.Random.ctitle(5, 20),
     description: Mock.Random.csentence(5, 30),
-    status: Mock.Random.pick(["pending", "running", "completed", "failed"]),
+    status: Mock.Random.pick(["PENDING", "RUNNING", "COMPLETED", "FAILED", "STOPPED"]),
     srcDatasetId: Mock.Random.guid().replace(/[^a-zA-Z0-9]/g, ""),
     srcDatasetName: Mock.Random.ctitle(5, 15),
     destDatasetId: Mock.Random.guid().replace(/[^a-zA-Z0-9]/g, ""),
