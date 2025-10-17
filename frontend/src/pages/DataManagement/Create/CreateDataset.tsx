@@ -156,7 +156,7 @@ export default function DatasetCreate() {
           message.error("请上传文件");
           return;
         }
-        handleUpload(message, dataset);
+        handleUpload(dataset);
       }
       if (importConfig.source === DataSource.NAS) {
         message.error("请填写NAS地址和共享路径");

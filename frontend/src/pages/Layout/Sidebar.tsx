@@ -39,16 +39,24 @@ const AsiderAndHeaderLayout = () => {
     initActiveItem();
   }, [pathname]);
 
-  const toggleShowTaskPopover = (show: boolean = true) => {
-    const taskEl = document.getElementById("header-task-popover");
-    if (show && !taskEl?.classList.contains("show-task-popover")) {
-      taskEl?.classList?.add("show-task-popover");
-      return;
-    }
-    if (!show && taskEl?.classList.contains("show-task-popover")) {
-      taskEl?.classList?.remove("show-task-popover");
-    }
-  };
+  useEffect(() => {
+    const handleShowTaskPopover = (event: CustomEvent) => {
+      const { show } = event.detail;
+      setTaskCenterVisible(show);
+    };
+
+    window.addEventListener(
+      "show:task-popover",
+      handleShowTaskPopover as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "show:task-popover",
+        handleShowTaskPopover as EventListener
+      );
+    };
+  }, []);
 
   return (
     <div
@@ -99,6 +107,7 @@ const AsiderAndHeaderLayout = () => {
         {sidebarOpen ? (
           <div className="space-y-2">
             <Popover
+              forceRender
               title={
                 <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-2 mb-2">
                   <h4 className="font-bold">任务中心</h4>
@@ -111,6 +120,7 @@ const AsiderAndHeaderLayout = () => {
               open={taskCenterVisible}
               content={<TaskUpload />}
               trigger="click"
+              destroyOnHidden={false}
             >
               <Button block onClick={() => setTaskCenterVisible(true)}>
                 任务中心
@@ -124,10 +134,12 @@ const AsiderAndHeaderLayout = () => {
           <div className="space-y-2">
             <div className="relative">
               <Popover
+                forceRender
                 title="任务中心"
                 open={taskCenterVisible}
                 content={<TaskUpload />}
                 trigger="click"
+                destroyOnHidden={false}
               >
                 <Button
                   block

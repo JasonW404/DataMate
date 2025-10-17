@@ -172,9 +172,10 @@ export function deleteDatasetVersionUsingDelete(
  */
 
 export function preUploadUsingPost(id: string | number, data: any) {
-  console.log('pre upload');
-  
-  return post(`/api/data-management/datasets/${id}/upload/pre-upload`, data);
+  return post(
+    `/api/data-management/datasets/${id}/files/upload/pre-upload`,
+    data
+  );
 }
 
 export function cancelUploadUsingPut(id) {
@@ -186,13 +187,12 @@ export function cancelUploadUsingPut(id) {
 }
 
 export function uploadFileChunkUsingPost(id: string | number, params, config) {
-  return upload(`/api/data-management/datasets/${id}/files/upload/chunk`, params, {
-    headers: {
-      accept: "*/*",
-      "Content-Type": "multipart/form-data;charset=UTF-8",
-    },
-    showLoading: false,
-    isUploading: true,
-    ...config,
-  });
+  return post(
+    `/api/data-management/datasets/${id}/files/upload/chunk`,
+    params,
+    {
+      showLoading: false,
+      ...config,
+    }
+  );
 }

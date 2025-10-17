@@ -56,7 +56,6 @@ class Request {
    */
   async executeRequestInterceptors(config) {
     let processedConfig = { ...config };
-
     for (const interceptor of this.requestInterceptors) {
       processedConfig = (await interceptor(processedConfig)) || processedConfig;
     }
@@ -81,13 +80,8 @@ class Request {
   /**
    * 创建支持进度监听的XMLHttpRequest
    */
-  createXHRWithProgress(url, config, onUploadProgress, onDownloadProgress) {
+  createXHRWithProgress(url, config, onProgress, onDownloadProgress) {
     return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-
-      // 配置请求
-      xhr.open(config.method || "GET", url, true);
-
       // 设置请求头
       if (config.headers) {
         Object.keys(config.headers).forEach((key) => {
@@ -95,28 +89,28 @@ class Request {
         });
       }
 
-      // 设置响应类型
-      if (config.responseType) {
-        xhr.responseType = config.responseType;
-      }
+      const xhr = new XMLHttpRequest();
 
-      // 上传进度监听
-      if (onUploadProgress && xhr.upload) {
-        xhr.upload.addEventListener("progress", (event) => {
-          if (event.lengthComputable) {
-            onUploadProgress(event);
+      console.log("upload xhr", url, config);
+      // 监听上传进度
+      xhr.upload.addEventListener("progress", function (event) {
+        if (event.lengthComputable) {
+          if (onProgress) {
+            onProgress(event);
           }
-        });
-      }
-
-      // 下载进度监听
-      if (onDownloadProgress) {
-        xhr.addEventListener("progress", (event) => {
-          if (event.lengthComputable) {
+          if (onDownloadProgress) {
             onDownloadProgress(event);
           }
-        });
-      }
+        }
+      });
+
+      // 请求完成
+      // xhr.addEventListener("load", function () {
+      //   if (xhr.status >= 200 && xhr.status < 300) {
+      // const response = JSON.parse(xhr.responseText);
+      //     resolve(xhr);
+      //   }
+      // });
 
       // 请求完成处理
       xhr.addEventListener("load", () => {
@@ -146,21 +140,22 @@ class Request {
         }
       });
 
-      // 错误处理
-      xhr.addEventListener("error", () => {
-        reject(new Error("Network error"));
+      // 请求错误
+      xhr.addEventListener("error", function () {
+        console.error("网络错误");
+        if (onError) onError(new Error("网络错误"));
       });
 
-      // 超时处理
-      if (config.timeout) {
-        xhr.timeout = config.timeout;
-        xhr.addEventListener("timeout", () => {
-          reject(new Error("Request timeout"));
-        });
-      }
+      // 请求中止
+      xhr.addEventListener("abort", function () {
+        console.log("上传已取消");
+        if (onError) onError(new Error("上传已取消"));
+      });
 
-      // 发送请求
-      xhr.send(config.body || null);
+      xhr.open("POST", url);
+      xhr.send(config.body);
+
+      return xhr; // 返回 xhr 对象以便后续控制
     });
   }
 
@@ -190,7 +185,7 @@ class Request {
     if (config.showLoading) {
       this.count--;
     }
-    
+
     // 执行响应拦截器
     const processedResponse = await this.executeResponseInterceptors(
       response,
@@ -237,8 +232,7 @@ class Request {
         get: (key) => xhrResponse.xhr.getResponseHeader(key),
       },
     };
-    console.log(xhrResponse);
-    
+
     // 执行响应拦截器
     await this.executeResponseInterceptors(mockResponse, config);
 
@@ -277,6 +271,8 @@ class Request {
       return await this.handleXHRResponse(xhrResponse, processedConfig);
     }
     // 否则使用fetch
+    if (processedConfig.body instanceof FormData) {
+    }
     const response = await fetch(url, processedConfig);
     return await this.handleResponse(response, processedConfig);
   }
@@ -330,7 +326,7 @@ class Request {
         ...options,
       };
     }
-
+    console.log("post", url, config);
     return this.request(this.baseURL + url, config);
   }
 
