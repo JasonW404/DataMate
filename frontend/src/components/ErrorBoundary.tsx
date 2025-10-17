@@ -126,7 +126,7 @@ export default class ErrorBoundary extends Component<
         {errorInfo && (
           <div className="mt-2">
             <strong>组件堆栈:</strong>
-            <pre className="bg-gray-600 px-4 py-2 rounded text-white overflow-auto">
+            <pre className="bg-gray-600 max-h-100 px-4 py-2 rounded text-white overflow-auto">
               {errorInfo.componentStack}
             </pre>
           </div>
