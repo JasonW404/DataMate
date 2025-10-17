@@ -5,7 +5,7 @@
   "insert_clean_result_sql": "INSERT INTO t_clean_result (instance_id, src_file_id, dest_file_id, src_name, dest_name, src_type, dest_type, src_size, dest_size, status, result) VALUES (:instance_id, :src_file_id, :dest_file_id, :src_name, :dest_name, :src_type, :dest_type, :src_size, :dest_size, :status, :result)",
   "query_dataset_sql": "SELECT file_size FROM t_dm_dataset_files WHERE dataset_id = :dataset_id",
   "update_dataset_sql": "UPDATE t_dm_datasets SET size_bytes = :total_size, file_count = :file_count WHERE id = :dataset_id;",
-  "update_task_sql": "UPDATE t_clean_task SET status = :status, after_size = :total_size, finished_at = :finished_time",
+  "update_task_sql": "UPDATE t_clean_task SET status = :status, after_size = :total_size, finished_at = :finished_time WHERE id = :task_id",
   "create_tables_sql": "CREATE TABLE IF NOT EXISTS t_task_instance_info (instance_id VARCHAR(255), meta_file_name TEXT, meta_file_type VARCHAR(100), meta_file_id BIGINT, meta_file_size VARCHAR(100), file_id BIGINT, file_size VARCHAR(100), file_type VARCHAR(100), file_name TEXT, file_path TEXT, status INT, operator_id VARCHAR(255), error_code VARCHAR(100), incremental VARCHAR(50), child_id BIGINT, slice_num INT DEFAULT 0);",
   "delete_task_instance_sql": "DELETE FROM t_task_instance_info WHERE instance_id = :instance_id",
   "create_duplicate_img_tables_sql": "CREATE TABLE IF NOT EXISTS operator_duplicate_img_features (id INT AUTO_INCREMENT PRIMARY KEY,task_uuid VARCHAR(255),file_feature TEXT,file_name TEXT,timestamp DATETIME);",

@@ -29,15 +29,15 @@ class TaskInfoPersistence:
         instance_id = str(sample.get("instance_id"))
         src_file_name = str(sample.get("sourceFileName"))
         src_file_type = str(sample.get("sourceFileType"))
-        src_file_id = int(sample.get("sourceFileId"))
-        src_file_size = str(sample.get("sourceFileSize"))
+        src_file_id = str(sample.get("sourceFileId"))
+        src_file_size = int(sample.get("sourceFileSize"))
         file_id = str(uuid.uuid4())
         file_size = str(sample.get("fileSize"))
         file_type = str(sample.get("fileType"))
         file_name = str(sample.get("fileName"))
 
-        status = int(sample.get("execute_status"))
-        failed_reason = sample.get("failed_reason")
+        status = str(sample.get("execute_status"))
+        failed_reason = str(sample.get("failed_reason"))
         result_data = {
             "instance_id": instance_id,
             "src_file_id": src_file_id,
@@ -56,7 +56,7 @@ class TaskInfoPersistence:
         dataset_id = str(sample.get("dataset_id"))
         file_path = str(sample.get("filePath"))
         create_time = datetime.now()
-        last_access_time = os.path.getmtime(file_path)
+        last_access_time = datetime.fromtimestamp(os.path.getmtime(file_path))
         file_data = {
             "id": file_id,
             "dataset_id": dataset_id,
@@ -97,16 +97,17 @@ class TaskInfoPersistence:
         }
         query_dataset_sql = str(self.sql_dict.get("query_dataset_sql"))
         with SQLManager.create_connect() as conn:
-            result = conn.execute(text(query_dataset_sql))
+            result = conn.execute(text(query_dataset_sql), dataset_data)
         if result:
             rows = result.fetchall()
-            total_size = sum(row["total_size"] for row in rows)
+            total_size = sum(int(row[0]) for row in rows)
             file_count = len(rows)
         else:
             total_size = 0
             file_count = 0
 
         dataset_data.update({
+            "task_id": instance_id,
             "total_size": total_size,
             "file_count": file_count
         })
@@ -114,14 +115,14 @@ class TaskInfoPersistence:
         update_dataset_sql = str(self.sql_dict.get("update_dataset_sql"))
         self.insert_result(dataset_data, update_dataset_sql)
 
-        dataset_data = {
-            "instance_id": instance_id,
+        task_data = {
+            "task_id": instance_id,
             "status": status,
             "total_size": total_size,
             "finished_time": datetime.now()
         }
-        update_dataset_sql = str(self.sql_dict.get("update_task_sql"))
-        self.insert_result(dataset_data, update_dataset_sql)
+        update_task_sql = str(self.sql_dict.get("update_task_sql"))
+        self.insert_result(task_data, update_task_sql)
 
     def query_task_info(self, instance_ids: list[str]):
         result = {}

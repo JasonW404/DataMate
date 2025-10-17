@@ -1,21 +1,13 @@
 package com.dataengine.cleaning.interfaces.api;
 
+import com.dataengine.cleaning.application.service.CleaningTaskService;
 import com.dataengine.cleaning.interfaces.dto.CleaningTask;
 import com.dataengine.cleaning.interfaces.dto.CreateCleaningTaskRequest;
-import com.dataengine.cleaning.application.service.CleaningTaskService;
-
+import com.dataengine.common.infrastructure.common.Response;
 import com.dataengine.common.interfaces.PagedResponse;
-import com.dataengine.common.interfaces.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

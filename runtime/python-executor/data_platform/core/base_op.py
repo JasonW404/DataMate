@@ -16,8 +16,8 @@ from data_platform.sql_manager.persistence_atction import TaskInfoPersistence
 
 OPERATORS = Registry('Operators')
 
-FAILED_STATUS = 1
-SUCCESS_STATUS = 0
+FAILED_STATUS = "FAILED"
+SUCCESS_STATUS = "COMPLETED"
 
 
 def get_exception_info(e):

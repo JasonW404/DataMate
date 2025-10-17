@@ -1,12 +1,11 @@
 package com.dataengine.cleaning.interfaces.api;
 
 import com.dataengine.cleaning.application.service.CleaningTemplateService;
-
 import com.dataengine.cleaning.interfaces.dto.CleaningTemplate;
 import com.dataengine.cleaning.interfaces.dto.CreateCleaningTemplateRequest;
 import com.dataengine.cleaning.interfaces.dto.UpdateCleaningTemplateRequest;
+import com.dataengine.common.infrastructure.common.Response;
 import com.dataengine.common.interfaces.PagedResponse;
-import com.dataengine.common.interfaces.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,9 +33,13 @@ public class CleaningTemplateController {
             @RequestParam(value = "size", required = false) Integer size,
             @RequestParam(value = "keywords", required = false) String keyword) {
         List<CleaningTemplate> templates = cleaningTemplateService.getTemplates(keyword, page, size);
-        int count  = cleaningTemplateService.countTemplates(keyword);
-        int totalPages = (count + size + 1) / size;
-        return ResponseEntity.ok(Response.ok(PagedResponse.of(templates, page, count, totalPages)));
+        if (page != null && size != null) {
+            int count  = cleaningTemplateService.countTemplates(keyword);
+            int totalPages = (count + size + 1) / size;
+            return ResponseEntity.ok(Response.ok(PagedResponse.of(templates, page, count, totalPages)));
+        } else {
+            return ResponseEntity.ok(Response.ok(PagedResponse.of(templates)));
+        }
     }
 
     @PostMapping

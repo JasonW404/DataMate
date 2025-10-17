@@ -35,7 +35,10 @@ public class CleaningTemplateService {
         Map<String, OperatorResponse> operatorsMap = allOperators.stream()
                 .collect(Collectors.toMap(OperatorResponse::getId, Function.identity()));
 
-        Integer offset = page * size;
+        Integer offset = null;
+        if (page != null && size != null) {
+            offset = page * size;
+        }
         List<TemplateWithInstance> allTemplates = cleaningTemplateMapper.findAllTemplates(keywords, size, offset);
         Map<String, List<TemplateWithInstance>> templatesMap = allTemplates.stream()
                 .collect(Collectors.groupingBy(TemplateWithInstance::getId));

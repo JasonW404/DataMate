@@ -1,8 +1,7 @@
 package com.dataengine.operator.interfaces.api;
 
+import com.dataengine.common.infrastructure.common.Response;
 import com.dataengine.common.interfaces.PagedResponse;
-
-import com.dataengine.common.interfaces.Response;
 import com.dataengine.operator.application.CategoryService;
 import com.dataengine.operator.interfaces.dto.CategoryTreeResponse;
 import lombok.RequiredArgsConstructor;
