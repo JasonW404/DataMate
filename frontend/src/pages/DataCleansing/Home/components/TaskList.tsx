@@ -103,6 +103,7 @@ export default function TaskList() {
       dataIndex: "name",
       key: "name",
       fixed: "left",
+      width: 150,
       render: (text: string, record: any) => (
         <a onClick={() => handleViewTask(record)}>{text}</a>
       ),
@@ -111,6 +112,7 @@ export default function TaskList() {
       title: "源数据集",
       dataIndex: "srcDatasetId",
       key: "srcDatasetId",
+      width: 150,
       render: (_, record: CleansingTask) => {
         return (
           <Button
@@ -128,6 +130,7 @@ export default function TaskList() {
       title: "目标数据集",
       dataIndex: "destDatasetId",
       key: "destDatasetId",
+      width: 150,
       render: (_, record: CleansingTask) => {
         return (
           <Button
@@ -145,6 +148,7 @@ export default function TaskList() {
       title: "状态",
       dataIndex: "status",
       key: "status",
+      width: 100,
       render: (status: any) => {
         return <Badge color={status.color} text={status.label} />;
       },
@@ -160,7 +164,6 @@ export default function TaskList() {
       dataIndex: "endedAt",
       key: "endedAt",
       width: 180,
-      sorter: true,
     },
     {
       title: "进度",

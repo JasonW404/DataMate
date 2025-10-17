@@ -20,6 +20,13 @@ export function updateTaskByIdUsingPut(
   return put(`/api/data-collection/tasks/${id}`, data);
 }
 
+export function queryTaskDetailsByIdUsingGet(id: string | number) {
+  return get(`/api/data-collection/tasks/${id}`);
+}
+
+export function queryDataXTemplatesUsingGet(params?: any) {
+  return get("/api/data-collection/templates", params);
+}
 export function deleteTaskByIdUsingDelete(id: string | number) {
   return del(`/api/data-collection/tasks/${id}`);
 }

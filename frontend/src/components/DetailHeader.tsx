@@ -2,6 +2,7 @@ import React from "react";
 import { Database } from "lucide-react";
 import { Card, Dropdown, Button, Tag, Tooltip } from "antd";
 import type { ItemType } from "antd/es/menu/interface";
+import AddTagPopover from "./AddTagPopover";
 
 interface StatisticItem {
   icon: React.ReactNode;
@@ -20,16 +21,27 @@ interface OperationItem {
   danger?: boolean;
 }
 
+interface TagConfig {
+  showAdd: boolean;
+  tags: { id: number; name: string; color: string }[];
+  onFetchTags?: () => Promise<{
+    data: { id: number; name: string; color: string }[];
+  }>;
+  onAddTag?: (tag: { id: number; name: string; color: string }) => void;
+  onCreateAndTag?: (tagName: string) => void;
+}
 interface DetailHeaderProps<T> {
   data: T;
   statistics: StatisticItem[];
   operations: OperationItem[];
+  tagConfig?: TagConfig;
 }
 
 function DetailHeader<T>({
   data,
   statistics,
   operations,
+  tagConfig,
 }: DetailHeaderProps<T>): React.ReactNode {
   return (
     <Card>
@@ -56,7 +68,6 @@ function DetailHeader<T>({
                 </Tag>
               )}
             </div>
-            <p className="text-gray-700 mb-2">{data.description}</p>
             {data?.tags && (
               <div className="flex flex-wrap mb-2">
                 {data?.tags?.map((tag) => (
@@ -68,15 +79,22 @@ function DetailHeader<T>({
                     {tag.name}
                   </Tag>
                 ))}
+                {tagConfig?.showAdd && (
+                  <AddTagPopover
+                    tags={tagConfig.tags}
+                    onFetchTags={tagConfig.onFetchTags}
+                    onAddTag={tagConfig.onAddTag}
+                    onCreateAndTag={tagConfig.onCreateAndTag}
+                  />
+                )}
               </div>
             )}
+            <p className="text-gray-700 mb-4">{data.description}</p>
             <div className="flex items-center gap-6 text-sm">
               {statistics.map((stat) => (
-                <div key={stat.label} className="flex items-center gap-1">
+                <div key={stat.key} className="flex items-center gap-1">
                   {stat.icon}
-                  <span>
-                    {stat.value} {stat.label}
-                  </span>
+                  <span>{stat.value}</span>
                 </div>
               ))}
             </div>

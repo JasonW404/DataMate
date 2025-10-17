@@ -1,7 +1,9 @@
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 import { Card } from "antd";
 import { AlertTriangle } from "lucide-react";
 
 export default function DataQuality() {
+  return <DevelopmentInProgress showHome={false} />
   return (
     <div className=" mt-0">
       <div className="grid md:grid-cols-2 gap-6">

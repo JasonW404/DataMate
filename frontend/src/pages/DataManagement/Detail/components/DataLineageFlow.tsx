@@ -1,6 +1,8 @@
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 import { Dataset } from "../../dataset.model";
 
 export default function DataLineageFlow(dataset: Dataset) {
+  return <DevelopmentInProgress showHome={false} />
   const lineage = dataset.lineage;
   if (!lineage) return null;
 

@@ -230,13 +230,16 @@ module.exports = function (router) {
 
   // 更新数据集
   router.put(API.updateDatasetByIdUsingPut, (req, res) => {
-    const { datasetId } = req.params;
-    const index = datasetList.findIndex((d) => d.id === datasetId);
+    const { id } = req.params;
+    let { tags } = req.body;
 
+    const index = datasetList.findIndex((d) => d.id === id);
+    tags = [...datasetList[index].tags.map((tag) => tag.name), ...tags];
     if (index !== -1) {
       datasetList[index] = {
         ...datasetList[index],
         ...req.body,
+        tags: tagList.filter((tag) => tags?.includes?.(tag.name)),
         updatedAt: new Date().toISOString(),
         updatedBy: "Admin",
       };

@@ -1,69 +1,14 @@
 import React, { memo, useEffect, useState } from "react";
-import { Button, Menu } from "antd";
+import { Button, Menu, Popover } from "antd";
 import {
   CloseOutlined,
   MenuOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { ClipboardList, Sparkles } from "lucide-react";
-import { antMenuItems, antMenuItems as items } from "@/pages/Layout/menu";
+import { ClipboardList, Sparkles, X } from "lucide-react";
+import { menuItems } from "@/pages/Layout/menu";
 import { NavLink, useLocation, useNavigate } from "react-router";
 import TaskUpload from "./TaskUpload";
-
-const TaskUploadPopover = ({ sidebarOpen, toggleShowTaskPopover }) => {
-  const arrowStyle = sidebarOpen ? {} : { top: "calc(100% - 68px)" };
-  const popoverStyle = sidebarOpen
-    ? {
-        bottom: "48px",
-        left: "0px",
-      }
-    : {
-        bottom: "-48px",
-        left: "68px",
-      };
-
-  return (
-    <div
-      id="header-task-popover"
-      className={`absolute left-full w-md transition-all duration-300 ease-in-out z-50 opacity-0 invisible transform -translate-x-4`}
-      style={popoverStyle}
-    >
-      {/* 箭头 - 指向按钮中心 */}
-      {/* <div
-        className="absolute -left-2 w-0 h-0 transform -translate-y-1/2"
-        style={{
-          borderTop: "8px solid transparent",
-          borderBottom: "8px solid transparent",
-          borderRight: "8px solid #e5e7eb",
-          ...arrowStyle,
-        }}
-      />
-      <div
-        className="absolute -left-1.5 top-1/2 w-0 h-0 transform -translate-y-1/2"
-        style={{
-          borderTop: "8px solid transparent",
-          borderBottom: "8px solid transparent",
-          borderRight: "8px solid white",
-          ...arrowStyle,
-        }}
-      /> */}
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-80">
-        <div className="flex justify-between items-center p-3 border-b border-gray-100">
-          <span className="text-sm font-medium text-gray-900">任务中心</span>
-          <Button
-            type="text"
-            size="small"
-            icon={<CloseOutlined />}
-            onClick={() => toggleShowTaskPopover(false)}
-          />
-        </div>
-        <div className="p-0 h-[250px] overflow-y-auto">
-          <TaskUpload />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const AsiderAndHeaderLayout = () => {
   const { pathname } = useLocation();
@@ -74,17 +19,17 @@ const AsiderAndHeaderLayout = () => {
 
   // Initialize active item based on current pathname
   const initActiveItem = () => {
-    for (let index = 0; index < antMenuItems.length; index++) {
-      const element = antMenuItems[index];
+    for (let index = 0; index < menuItems.length; index++) {
+      const element = menuItems[index];
       if (element.children) {
         element.children.forEach((subItem) => {
-          if (pathname.includes(subItem.key)) {
-            setActiveItem(subItem.key);
+          if (pathname.includes(subItem.id)) {
+            setActiveItem(subItem.id);
             return;
           }
         });
-      } else if (pathname.includes(element.key)) {
-        setActiveItem(element.key);
+      } else if (pathname.includes(element.id)) {
+        setActiveItem(element.id);
         return;
       }
     }
@@ -134,7 +79,11 @@ const AsiderAndHeaderLayout = () => {
         <Menu
           mode="inline"
           inlineCollapsed={!sidebarOpen}
-          items={items}
+          items={menuItems.map((item) => ({
+            key: item.id,
+            label: item.title,
+            icon: item.icon ? <item.icon className="w-4 h-4" /> : null,
+          }))}
           selectedKeys={[activeItem]}
           defaultOpenKeys={["synthesis"]}
           onClick={({ key }) => {
@@ -149,15 +98,24 @@ const AsiderAndHeaderLayout = () => {
       <div className="p-4 border-t border-gray-200">
         {sidebarOpen ? (
           <div className="space-y-2">
-            <div className="relative">
-              <Button block onClick={() => toggleShowTaskPopover(true)}>
+            <Popover
+              title={
+                <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-2 mb-2">
+                  <h4 className="font-bold">任务中心</h4>
+                  <X
+                    onClick={() => setTaskCenterVisible(false)}
+                    className="cursor-pointer w-4 h-4 text-gray-500 hover:text-gray-900"
+                  />
+                </div>
+              }
+              open={taskCenterVisible}
+              content={<TaskUpload />}
+              trigger="click"
+            >
+              <Button block onClick={() => setTaskCenterVisible(true)}>
                 任务中心
               </Button>
-              <TaskUploadPopover
-                sidebarOpen={sidebarOpen}
-                toggleShowTaskPopover={toggleShowTaskPopover}
-              />
-            </div>
+            </Popover>
             <Button block onClick={() => navigate("/data/settings")}>
               设置
             </Button>
@@ -165,15 +123,18 @@ const AsiderAndHeaderLayout = () => {
         ) : (
           <div className="space-y-2">
             <div className="relative">
-              <Button
-                block
-                onClick={() => toggleShowTaskPopover(true)}
-                icon={<ClipboardList className="w-4 h-4" />}
-              ></Button>
-              <TaskUploadPopover
-                sidebarOpen={sidebarOpen}
-                toggleShowTaskPopover={toggleShowTaskPopover}
-              />
+              <Popover
+                title="任务中心"
+                open={taskCenterVisible}
+                content={<TaskUpload />}
+                trigger="click"
+              >
+                <Button
+                  block
+                  onClick={() => setTaskCenterVisible(true)}
+                  icon={<ClipboardList className="w-4 h-4" />}
+                ></Button>
+              </Popover>
             </div>
             <Button block onClick={() => navigate("/data/settings")}>
               <SettingOutlined />
@@ -187,8 +148,8 @@ const AsiderAndHeaderLayout = () => {
         <div
           className="fixed inset-0 z-40"
           onClick={() => {
-            console.log('clicked outside');
-            
+            console.log("clicked outside");
+
             setTaskCenterVisible(false);
             toggleShowTaskPopover(false);
           }}

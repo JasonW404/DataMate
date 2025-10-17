@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Breadcrumb, Modal, App } from "antd";
+import { Card, Breadcrumb, Modal, App, Tabs } from "antd";
 import {
   ReloadOutlined,
   DownloadOutlined,
@@ -13,7 +13,13 @@ import { mapDataset, datasetSubTypeMap } from "../dataset.const";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
 import { Link, useParams } from "react-router";
 import { useFilesOperation, useImportFile } from "../hooks";
-import { downloadFile, queryDatasetByIdUsingGet } from "../dataset.api";
+import {
+  createDatasetTagUsingPost,
+  downloadFile,
+  queryDatasetByIdUsingGet,
+  queryDatasetTagsUsingGet,
+  updateDatasetByIdUsingPut,
+} from "../dataset.api";
 import DataQuality from "./components/DataQuality";
 import DataLineageFlow from "./components/DataLineageFlow";
 import Overview from "./components/Overview";
@@ -79,19 +85,16 @@ export default function DatasetDetail() {
   const statistics = [
     {
       icon: <File className="text-blue-400 w-4 h-4" />,
-      label: "",
       key: "file",
       value: dataset?.itemCount || 0,
     },
     {
       icon: <Activity className="text-blue-400 w-4 h-4" />,
-      label: "",
       key: "size",
       value: dataset?.size || "0 B",
     },
     {
       icon: <FileType className="text-blue-400 w-4 h-4" />,
-      label: "",
       key: "type",
       value:
         datasetSubTypeMap[dataset?.type as keyof typeof datasetSubTypeMap]
@@ -101,7 +104,6 @@ export default function DatasetDetail() {
     },
     {
       icon: <Clock className="text-blue-400 w-4 h-4" />,
-      label: "",
       key: "time",
       value: dataset?.createdAt,
     },
@@ -137,25 +139,49 @@ export default function DatasetDetail() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col gap-4">
+    <div className="h-full flex flex-col gap-4">
       <Breadcrumb items={navigateItems} />
       {/* Header */}
       <DetailHeader
         data={dataset}
         statistics={statistics}
         operations={operations}
+        tagConfig={{
+          showAdd: true,
+          tags: dataset.tags || [],
+          onFetchTags: async () => {
+            const res = await queryDatasetTagsUsingGet({
+              page: 0,
+              pageSize: 1000,
+            });
+            return res.data || [];
+          },
+          onCreateAndTag: async (tagName) => {
+            const res = await createDatasetTagUsingPost({ name: tagName });
+            if (res.data) {
+              handleRefresh();
+            }
+          },
+          onAddTag: async (tag) => {
+            const res = await updateDatasetByIdUsingPut(dataset.id, {
+              tags: [tag],
+            });
+            if (res.data) {
+              handleRefresh();
+            }
+          },
+        }}
       />
-      <Card
-        tabList={tabList}
-        activeTabKey={activeTab}
-        onTabChange={setActiveTab}
-      >
-        {activeTab === "overview" && (
-          <Overview dataset={dataset} filesOperation={filesOperation} />
-        )}
-        {activeTab === "lineage" && <DataLineageFlow dataset={dataset} />}
-        {activeTab === "quality" && <DataQuality />}
-      </Card>
+      <div className="h-full flex flex-col flex-1 overflow-auto p-6 pt-2 bg-white rounded-md shadow">
+        <Tabs activeKey={activeTab} items={tabList} onChange={setActiveTab} />
+        <div className="h-full overflow-auto">
+          {activeTab === "overview" && (
+            <Overview dataset={dataset} filesOperation={filesOperation} />
+          )}
+          {activeTab === "lineage" && <DataLineageFlow dataset={dataset} />}
+          {activeTab === "quality" && <DataQuality />}
+        </div>
+      </div>
 
       {/* Upload Dialog */}
       <Modal

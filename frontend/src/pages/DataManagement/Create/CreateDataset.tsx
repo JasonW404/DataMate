@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { ArrowLeft } from "lucide-react";
-import { Select, Card, Button, Input, Form, Radio, Divider, App } from "antd";
+import { Select, Button, Input, Form, Radio, App } from "antd";
 import RadioCard from "@/components/RadioCard";
 import { Link, useNavigate, useParams } from "react-router";
 import { useImportFile } from "../hooks/useImportFile";
@@ -77,7 +77,7 @@ export default function DatasetCreate() {
   // 获取归集任务列表
   const fetchCollectionTasks = async () => {
     try {
-      const { data } = await queryTasksUsingGet({ pageNum: 1, pageSize: 100 });
+      const { data } = await queryTasksUsingGet({ page: 1, size: 100 });
       const options = data.map((task: any) => ({
         label: task.name,
         value: task.id,
@@ -96,14 +96,15 @@ export default function DatasetCreate() {
     // 如果有id，说明是编辑模式
     if (id) {
       const { data } = await queryDatasetByIdUsingGet(id);
-      setNewDataset({
+      const updatedDataset = {
         ...data,
         datasetType: DatasetType.TEXT,
         type: DatasetSubType.TEXT_DOCUMENT,
         tags: data.tags || [],
         source: DataSource.UPLOAD,
         target: DataSource.UPLOAD,
-      });
+      };
+      setNewDataset(updatedDataset);
     }
   };
 
@@ -149,7 +150,6 @@ export default function DatasetCreate() {
         : () => createDatasetUsingPost(params);
       const { data } = await callFn();
       dataset = data;
-      message.success(`数据集${id ? "更新" : "创建"}成功`);
 
       if (importConfig.source === DataSource.UPLOAD) {
         if (fileList.length === 0) {
@@ -175,6 +175,7 @@ export default function DatasetCreate() {
         return;
       }
 
+      message.success(`数据集${id ? "更新" : "创建"}成功`);
       navigate("/data/management");
     } catch (error) {
       message.error("数据集创建失败，请重试");

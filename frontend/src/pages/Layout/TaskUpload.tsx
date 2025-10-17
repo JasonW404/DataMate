@@ -6,6 +6,7 @@ import {
 import { TaskItem } from "@/pages/DataManagement/dataset.model";
 import { calculateSHA256, checkIsFilesExist } from "@/utils/file.util";
 import { App, Button, Empty, Progress } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useState, useRef, useEffect } from "react";
 
 export default function TaskUpload() {
@@ -218,25 +219,33 @@ export default function TaskUpload() {
   }, []);
 
   return (
-    <div>
+    <div
+      className="w-90 max-w-90 max-h-96 overflow-y-auto p-2"
+      id="header-task-popover"
+    >
       {taskList.length > 0 &&
         taskList.map((task) => (
-          <div key={task.key}>
-            <div>{task.title}</div>
-            <div>{task.percent?.toFixed(2)}%</div>
-            <Button
-              disabled={!task?.cancelFn}
-              onClick={() =>
-                removeTask({
-                  ...task,
-                  ...taskListRef.current.find((item) => item.key === task.key),
-                  // ...uploadTaskMap.current.get(task.key),
-                })
-              }
-            >
-              取消
-            </Button>
-            <Progress percent={Number(task.percent.toFixed(2))} size="small" />
+          <div key={task.key} className="border-b border-gray-200 pb-2">
+            <div className="flex items-center justify-between">
+              <div>{task.title}</div>
+              <Button
+                type="text"
+                danger
+                disabled={!task?.cancelFn}
+                onClick={() =>
+                  removeTask({
+                    ...task,
+                    ...taskListRef.current.find(
+                      (item) => item.key === task.key
+                    ),
+                    // ...uploadTaskMap.current.get(task.key),
+                  })
+                }
+                icon={<DeleteOutlined />}
+              ></Button>
+            </div>
+
+            <Progress size="small" percent={Number(task.percent.toFixed(2))} />
           </div>
         ))}
       {taskList.length === 0 && (

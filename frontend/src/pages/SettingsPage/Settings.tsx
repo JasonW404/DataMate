@@ -1,5 +1,3 @@
-;
-
 import { useState } from "react";
 import {
   Button,
@@ -33,6 +31,7 @@ import {
   CloudServerOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -96,6 +95,7 @@ interface WebhookEvent {
 }
 
 export default function SettingsPage() {
+  return <DevelopmentInProgress />;
   const [activeTab, setActiveTab] = useState("system");
   const [showApiKey, setShowApiKey] = useState<{ [key: string]: boolean }>({});
   const [showWebhookDialog, setShowWebhookDialog] = useState(false);
@@ -530,7 +530,10 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-3">
                     {vectorDBs.map((db) => (
-                      <Card key={db.id} className="border rounded-lg p-4 space-y-2">
+                      <Card
+                        key={db.id}
+                        className="border rounded-lg p-4 space-y-2"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{db.name}</span>
@@ -552,7 +555,10 @@ export default function SettingsPage() {
                             />
                           </div>
                           <div className="flex items-center gap-1">
-                            <Button icon={<ExperimentOutlined />} size="small" />
+                            <Button
+                              icon={<ExperimentOutlined />}
+                              size="small"
+                            />
                             <Button icon={<EditOutlined />} size="small" />
                             <Button
                               icon={<DeleteOutlined />}
@@ -587,12 +593,19 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-3">
                     {models.map((model) => (
-                      <Card key={model.id} className="border rounded-lg p-4 space-y-2">
+                      <Card
+                        key={model.id}
+                        className="border rounded-lg p-4 space-y-2"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{model.name}</span>
                             <Badge
-                              status={model.status === "active" ? "success" : "default"}
+                              status={
+                                model.status === "active"
+                                  ? "success"
+                                  : "default"
+                              }
                               text={model.status === "active" ? "启用" : "禁用"}
                             />
                           </div>
@@ -670,10 +683,7 @@ export default function SettingsPage() {
                       管理系统事件的Webhook通知，类似Label Studio的事件系统
                     </p>
                   </div>
-                  <Button
-                    icon={<PlusOutlined />}
-                    onClick={handleAddWebhook}
-                  >
+                  <Button icon={<PlusOutlined />} onClick={handleAddWebhook}>
                     新增Webhook
                   </Button>
                 </div>
@@ -690,7 +700,9 @@ export default function SettingsPage() {
                                   ? "success"
                                   : "default"
                               }
-                              text={webhook.status === "active" ? "启用" : "禁用"}
+                              text={
+                                webhook.status === "active" ? "启用" : "禁用"
+                              }
                             />
                           </div>
                           <div className="space-y-2">
@@ -699,7 +711,9 @@ export default function SettingsPage() {
                               {webhook.url}
                             </p>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm text-gray-500">事件:</span>
+                              <span className="text-sm text-gray-500">
+                                事件:
+                              </span>
                               {webhook.events.map((event) => {
                                 const eventInfo = availableEvents.find(
                                   (e) => e.id === event
@@ -753,7 +767,11 @@ export default function SettingsPage() {
           <Button key="cancel" onClick={() => setShowWebhookDialog(false)}>
             取消
           </Button>,
-          <Button key="ok" type="primary" onClick={() => setShowWebhookDialog(false)}>
+          <Button
+            key="ok"
+            type="primary"
+            onClick={() => setShowWebhookDialog(false)}
+          >
             创建Webhook
           </Button>,
         ]}
@@ -821,7 +839,10 @@ export default function SettingsPage() {
                   </h4>
                   <div className="space-y-2 pl-4">
                     {events.map((event) => (
-                      <div key={event.id} className="flex items-start space-x-2">
+                      <div
+                        key={event.id}
+                        className="flex items-start space-x-2"
+                      >
                         <Checkbox
                           checked={newWebhook.events.includes(event.id)}
                           onChange={(e) => {
@@ -841,7 +862,9 @@ export default function SettingsPage() {
                             }
                           }}
                         >
-                          <span className="text-sm font-medium">{event.name}</span>
+                          <span className="text-sm font-medium">
+                            {event.name}
+                          </span>
                         </Checkbox>
                         <span className="text-xs text-gray-500">
                           {event.description}
@@ -865,7 +888,11 @@ export default function SettingsPage() {
           <Button key="cancel" onClick={() => setShowVectorDBDialog(false)}>
             取消
           </Button>,
-          <Button key="ok" type="primary" onClick={() => setShowVectorDBDialog(false)}>
+          <Button
+            key="ok"
+            type="primary"
+            onClick={() => setShowVectorDBDialog(false)}
+          >
             添加数据库
           </Button>,
         ]}
@@ -949,7 +976,11 @@ export default function SettingsPage() {
           <Button key="cancel" onClick={() => setShowModelDialog(false)}>
             取消
           </Button>,
-          <Button key="ok" type="primary" onClick={() => setShowModelDialog(false)}>
+          <Button
+            key="ok"
+            type="primary"
+            onClick={() => setShowModelDialog(false)}
+          >
             添加模型
           </Button>,
         ]}

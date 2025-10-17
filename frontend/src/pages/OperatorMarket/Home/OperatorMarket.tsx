@@ -113,7 +113,7 @@ export default function OperatorMarketPage() {
   }, [selectedFilters]);
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex justify-between mb-2">
         <h1 className="text-xl font-bold text-gray-900">算子市场</h1>
@@ -131,7 +131,7 @@ export default function OperatorMarketPage() {
         </div>
       </div>
       {/* Main Content */}
-      <div className="flex h-full bg-white rounded-lg">
+      <div className="flex flex-1 overflow-auto h-full bg-white rounded-lg">
         <div
           className={`border-r border-gray-200 transition-all duration-300 ${
             showFilters
