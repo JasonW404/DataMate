@@ -44,13 +44,13 @@ public class DatasetTypeController {
     }
 
     private String getIconForType(String typeCode) {
-        switch (typeCode) {
-            case "IMAGE": return "🖼️";
-            case "TEXT": return "📄";
-            case "AUDIO": return "🎵";
-            case "VIDEO": return "🎬";
-            case "MULTIMODAL": return "📊";
-            default: return "📁";
-        }
+        return switch (typeCode) {
+            case "IMAGE" -> "🖼️";
+            case "TEXT" -> "📄";
+            case "AUDIO" -> "🎵";
+            case "VIDEO" -> "🎬";
+            case "MULTIMODAL" -> "📊";
+            default -> "📁";
+        };
     }
 }

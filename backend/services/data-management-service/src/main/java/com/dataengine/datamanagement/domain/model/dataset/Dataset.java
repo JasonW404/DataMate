@@ -1,8 +1,8 @@
 package com.dataengine.datamanagement.domain.model.dataset;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.dataengine.common.domain.model.base.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,38 +18,23 @@ import java.util.UUID;
 @Getter
 @Setter
 @TableName(value = "t_dm_datasets", autoResultMap = true)
-public class Dataset {
-    @TableId
-    private String id;
+public class Dataset extends BaseEntity<String> {
     private String name;
     private String description;
-    // DB: dataset_type
     private String datasetType;
-
     private String category;
-
-    // DB: path
     private String path;
-    // DB: format
     private String format;
     private String schemaInfo;
-
-    // DB: size_bytes
     private Long sizeBytes = 0L;
     private Long fileCount = 0L;
     private Long recordCount = 0L;
     private Integer retentionDays = 0;
-
     private String metadata;
-
     private String status; // DRAFT/ACTIVE/ARCHIVED/PROCESSING
     private Boolean isPublic = false;
     private Boolean isFeatured = false;
     private Long version = 0L;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String createdBy;
-    private String updatedBy;
 
     // 聚合内的便捷集合（非持久化关联，由应用服务填充）
     @TableField(exist = false)
