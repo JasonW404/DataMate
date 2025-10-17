@@ -26,7 +26,19 @@ public class PagedResponse <T> {
         this.content = content;
     }
 
+    public PagedResponse(List<T> content, int page, int totalElements, int totalPages) {
+        this.page = page;
+        this.size = content.size();
+        this.totalElements = totalElements;
+        this.totalPages = totalPages;
+        this.content = content;
+    }
+
     public static <T> PagedResponse<T> of(List<T> content) {
         return new PagedResponse<>(content);
+    }
+
+    public static <T> PagedResponse<T> of(List<T> content, int page, int totalElements, int totalPages) {
+        return new PagedResponse<>(content, page, totalElements, totalPages);
     }
 }

@@ -29,6 +29,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,7 +51,11 @@ public class CleaningTaskService {
 
     public List<CleaningTask> getTasks(String status, String keywords, Integer page, Integer size) {
         Integer offset = page * size;
-        return cleaningTaskMapper.findTasksByStatus(status, keywords, size, offset);
+        return cleaningTaskMapper.findTasks(status, keywords, size, offset);
+    }
+
+    public int countTasks(String status, String keywords) {
+        return cleaningTaskMapper.findTasks(status, keywords, null, null).size();
     }
 
     @Transactional
@@ -68,6 +73,7 @@ public class CleaningTaskService {
         task.setSrcDatasetName(request.getSrcDatasetName());
         task.setDestDatasetId(datasetResponse.getId());
         task.setDestDatasetName(datasetResponse.getName());
+        task.setBeforeSize(datasetResponse.getTotalSize());
         cleaningTaskMapper.insertTask(task);
 
         List<OperatorInstancePo> instancePos = request.getInstance().stream()
@@ -75,9 +81,8 @@ public class CleaningTaskService {
         operatorInstanceMapper.insertInstance(taskId, instancePos);
 
         prepareTask(task, request.getInstance());
-        scanDataset(task.getId(), request.getSrcDatasetId());
-
-        taskExecutor.submit(() -> executeTask(task));
+        scanDataset(taskId, request.getSrcDatasetId());
+        executeTask(taskId);
         return task;
     }
 
@@ -90,15 +95,14 @@ public class CleaningTaskService {
         cleaningTaskMapper.deleteTask(taskId);
     }
 
-    public void executeTask(CleaningTask task) {
-        task.setStatus(CleaningTask.StatusEnum.RUNNING);
-        cleaningTaskMapper.updateTaskStatus(task);
-        submitTask(task.getId());
+    public void executeTask(String taskId) {
+        taskExecutor.submit(() -> submitTask(taskId));
     }
 
     private void prepareTask(CleaningTask task, List<OperatorInstance> instances) {
         TaskProcess process = new TaskProcess();
         process.setInstanceId(task.getId());
+        process.setDatasetId(task.getDestDatasetId());
         process.setDatasetPath(FLOW_PATH + "/" + task.getId() + "/dataset.jsonl");
         process.setExportPath(DATASET_PATH + "/" + task.getDestDatasetId());
         process.setExecutorType(ExecutorType.DATA_PLATFORM.getValue());
@@ -137,7 +141,7 @@ public class CleaningTaskService {
             }
             List<Map<String, Object>> files = datasetFile.getContent().stream()
                     .map(content -> Map.of("fileName", (Object) content.getFileName(),
-                            "fileSize", content.getSize() + "B",
+                            "fileSize", content.getSize(),
                             "filePath", content.getFilePath(),
                             "fileType", content.getFileType(),
                             "fileId", content.getId()))
@@ -148,6 +152,11 @@ public class CleaningTaskService {
     }
 
     private void submitTask(String taskId) {
+        CleaningTask task = new CleaningTask();
+        task.setId(taskId);
+        task.setStatus(CleaningTask.StatusEnum.RUNNING);
+        task.setStartedAt(LocalDateTime.now());
+        cleaningTaskMapper.updateTask(task);
         RuntimeClient.submitTask(taskId);
     }
 
@@ -175,6 +184,6 @@ public class CleaningTaskService {
         CleaningTask task = new CleaningTask();
         task.setId(taskId);
         task.setStatus(CleaningTask.StatusEnum.STOPPED);
-        cleaningTaskMapper.updateTaskStatus(task);
+        cleaningTaskMapper.updateTask(task);
     }
 }

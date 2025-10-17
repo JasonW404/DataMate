@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/cleaning/tasks")
@@ -29,8 +31,10 @@ public class CleaningTaskController {
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size, @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "keywords", required = false) String keywords) {
-        return ResponseEntity.ok(Response.ok(PagedResponse.of(cleaningTaskService.getTasks(status, keywords, page,
-                size))));
+        List<CleaningTask> tasks = cleaningTaskService.getTasks(status, keywords, page, size);
+        int count = cleaningTaskService.countTasks(status, keywords);
+        int totalPages = (count + size + 1) / size;
+        return ResponseEntity.ok(Response.ok(PagedResponse.of(tasks, page, count, totalPages)));
     }
 
     @PostMapping
@@ -44,11 +48,9 @@ public class CleaningTaskController {
         return ResponseEntity.ok(Response.ok(null));
     }
 
-    @PostMapping("/{taskId}/start")
+    @PostMapping("/{taskId}/execute")
     public ResponseEntity<Response<Object>> cleaningTasksStart(@PathVariable("taskId") String taskId) {
-        CleaningTask task = new CleaningTask();
-        task.setId(taskId);
-        cleaningTaskService.executeTask(task);
+        cleaningTaskService.executeTask(taskId);
         return ResponseEntity.ok(Response.ok(null));
     }
 

@@ -8,14 +8,14 @@ import java.util.List;
 
 @Mapper
 public interface CleaningTaskMapper {
-    List<CleaningTask> findTasksByStatus(@Param("status") String status, @Param("keywords") String keywords,
+    List<CleaningTask> findTasks(@Param("status") String status, @Param("keywords") String keywords,
                                          @Param("size") Integer size, @Param("offset") Integer offset);
 
     CleaningTask findTaskById(@Param("taskId") String taskId);
 
     void insertTask(CleaningTask task);
 
-    void updateTaskStatus(CleaningTask task);
+    void updateTask(CleaningTask task);
 
     void deleteTask(@Param("taskId") String taskId);
 }

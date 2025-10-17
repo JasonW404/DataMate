@@ -11,7 +11,8 @@ import java.util.List;
 @Mapper
 public interface CleaningTemplateMapper {
 
-    List<TemplateWithInstance> findAllTemplates();
+    List<TemplateWithInstance> findAllTemplates(@Param("keywords") String keywords,
+                                                @Param("size") Integer size, @Param("offset") Integer offset);
 
     List<OperatorResponse> findAllOperators();
 

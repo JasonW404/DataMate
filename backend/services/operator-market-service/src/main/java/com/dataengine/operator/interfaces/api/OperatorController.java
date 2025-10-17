@@ -32,7 +32,10 @@ public class OperatorController {
     public ResponseEntity<Response<PagedResponse<OperatorResponse>>> operatorsListPost(@RequestBody OperatorsListPostRequest request) {
         List<OperatorResponse> responses = operatorService.getOperators(request.getPage(), request.getSize(),
                 request.getCategories(), request.getOperatorName(), request.getIsStar());
-        return ResponseEntity.ok(Response.ok(PagedResponse.of(responses)));
+        int count = operatorService.getOperatorsCount(request.getCategories(), request.getOperatorName(),
+                request.getIsStar());
+        int totalPages = (count + request.getSize() + 1) / request.getSize();
+        return ResponseEntity.ok(Response.ok(PagedResponse.of(responses, request.getPage(), count, totalPages)));
     }
 
     @GetMapping("/{id}")

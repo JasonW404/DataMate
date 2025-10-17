@@ -24,6 +24,10 @@ public class OperatorService {
                 .map(OperatorConverter.INSTANCE::operatorToResponse).toList();
     }
 
+    public int getOperatorsCount(List<Integer> categories, String operatorName, Boolean isStar) {
+        return operatorMapper.countOperatorsByCriteria(operatorName, categories, isStar);
+    }
+
     private OperatorResponse toDto(Operator entity) {
         OperatorResponse dto = new OperatorResponse();
         dto.setId(entity.getId());

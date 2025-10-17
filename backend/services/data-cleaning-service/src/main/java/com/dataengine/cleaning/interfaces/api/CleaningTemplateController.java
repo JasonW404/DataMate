@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 
 @RestController
@@ -26,8 +29,14 @@ public class CleaningTemplateController {
     private final CleaningTemplateService cleaningTemplateService;
 
     @GetMapping
-    public ResponseEntity<Response<PagedResponse<CleaningTemplate>>> cleaningTemplatesGet() {
-        return ResponseEntity.ok(Response.ok(PagedResponse.of(cleaningTemplateService.getTemplates())));
+    public ResponseEntity<Response<PagedResponse<CleaningTemplate>>> cleaningTemplatesGet(
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size,
+            @RequestParam(value = "keywords", required = false) String keyword) {
+        List<CleaningTemplate> templates = cleaningTemplateService.getTemplates(keyword, page, size);
+        int count  = cleaningTemplateService.countTemplates(keyword);
+        int totalPages = (count + size + 1) / size;
+        return ResponseEntity.ok(Response.ok(PagedResponse.of(templates, page, count, totalPages)));
     }
 
     @PostMapping

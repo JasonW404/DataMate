@@ -294,7 +294,7 @@ class Filter(BaseOp):
         # 文件无内容会被过滤
         if sample[self.text_key] == "" and sample[self.data_key] == b"":
             task_info = TaskInfoPersistence()
-            sample["fileSize"] = "0B"
+            sample["fileSize"] = "0"
             task_info.persistence_task_info(sample)
             return False
 
