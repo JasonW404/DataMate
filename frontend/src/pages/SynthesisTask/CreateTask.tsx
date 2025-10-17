@@ -36,10 +36,12 @@ import {
   Brain,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 const { TextArea } = Input;
 
 export default function SynthesisTaskCreate() {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [searchQuery, setSearchQuery] = useState("");

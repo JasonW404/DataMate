@@ -19,6 +19,7 @@ import { mockTasks } from "@/mock/evaluation";
 import CardView from "@/components/CardView";
 import { useNavigate } from "react-router";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 export default function DataEvaluationPage() {
   const navigate = useNavigate();
@@ -179,6 +180,9 @@ export default function DataEvaluationPage() {
     setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
+  return (
+    <DevelopmentInProgress />
+  );
   // 主列表界面
   return (
     <div>

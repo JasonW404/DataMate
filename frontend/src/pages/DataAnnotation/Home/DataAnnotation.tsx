@@ -25,8 +25,10 @@ import { useNavigate } from "react-router";
 import type { AnnotationTask } from "../annotation.interface";
 import useFetchData from "@/hooks/useFetchData";
 import { queryAnnotationTasksUsingGet } from "../annotation.api";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 export default function DataAnnotation() {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"list" | "card">("list");
 

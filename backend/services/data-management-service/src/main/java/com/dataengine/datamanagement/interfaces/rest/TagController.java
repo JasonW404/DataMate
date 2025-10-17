@@ -1,7 +1,7 @@
 package com.dataengine.datamanagement.interfaces.rest;
 
 import com.dataengine.common.interfaces.Response;
-import com.dataengine.datamanagement.application.service.TagApplicationService;
+import com.dataengine.datamanagement.application.TagApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.Tag;
 import com.dataengine.datamanagement.interfaces.converter.TagConverter;
 import com.dataengine.datamanagement.interfaces.dto.CreateTagRequest;
@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**

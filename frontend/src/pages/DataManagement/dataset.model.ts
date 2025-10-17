@@ -105,3 +105,13 @@ export interface DatasetTask {
   lastExecution?: string;
   executionHistory?: { time: string; status: string }[];
 }
+
+export interface TaskItem {
+  key: string;
+  title: string;
+  percent: number;
+  reqId: number;
+  isCancel?: boolean;
+  controller: AbortController;
+  cancelFn?: () => void;
+}

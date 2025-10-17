@@ -122,7 +122,7 @@ export default function DatasetManagementPage() {
   const handleDeleteDataset = async (id: number) => {
     if (!id) return;
     await deleteDatasetByIdUsingDelete(id);
-
+    fetchData();
     message.success("数据删除成功");
   };
 
@@ -240,7 +240,7 @@ export default function DatasetManagementPage() {
         dataSource={tableData}
         pagination={pagination}
         rowKey="id"
-        scroll={{ x: "max-content", y: "calc(100vh - 34rem)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 30rem)" }}
       />
     </Card>
   );
@@ -273,17 +273,6 @@ export default function DatasetManagementPage() {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 mt-4">
-        {/* <Card title="数据集统计">
-          <div className="grid grid-cols-4">
-            {statisticsData.count?.map?.((item) => (
-              <Statistic
-                key={item.title}
-                title={item.title}
-                value={item.value}
-              />
-            ))}
-          </div>
-        </Card> */}
         <Card>
           <div className="grid grid-cols-4">
             {statisticsData.size?.map?.((item) => (
@@ -297,9 +286,9 @@ export default function DatasetManagementPage() {
         </Card>
       </div>
       <SearchControls
-        searchTerm={searchParams.keywords}
-        onSearchChange={(keywords) =>
-          setSearchParams({ ...searchParams, keywords })
+        searchTerm={searchParams.keyword}
+        onSearchChange={(keyword) =>
+          setSearchParams({ ...searchParams, keyword })
         }
         searchPlaceholder="搜索数据集名称、描述或标签..."
         filters={filterOptions}

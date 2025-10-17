@@ -25,8 +25,10 @@ import { mockRatioTasks } from "@/mock/ratio";
 import { useNavigate } from "react-router";
 import CardView from "@/components/CardView";
 import { SearchControls } from "@/components/SearchControls";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 export default function RatioTasksPage() {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");

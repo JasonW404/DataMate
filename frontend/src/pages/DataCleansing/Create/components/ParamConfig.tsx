@@ -1,6 +1,6 @@
 import React from "react";
 import { Input, Select, Radio, Checkbox, Form, InputNumber, Slider } from "antd";
-import { OperatorI } from "../../cleansing.model";
+import { OperatorI } from "@/pages/OperatorMarket/operator.model";
 
 interface ParamConfigProps {
   operator: OperatorI;

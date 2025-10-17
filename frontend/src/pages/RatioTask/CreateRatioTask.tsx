@@ -25,11 +25,14 @@ import type { RatioConfig, RatioTask } from "@/pages/RatioTask/ratio";
 import { mockRatioTasks } from "@/mock/ratio";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
 import { useNavigate } from "react-router";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 export default function CreateRatioTask() {
+  return <DevelopmentInProgress />;
+  
   const navigate = useNavigate();
   const [form] = Form.useForm();
   // 配比任务相关状态
@@ -172,7 +175,10 @@ export default function CreateRatioTask() {
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
-          <Button type="text" onClick={() => navigate("/data/synthesis/ratio-task")}>
+          <Button
+            type="text"
+            onClick={() => navigate("/data/synthesis/ratio-task")}
+          >
             <ArrowLeft className="w-4 h-4 mr-1" />
           </Button>
           <h1 className="text-xl font-bold bg-clip-text">创建配比任务</h1>
@@ -371,7 +377,9 @@ export default function CreateRatioTask() {
                   ) : (
                     <div style={{ maxHeight: 500, overflowY: "auto" }}>
                       {ratioTaskForm.selectedDatasets.map((datasetId) => {
-                        const dataset = datasets.find((d) => d.id === datasetId);
+                        const dataset = datasets.find(
+                          (d) => d.id === datasetId
+                        );
                         const config = ratioTaskForm.ratioConfigs.find(
                           (c) => c.source === datasetId
                         );
@@ -409,7 +417,9 @@ export default function CreateRatioTask() {
                                     min={0}
                                     max={ratioTaskForm.totalTargetCount}
                                   />
-                                  <span className="text-xs text-gray-500">条</span>
+                                  <span className="text-xs text-gray-500">
+                                    条
+                                  </span>
                                 </div>
                                 <Progress
                                   percent={Math.round(
@@ -425,9 +435,11 @@ export default function CreateRatioTask() {
                                 {dataset.labels?.map((label, index) => {
                                   const labelConfig =
                                     ratioTaskForm.ratioConfigs.find(
-                                      (c) => c.source === `${datasetId}_${label}`
+                                      (c) =>
+                                        c.source === `${datasetId}_${label}`
                                     );
-                                  const labelQuantity = labelConfig?.quantity || 0;
+                                  const labelQuantity =
+                                    labelConfig?.quantity || 0;
                                   return (
                                     <div
                                       key={index}
@@ -522,19 +534,27 @@ export default function CreateRatioTask() {
                     <Switch
                       checked={ratioTaskForm.autoStart}
                       onChange={(checked) =>
-                        setRatioTaskForm({ ...ratioTaskForm, autoStart: checked })
+                        setRatioTaskForm({
+                          ...ratioTaskForm,
+                          autoStart: checked,
+                        })
                       }
                     />
                   </Form.Item>
                 </div>
                 <Divider />
                 <div className="flex justify-end gap-2">
-                  <Button onClick={() => navigate("/data/synthesis/ratio-task")}>取消</Button>
+                  <Button
+                    onClick={() => navigate("/data/synthesis/ratio-task")}
+                  >
+                    取消
+                  </Button>
                   <Button
                     type="primary"
                     onClick={handleCreateRatioTask}
                     disabled={
-                      !ratioTaskForm.name || ratioTaskForm.ratioConfigs.length === 0
+                      !ratioTaskForm.name ||
+                      ratioTaskForm.ratioConfigs.length === 0
                     }
                   >
                     <Play className="w-4 h-4 mr-2" />

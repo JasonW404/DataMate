@@ -108,7 +108,7 @@ class TaskInfoPersistence:
             result = execute_result.fetchall()
         return result
 
-    # todo 删除接口和sql待实现
+    # todo 删除接口待实现
     def delete_task_info(self, instance_id: str):
         create_tables_sql = self.sql_dict.get("create_tables_sql")
         delete_task_instance_sql = self.sql_dict.get("delete_task_instance_sql")

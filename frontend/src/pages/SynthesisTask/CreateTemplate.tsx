@@ -12,10 +12,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { mockTemplates } from "@/mock/annotation";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 const { TextArea } = Input;
 
 export default function InstructionTemplateCreate() {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isTestingTemplate, setIsTestingTemplate] = useState(false);

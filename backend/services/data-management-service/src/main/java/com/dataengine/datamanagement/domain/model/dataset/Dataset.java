@@ -1,5 +1,8 @@
 package com.dataengine.datamanagement.domain.model.dataset;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.dataengine.common.domain.model.base.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,58 +17,40 @@ import java.util.UUID;
  */
 @Getter
 @Setter
-public class Dataset {
-
-    private String id; // UUID
+@TableName(value = "t_dm_datasets", autoResultMap = true)
+public class Dataset extends BaseEntity<String> {
     private String name;
     private String description;
-
-    // DB: dataset_type
     private String datasetType;
-
     private String category;
-    // DB: data_source_id
-    private String dataSourceId;
-    // DB: path
     private String path;
-    // DB: format
     private String format;
-
-    // DB: size_bytes
+    private String schemaInfo;
     private Long sizeBytes = 0L;
     private Long fileCount = 0L;
     private Long recordCount = 0L;
-
-    private Double completionRate = 0.0;
-    private Double qualityScore = 0.0;
-
+    private Integer retentionDays = 0;
+    private String metadata;
     private String status; // DRAFT/ACTIVE/ARCHIVED/PROCESSING
     private Boolean isPublic = false;
     private Boolean isFeatured = false;
-
-    private Long downloadCount = 0L;
-    private Long viewCount = 0L;
-
     private Long version = 0L;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String createdBy;
-    private String updatedBy;
-
     // 聚合内的便捷集合（非持久化关联，由应用服务填充）
+    @TableField(exist = false)
     private List<Tag> tags = new ArrayList<>();
+    @TableField(exist = false)
     private List<DatasetFile> files = new ArrayList<>();
 
-    public Dataset() {}
+    public Dataset() {
+    }
 
-    public Dataset(String name, String description, String datasetType, String category,
-                   String dataSourceId, String path, String format, String status, String createdBy) {
+    public Dataset(String name, String description, String datasetType, String category, String path, String format,
+                   String status, String createdBy) {
         this.name = name;
         this.description = description;
         this.datasetType = datasetType;
         this.category = category;
-        this.dataSourceId = dataSourceId;
         this.path = path;
         this.format = format;
         this.status = status;

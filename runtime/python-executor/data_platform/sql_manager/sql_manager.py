@@ -19,7 +19,6 @@ class SQLManager:
         :return: 返回 SQLAlchemy 连接对象
         """
 
-        # todo 需要从环境变量中获取数据库配置
         connection_url = URL.create(
             drivername="mysql+pymysql",
             username=os.getenv("MYSQL_USER", "root"),

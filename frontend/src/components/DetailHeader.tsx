@@ -2,6 +2,7 @@ import React from "react";
 import { Database } from "lucide-react";
 import { Card, Dropdown, Button, Tag, Tooltip } from "antd";
 import type { ItemType } from "antd/es/menu/interface";
+import AddTagPopover from "./AddTagPopover";
 
 interface StatisticItem {
   icon: React.ReactNode;
@@ -20,17 +21,28 @@ interface OperationItem {
   danger?: boolean;
 }
 
+interface TagConfig {
+  showAdd: boolean;
+  tags: { id: number; name: string; color: string }[];
+  onFetchTags?: () => Promise<{
+    data: { id: number; name: string; color: string }[];
+  }>;
+  onAddTag?: (tag: { id: number; name: string; color: string }) => void;
+  onCreateAndTag?: (tagName: string) => void;
+}
 interface DetailHeaderProps<T> {
   data: T;
   statistics: StatisticItem[];
   operations: OperationItem[];
+  tagConfig?: TagConfig;
 }
 
-const DetailHeader: React.FC<DetailHeaderProps<any>> = <T,>({
+function DetailHeader<T>({
   data,
   statistics,
   operations,
-}: DetailHeaderProps<T>) => {
+  tagConfig,
+}: DetailHeaderProps<T>): React.ReactNode {
   return (
     <Card>
       <div className="flex items-start justify-between">
@@ -48,31 +60,41 @@ const DetailHeader: React.FC<DetailHeaderProps<any>> = <T,>({
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-lg font-bold text-gray-900">{data.name}</h1>
               {data?.status && (
-                <Tag color={data.status.color}>
+                <Tag color={data.status?.color}>
                   <div className="flex items-center gap-2 text-xs">
-                    <span>{data.status.icon}</span>
-                    <span>{data.status.label}</span>
+                    <span>{data.status?.icon}</span>
+                    <span>{data.status?.label}</span>
                   </div>
                 </Tag>
               )}
             </div>
+            {data?.tags && (
+              <div className="flex flex-wrap mb-2">
+                {data?.tags?.map((tag) => (
+                  <Tag
+                    key={tag.id}
+                    className="mr-1"
+                    style={{ background: tag?.color }}
+                  >
+                    {tag.name}
+                  </Tag>
+                ))}
+                {tagConfig?.showAdd && (
+                  <AddTagPopover
+                    tags={tagConfig.tags}
+                    onFetchTags={tagConfig.onFetchTags}
+                    onAddTag={tagConfig.onAddTag}
+                    onCreateAndTag={tagConfig.onCreateAndTag}
+                  />
+                )}
+              </div>
+            )}
             <p className="text-gray-700 mb-4">{data.description}</p>
-            {data?.tags?.map((tag) => (
-              <Tag
-                key={tag.id}
-                className="mr-1"
-                style={{ background: tag.color }}
-              >
-                {tag.name}
-              </Tag>
-            ))}
             <div className="flex items-center gap-6 text-sm">
-              {statistics.map((stat, idx) => (
-                <div key={idx} className="flex items-center gap-1">
+              {statistics.map((stat) => (
+                <div key={stat.key} className="flex items-center gap-1">
                   {stat.icon}
-                  <span>
-                    {stat.value} {stat.label}
-                  </span>
+                  <span>{stat.value}</span>
                 </div>
               ))}
             </div>
@@ -96,7 +118,7 @@ const DetailHeader: React.FC<DetailHeaderProps<any>> = <T,>({
               );
             }
             return (
-              <Tooltip title={op.label}>
+              <Tooltip key={op.key} title={op.label}>
                 <Button
                   key={op.key}
                   onClick={op.onClick}
@@ -110,18 +132,10 @@ const DetailHeader: React.FC<DetailHeaderProps<any>> = <T,>({
               </Tooltip>
             );
           })}
-          {/* <Dropdown trigger={['click']} menu={{
-                        items: operations as ItemType[], onClick: ({ key }) => {
-                            const operation = operations.find(op => op.key === key);
-                            if (operation?.onClick) {
-                                operation.onClick(item);
-                            }
-                        }
-                    }}><div className="cursor-pointer"><Ellipsis /></div></Dropdown> */}
         </div>
       </div>
     </Card>
   );
-};
+}
 
 export default DetailHeader;

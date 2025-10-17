@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { CleansingTemplate, OperatorI } from "../../cleansing.model";
+import { OperatorI } from "@/pages/OperatorMarket/operator.model";
+import { CleansingTemplate } from "../../cleansing.model";
 import { queryCleaningTemplatesUsingGet } from "../../cleansing.api";
-import { queryOperatorsUsingPost } from "@/pages/OperatorMarket/operator.api";
+import {
+  queryCategoryTreeUsingGet,
+  queryOperatorsUsingPost,
+} from "@/pages/OperatorMarket/operator.api";
 
 export function useOperatorOperations() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -32,10 +36,31 @@ export function useOperatorOperations() {
     };
   };
 
+  const [categoryOptions, setCategoryOptions] = useState([]);
+
   const initOperators = async () => {
-    const { data } = await queryOperatorsUsingPost({ page: 0, size: 1000 });
-    const operators = data.content.map(mapOperator);
+    const [categoryRes, operatorRes] = await Promise.all([
+      queryCategoryTreeUsingGet(),
+      queryOperatorsUsingPost({ page: 0, size: 1000 }),
+    ]);
+
+    const operators = operatorRes.data.content.map(mapOperator);
     setOperators(operators || []);
+
+    const options = categoryRes.data.content.reduce((acc: any[], item: any) => {
+      const cats = item.categories.map((cat) => ({
+        ...cat,
+        type: item.name,
+        label: cat.name,
+        value: cat.id,
+        icon: cat.icon,
+        operators: operators.filter((op) => op[item.name] === cat.name),
+      }));
+      acc.push(...cats);
+      return acc;
+    }, [] as { id: string; name: string; icon: React.ReactNode }[]);
+
+    setCategoryOptions(options);
   };
 
   const initTemplates = async () => {
@@ -61,12 +86,11 @@ export function useOperatorOperations() {
   const toggleOperator = (operator: OperatorI) => {
     const exist = selectedOperators.find((op) => op.id === operator.id);
     if (exist) {
-      setSelectedOperators(operators.filter((op) => op.id !== operator.id));
+      setSelectedOperators(
+        selectedOperators.filter((op) => op.id !== operator.id)
+      );
     } else {
-      const newOperator: OperatorI = {
-        ...operator,
-      };
-      setSelectedOperators([...selectedOperators, newOperator]);
+      setSelectedOperators([...selectedOperators, { ...operator }]);
     }
   };
 
@@ -83,14 +107,14 @@ export function useOperatorOperations() {
     value: any
   ) => {
     console.log(operatorId, paramKey, value);
-    
+
     setSelectedOperators((prev) =>
       prev.map((op) =>
         op.id === operatorId
           ? {
               ...op,
-              params: {
-                ...(op?.params || op?.defaultParams),
+              overrides: {
+                ...(op?.overrides || op?.defaultParams),
                 [paramKey]: value,
               },
             }
@@ -116,6 +140,7 @@ export function useOperatorOperations() {
     templates,
     currentTemplate,
     configOperator,
+    categoryOptions,
     setConfigOperator,
     setCurrentTemplate,
     setCurrentStep,

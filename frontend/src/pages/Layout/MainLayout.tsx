@@ -1,5 +1,3 @@
-;
-
 import React, { memo } from "react";
 import { Outlet } from "react-router";
 import Sidebar from "./Sidebar";
@@ -11,9 +9,9 @@ const MainLayout = () => {
         {/* Sidebar */}
         <Sidebar />
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden p-6">
+        <div className="flex-1 flex flex-col overflow-auto p-6 min-w-4xl">
           {/* Content Area */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 flex flex-col overflow-auto">
             <Outlet />
           </div>
         </div>

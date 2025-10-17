@@ -1,12 +1,12 @@
 import { get, post, put, del } from "@/utils/request";
 
 // 数据源任务相关接口
-export function queryTasksUsingPost(params?: any) {
-  return post("/api/data-collection/tasks", params);
+export function queryTasksUsingGet(params?: any) {
+  return get("/api/data-collection/tasks", params);
 }
 
 export function createTaskUsingPost(data: any) {
-  return post("/api/data-collection/tasks/create", data);
+  return post("/api/data-collection/tasks", data);
 }
 
 export function queryTaskByIdUsingGet(id: string | number) {
@@ -20,6 +20,13 @@ export function updateTaskByIdUsingPut(
   return put(`/api/data-collection/tasks/${id}`, data);
 }
 
+export function queryTaskDetailsByIdUsingGet(id: string | number) {
+  return get(`/api/data-collection/tasks/${id}`);
+}
+
+export function queryDataXTemplatesUsingGet(params?: any) {
+  return get("/api/data-collection/templates", params);
+}
 export function deleteTaskByIdUsingDelete(id: string | number) {
   return del(`/api/data-collection/tasks/${id}`);
 }

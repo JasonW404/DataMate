@@ -80,11 +80,7 @@ export default function Overview({ dataset, filesOperation }) {
       label: "数据源",
       children: dataset.dataSource || "未知",
     },
-    {
-      key: "description",
-      label: "描述",
-      children: dataset.description || "无",
-    },
+
     {
       key: "type",
       label: "数据集类型",
@@ -94,6 +90,11 @@ export default function Overview({ dataset, filesOperation }) {
       key: "status",
       label: "状态",
       children: dataset?.status?.label || "未知",
+    },
+    {
+      key: "description",
+      label: "描述",
+      children: dataset.description || "无",
     },
   ];
 
@@ -153,58 +154,47 @@ export default function Overview({ dataset, filesOperation }) {
     <>
       <div className=" flex flex-col gap-4">
         {/* 基本信息 */}
-        <Card>
-          <Descriptions title="基本信息" items={items} column={2} />
-        </Card>
-        {/* 标签 */}
-        {dataset?.tags?.length > 0 && (
-          <Card>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">标签</h3>
-            <div className="flex flex-wrap gap-2">
-              {dataset.tags?.map((tag) => (
-                <Tag
-                  key={tag.id}
-                  color={tag.color || "blue"}
-                  className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full"
-                >
-                  {tag.name}
-                </Tag>
-              ))}
-            </div>
-          </Card>
-        )}
-        <Card>
-          {selectedFiles.length > 0 && (
-            <div className="flex items-center gap-2 mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <span className="text-sm text-blue-700 font-medium">
-                已选择 {selectedFiles.length} 个文件
-              </span>
-              <Button
-                onClick={handleBatchExport}
-                className="ml-auto bg-transparent"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                批量导出
-              </Button>
-              <Button
-                onClick={handleBatchDeleteFiles}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                批量删除
-              </Button>
-            </div>
-          )}
-          <div className="overflow-x-auto">
-            <Table
-              rowKey="id"
-              columns={columns}
-              dataSource={fileList}
-              rowSelection={rowSelection}
-              scroll={{ x: "max-content", y: 800 }}
-            />
+        <Descriptions
+          title="基本信息"
+          layout="vertical"
+          size="small"
+          items={items}
+          column={5}
+        />
+
+        {/* 文件列表 */}
+        <h2 className="text-base font-semibold mt-8">文件列表</h2>
+        {selectedFiles.length > 0 && (
+          <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <span className="text-sm text-blue-700 font-medium">
+              已选择 {selectedFiles.length} 个文件
+            </span>
+            <Button
+              onClick={handleBatchExport}
+              className="ml-auto bg-transparent"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              批量导出
+            </Button>
+            <Button
+              onClick={handleBatchDeleteFiles}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 bg-transparent"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              批量删除
+            </Button>
           </div>
-        </Card>
+        )}
+        <div className="overflow-x-auto">
+          <Table
+            size="middle"
+            rowKey="id"
+            columns={columns}
+            dataSource={fileList}
+            rowSelection={rowSelection}
+            scroll={{ x: "max-content", y: 600 }}
+          />
+        </div>
       </div>
       {/* 文件预览弹窗 */}
       <Modal

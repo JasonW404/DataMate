@@ -1,67 +1,8 @@
-import { useState } from "react";
-import { Checkbox } from "antd";
+import { Button, Checkbox, Tooltip } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
-import {
-  Brain,
-  Code,
-  Cpu,
-  FileText,
-  ImageIcon,
-  Music,
-  Package,
-  Settings,
-  Video,
-  X,
-  Zap,
-} from "lucide-react";
-import type { Operator } from "@/pages/OperatorMarket/operator.model";
-import { mockOperators } from "@/mock/operator";
 import React from "react";
-
-const getStatusBadge = (status: string) => {
-  const statusConfig = {
-    active: {
-      label: "活跃",
-      color: "green",
-      icon: <Zap className="w-3 h-3" />,
-    },
-    beta: {
-      label: "测试版",
-      color: "blue",
-      icon: <Settings className="w-3 h-3" />,
-    },
-    deprecated: {
-      label: "已弃用",
-      color: "gray",
-      icon: <X className="w-3 h-3" />,
-    },
-  };
-  return (
-    statusConfig[status as keyof typeof statusConfig] || statusConfig.active
-  );
-};
-
-const getTypeIcon = (type: string) => {
-  const iconMap = {
-    preprocessing: Code,
-    training: Brain,
-    inference: Cpu,
-    postprocessing: Package,
-  };
-  const IconComponent = iconMap[type as keyof typeof iconMap] || Code;
-  return <IconComponent className="w-4 h-4" />;
-};
-
-const getModalityIcon = (modality: string) => {
-  const iconMap = {
-    text: FileText,
-    image: ImageIcon,
-    audio: Music,
-    video: Video,
-  };
-  const IconComponent = iconMap[modality as keyof typeof iconMap] || FileText;
-  return <IconComponent className="w-3 h-3" />;
-};
+import { CategoryI, CategoryTreeI } from "../../operator.model";
+import { Filter } from "lucide-react";
 
 interface FilterOption {
   key: string;
@@ -159,85 +100,45 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   );
 };
 
-const Filters = () => {
-  const [operators] = useState<Operator[]>(mockOperators);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedModalities, setSelectedModalities] = useState<string[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+interface FiltersProps {
+  categoriesTree: CategoryTreeI[];
+  selectedFilters: { [key: string]: string[] };
+  hideFilter: () => void;
+  setSelectedFilters: (filters: { [key: string]: string[] }) => void;
+}
 
+const Filters: React.FC<FiltersProps> = ({
+  categoriesTree,
+  selectedFilters,
+  hideFilter,
+  setSelectedFilters,
+}) => {
   const clearAllFilters = () => {
-    setSelectedCategories([]);
-    setSelectedTypes([]);
-    setSelectedModalities([]);
-    setSelectedStatuses([]);
+    const newFilters = Object.keys(selectedFilters).reduce((acc, key) => {
+      acc[key] = [];
+      return acc;
+    }, {} as { [key: string]: string[] });
+    setSelectedFilters(newFilters);
   };
 
-  const hasActiveFilters =
-    selectedCategories.length > 0 ||
-    selectedTypes.length > 0 ||
-    selectedModalities.length > 0 ||
-    selectedStatuses.length > 0;
-
-  // Prepare filter options
-  const categoryOptions = Array.from(
-    new Set(operators.map((op) => op.category))
-  ).map((category) => ({
-    key: category,
-    label: category,
-    count: operators.filter((op) => op.category === category).length,
-  }));
-
-  const typeOptions = [
-    "preprocessing",
-    "training",
-    "inference",
-    "postprocessing",
-  ].map((type) => {
-    const typeLabels = {
-      preprocessing: "预处理",
-      training: "训练",
-      inference: "推理",
-      postprocessing: "后处理",
-    };
-    return {
-      key: type,
-      label: typeLabels[type as keyof typeof typeLabels],
-      count: operators.filter((op) => op.type === type).length,
-      icon: getTypeIcon(type),
-    };
-  });
-
-  const modalityOptions = Array.from(
-    new Set(operators.flatMap((op) => op.modality))
-  ).map((modality) => ({
-    key: modality,
-    label: modality,
-    count: operators.filter((op) => op.modality.includes(modality)).length,
-    icon: getModalityIcon(modality),
-  }));
-
-  const statusOptions = ["active", "beta", "deprecated"].map((status) => {
-    const statusLabels = {
-      active: "活跃",
-      beta: "测试版",
-      deprecated: "已弃用",
-    };
-    const statusConfig = getStatusBadge(status);
-    return {
-      key: status,
-      label: statusLabels[status as keyof typeof statusLabels],
-      count: operators.filter((op) => op.status === status).length,
-      color: statusConfig.color,
-    };
-  });
+  const hasActiveFilters = Object.values(selectedFilters).some(
+    (filters) => Array.isArray(filters) && filters.length > 0
+  );
 
   return (
     <div className="p-4 space-y-4 h-full overflow-y-auto">
       {/* Filter Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
-          <FilterOutlined className="w-4 h-4" />
+          <Tooltip title="隐藏筛选器">
+            <Button
+              type="text"
+              size="small"
+              icon={<FilterOutlined />}
+              onClick={hideFilter}
+              className="cursor-pointer hover:text-blue-500"
+            ></Button>
+          </Tooltip>
           筛选器
         </h3>
         {hasActiveFilters && (
@@ -251,40 +152,22 @@ const Filters = () => {
       </div>
 
       {/* Filter Sections */}
-      <FilterSection
-        title="分类"
-        options={categoryOptions}
-        selectedValues={selectedCategories}
-        onSelectionChange={setSelectedCategories}
-        badgeColor="bg-blue-100 text-blue-800"
-      />
-
-      <FilterSection
-        title="类型"
-        options={typeOptions}
-        selectedValues={selectedTypes}
-        onSelectionChange={setSelectedTypes}
-        showIcons={true}
-        badgeColor="bg-green-100 text-green-800"
-      />
-
-      <FilterSection
-        title="模态"
-        options={modalityOptions}
-        selectedValues={selectedModalities}
-        onSelectionChange={setSelectedModalities}
-        showIcons={true}
-        badgeColor="bg-purple-100 text-purple-800"
-      />
-
-      <FilterSection
-        title="状态"
-        options={statusOptions}
-        selectedValues={selectedStatuses}
-        onSelectionChange={setSelectedStatuses}
-        showIcons={true}
-        badgeColor="bg-orange-100 text-orange-800"
-      />
+      {categoriesTree.map((category: CategoryTreeI) => (
+        <FilterSection
+          key={category.id}
+          title={category.name}
+          options={category.categories.map((cat: CategoryI) => ({
+            key: cat.id.toString(),
+            label: cat.name,
+            count: cat.count,
+          }))}
+          selectedValues={selectedFilters[category.id] || []}
+          onSelectionChange={(values) =>
+            setSelectedFilters({ ...selectedFilters, [category.id]: values })
+          }
+          showIcons={false}
+        />
+      ))}
     </div>
   );
 };

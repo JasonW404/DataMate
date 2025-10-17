@@ -1,24 +1,27 @@
 import { useState } from "react";
-import { Card, Steps, Button, message } from "antd";
+import { Card, Steps, Button, message, Form } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { createCleaningTaskUsingPost } from "../cleansing.api";
-import CleansingTaskStepOne from "./components/CreateTaskStepOne";
+import CreateTaskStepOne from "./components/CreateTaskStepOne";
 import { useCreateStepTwo } from "./hooks/useCreateStepTwo";
+import {
+  DatasetSubType,
+  DatasetType,
+} from "@/pages/DataManagement/dataset.model";
 
 export default function CleansingTaskCreate() {
   const navigate = useNavigate();
+  const [form] = Form.useForm();
   const [taskConfig, setTaskConfig] = useState({
     name: "",
     description: "",
-    datasetId: "",
-    newDatasetName: "",
-    priority: "normal",
-    batchSize: "100",
-    keepOriginal: true,
-    generateReport: true,
-    autoBackup: false,
+    srcDatasetId: "",
+    srcDatasetName: "",
+    destDatasetName: "",
+    destDatasetType: DatasetSubType.TEXT_DOCUMENT,
+    type: DatasetType.TEXT,
   });
 
   const {
@@ -32,8 +35,13 @@ export default function CleansingTaskCreate() {
   const handleSave = async () => {
     const task = {
       ...taskConfig,
-      operators: selectedOperators,
-      createdAt: new Date().toISOString(),
+      instance: selectedOperators.map((item) => ({
+        id: item.id,
+        overrides: {
+          ...item.defaultParams,
+          ...item.overrides,
+        },
+      })),
     };
     console.log("创建任务:", task);
     navigate("/data/cleansing");
@@ -43,10 +51,15 @@ export default function CleansingTaskCreate() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1:
+      case 1: {
+        const values = form.getFieldsValue();
         return (
-          taskConfig.name && taskConfig.datasetId && taskConfig.newDatasetName
+          values.name &&
+          values.srcDatasetId &&
+          values.destDatasetName &&
+          values.destDatasetType
         );
+      }
       case 2:
         return selectedOperators.length > 0;
       default:
@@ -58,7 +71,8 @@ export default function CleansingTaskCreate() {
     switch (currentStep) {
       case 1:
         return (
-          <CleansingTaskStepOne
+          <CreateTaskStepOne
+            form={form}
             taskConfig={taskConfig}
             setTaskConfig={setTaskConfig}
           />
@@ -71,7 +85,7 @@ export default function CleansingTaskCreate() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -91,9 +105,9 @@ export default function CleansingTaskCreate() {
         </div>
       </div>
       {/* Step Content */}
-      <Card>
-        {renderStepContent()}
-        <div className="flex justify-end gap-3 mt-8">
+      <div className="h-full mb-4 flex flex-col overflow-auto flex-1 bg-white rounded shadow-sm">
+        <div className="flex-1 overflow-auto m-6">{renderStepContent()}</div>
+        <div className="flex justify-end p-6 gap-3 border-t border-gray-200">
           <Button onClick={() => navigate("/data/cleansing")}>取消</Button>
           {currentStep > 1 && <Button onClick={handlePrev}>上一步</Button>}
           {currentStep === 2 ? (
@@ -115,7 +129,7 @@ export default function CleansingTaskCreate() {
             </Button>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

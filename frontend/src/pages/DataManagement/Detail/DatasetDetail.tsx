@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Breadcrumb, Modal, App } from "antd";
+import { Card, Breadcrumb, Modal, App, Tabs } from "antd";
 import {
   ReloadOutlined,
   DownloadOutlined,
@@ -7,22 +7,23 @@ import {
   FileTextOutlined,
   DatabaseOutlined,
   FileImageOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons";
 import DetailHeader from "@/components/DetailHeader";
-import {
-  mapDataset,
-  datasetStatusMap,
-  datasetSubTypeMap,
-} from "../dataset.const";
+import { mapDataset, datasetSubTypeMap } from "../dataset.const";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
 import { Link, useParams } from "react-router";
 import { useFilesOperation, useImportFile } from "../hooks";
-import { downloadFile, queryDatasetByIdUsingGet } from "../dataset.api";
+import {
+  createDatasetTagUsingPost,
+  downloadFile,
+  queryDatasetByIdUsingGet,
+  queryDatasetTagsUsingGet,
+  updateDatasetByIdUsingPut,
+} from "../dataset.api";
 import DataQuality from "./components/DataQuality";
 import DataLineageFlow from "./components/DataLineageFlow";
 import Overview from "./components/Overview";
-import { Activity, Clock, Dock, File, FileType } from "lucide-react";
+import { Activity, Clock, File, FileType } from "lucide-react";
 
 const navigateItems = [
   {
@@ -83,25 +84,27 @@ export default function DatasetDetail() {
   // 基本信息描述项
   const statistics = [
     {
-      icon: <File className="text-blue-500 w-4 h-4" />,
-      label: "",
+      icon: <File className="text-blue-400 w-4 h-4" />,
+      key: "file",
       value: dataset?.itemCount || 0,
     },
     {
-      icon: <Activity className="text-purple-500 w-4 h-4" />,
-      label: "",
+      icon: <Activity className="text-blue-400 w-4 h-4" />,
+      key: "size",
       value: dataset?.size || "0 B",
     },
     {
-      icon: <FileType className="text-green-500 w-4 h-4" />,
-      label: "",
+      icon: <FileType className="text-blue-400 w-4 h-4" />,
+      key: "type",
       value:
-        datasetSubTypeMap[dataset?.type?.code as keyof typeof datasetSubTypeMap]
-          ?.label || dataset?.type?.code,
+        datasetSubTypeMap[dataset?.type as keyof typeof datasetSubTypeMap]
+          ?.label ||
+        dataset?.type ||
+        "未知",
     },
     {
-      icon: <Clock className="text-orange-500 w-4 h-4" />,
-      label: "",
+      icon: <Clock className="text-blue-400 w-4 h-4" />,
+      key: "time",
       value: dataset?.createdAt,
     },
   ];
@@ -136,25 +139,49 @@ export default function DatasetDetail() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col gap-4">
+    <div className="h-full flex flex-col gap-4">
       <Breadcrumb items={navigateItems} />
       {/* Header */}
       <DetailHeader
         data={dataset}
         statistics={statistics}
         operations={operations}
+        tagConfig={{
+          showAdd: true,
+          tags: dataset.tags || [],
+          onFetchTags: async () => {
+            const res = await queryDatasetTagsUsingGet({
+              page: 0,
+              pageSize: 1000,
+            });
+            return res.data || [];
+          },
+          onCreateAndTag: async (tagName) => {
+            const res = await createDatasetTagUsingPost({ name: tagName });
+            if (res.data) {
+              handleRefresh();
+            }
+          },
+          onAddTag: async (tag) => {
+            const res = await updateDatasetByIdUsingPut(dataset.id, {
+              tags: [tag],
+            });
+            if (res.data) {
+              handleRefresh();
+            }
+          },
+        }}
       />
-      <Card
-        tabList={tabList}
-        activeTabKey={activeTab}
-        onTabChange={setActiveTab}
-      >
-        {activeTab === "overview" && (
-          <Overview dataset={dataset} filesOperation={filesOperation} />
-        )}
-        {activeTab === "lineage" && <DataLineageFlow dataset={dataset} />}
-        {activeTab === "quality" && <DataQuality />}
-      </Card>
+      <div className="h-full flex flex-col flex-1 overflow-auto p-6 pt-2 bg-white rounded-md shadow">
+        <Tabs activeKey={activeTab} items={tabList} onChange={setActiveTab} />
+        <div className="h-full overflow-auto">
+          {activeTab === "overview" && (
+            <Overview dataset={dataset} filesOperation={filesOperation} />
+          )}
+          {activeTab === "lineage" && <DataLineageFlow dataset={dataset} />}
+          {activeTab === "quality" && <DataQuality />}
+        </div>
+      </div>
 
       {/* Upload Dialog */}
       <Modal
