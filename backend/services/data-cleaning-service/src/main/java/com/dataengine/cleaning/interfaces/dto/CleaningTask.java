@@ -3,7 +3,7 @@ package com.dataengine.cleaning.interfaces.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.Getter;
@@ -32,19 +32,23 @@ public class CleaningTask {
 
     private String destDatasetName;
 
+    private long beforeSize;
+
+    private long afterSize;
+
     /**
      * 任务当前状态
      */
     public enum StatusEnum {
-        PENDING("pending"),
+        PENDING("PENDING"),
 
-        RUNNING("running"),
+        RUNNING("RUNNING"),
 
-        COMPLETED("completed"),
+        COMPLETED("COMPLETED"),
 
-        STOPPED("stopped"),
+        STOPPED("STOPPED"),
 
-        FAILED("failed");
+        FAILED("FAILED");
 
         private final String value;
 
@@ -77,12 +81,12 @@ public class CleaningTask {
     private CleaningProcess progress;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime startedAt;
+    private LocalDateTime startedAt;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime finishedAt;
+    private LocalDateTime finishedAt;
 }
 

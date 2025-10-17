@@ -12,6 +12,8 @@ import java.util.Map;
 public class TaskProcess {
     private String instanceId;
 
+    private String datasetId;
+
     private String datasetPath;
 
     private String exportPath;

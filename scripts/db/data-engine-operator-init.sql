@@ -51,15 +51,15 @@ LEFT JOIN t_operator o ON tocr.operator_id = o.id
 LEFT JOIN t_operator_category toc ON tocr.category_id = toc.id;
 
 INSERT IGNORE INTO t_operator_category(id, name, type, parent_id) VALUES
-(1, 'modal', 'predefined', 0),
-(2, 'language', 'predefined', 0),
-(3, 'text', 'predefined', 1),
-(4, 'image', 'predefined', 1),
-(5, 'audio', 'predefined', 1),
-(6, 'video', 'predefined', 1),
-(7, 'multimodal', 'predefined', 1),
-(8, 'python', 'predefined', 2),
-(9, 'java', 'predefined', 2);
+(1, '模态', 'predefined', 0),
+(2, '语言', 'predefined', 0),
+(3, '文本', 'predefined', 1),
+(4, '图片', 'predefined', 1),
+(5, '音频', 'predefined', 1),
+(6, '视频', 'predefined', 1),
+(7, '多模态', 'predefined', 1),
+(8, 'Python', 'predefined', 2),
+(9, 'Java', 'predefined', 2);
 
 INSERT IGNORE INTO t_operator
   (id, name, description, version, inputs, outputs, runtime, settings, file_name, is_star) VALUES

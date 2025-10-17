@@ -4,7 +4,16 @@
 
     <select id="findAllTemplates" resultType="com.dataengine.cleaning.domain.model.TemplateWithInstance">
         SELECT t.id AS id, name, description, created_at, updated_at, created_by, operator_id, op_index, settings_override
-        FROM t_clean_template t LEFT JOIN t_operator_instance o ON t.id = o.instance_id;
+        FROM t_clean_template t LEFT JOIN t_operator_instance o ON t.id = o.instance_id
+        <where>
+            <if test="keywords != null and status != ''">
+                AND name LIKE CONCAT('%', #{keywords}, '%')
+            </if>
+        </where>
+        ORDER BY created_at
+        <if test="size != null and offset != null">
+            LIMIT ${size} OFFSET ${offset}
+        </if>
     </select>
 
     <select id="findAllOperators" resultType="com.dataengine.cleaning.interfaces.dto.OperatorResponse">

@@ -45,7 +45,7 @@ class FileExporter(Mapper):
                 raise TypeError(f"{file_type} is unsupported! please check support_ext in FileExporter Ops")
 
             if sample[self.text_key] == '' and sample[self.data_key] == b'':
-                sample[self.filesize_key] = "0B"
+                sample[self.filesize_key] = "0"
                 return sample
 
             if save_path:
@@ -64,7 +64,7 @@ class FileExporter(Mapper):
                 base_name, _ = os.path.splitext(save_path)
                 sample[self.filepath_key] = base_name
                 file_size = os.path.getsize(base_name)
-                sample[self.filesize_key] = f"{file_size}B"
+                sample[self.filesize_key] = f"{file_size}"
 
             logger.info(f"origin file named {file_name} has been save to {save_path}")
             logger.info(f"fileName: {sample[self.filename_key]}, "
@@ -77,8 +77,8 @@ class FileExporter(Mapper):
 
     def get_save_path(self, sample: Dict[str, Any], target_type) -> str:
         export_path = os.path.abspath(sample[self.export_path_key])
-        uuid_file = self._get_uuid()
-        new_file_name = uuid_file + '.' + target_type
+        file_name = sample[self.filename_key]
+        new_file_name = os.path.splitext(file_name)[0] + '.' + target_type
 
         if not check_valid_path(export_path):
             os.makedirs(export_path, exist_ok=True)

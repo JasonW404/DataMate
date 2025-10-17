@@ -1,7 +1,7 @@
 package com.dataengine.operator.interfaces.api;
 
+import com.dataengine.common.infrastructure.common.Response;
 import com.dataengine.common.interfaces.PagedResponse;
-import com.dataengine.common.interfaces.Response;
 import com.dataengine.operator.application.OperatorService;
 import com.dataengine.operator.interfaces.dto.CreateOperatorRequest;
 import com.dataengine.operator.interfaces.dto.OperatorResponse;
@@ -9,15 +9,7 @@ import com.dataengine.operator.interfaces.dto.OperatorsListPostRequest;
 import com.dataengine.operator.interfaces.dto.UpdateOperatorRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -32,7 +24,10 @@ public class OperatorController {
     public ResponseEntity<Response<PagedResponse<OperatorResponse>>> operatorsListPost(@RequestBody OperatorsListPostRequest request) {
         List<OperatorResponse> responses = operatorService.getOperators(request.getPage(), request.getSize(),
                 request.getCategories(), request.getOperatorName(), request.getIsStar());
-        return ResponseEntity.ok(Response.ok(PagedResponse.of(responses)));
+        int count = operatorService.getOperatorsCount(request.getCategories(), request.getOperatorName(),
+                request.getIsStar());
+        int totalPages = (count + request.getSize() + 1) / request.getSize();
+        return ResponseEntity.ok(Response.ok(PagedResponse.of(responses, request.getPage(), count, totalPages)));
     }
 
     @GetMapping("/{id}")

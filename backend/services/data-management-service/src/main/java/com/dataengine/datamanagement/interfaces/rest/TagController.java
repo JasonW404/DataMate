@@ -1,6 +1,7 @@
 package com.dataengine.datamanagement.interfaces.rest;
 
-import com.dataengine.common.interfaces.Response;
+import com.dataengine.common.infrastructure.common.Response;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.dataengine.datamanagement.application.TagApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.Tag;
 import com.dataengine.datamanagement.interfaces.converter.TagConverter;
@@ -56,7 +57,7 @@ public class TagController {
             );
             return ResponseEntity.ok(Response.ok(TagConverter.INSTANCE.convertToResponse(tag)));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Response.error(e.getMessage(), null));
+            return ResponseEntity.badRequest().body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
@@ -78,7 +79,7 @@ public class TagController {
             tagApplicationService.deleteTag(ids.stream().filter(StringUtils::isNoneBlank).distinct().toList());
             return ResponseEntity.ok(Response.ok(null));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Response.error(e.getMessage(), null));
+            return ResponseEntity.badRequest().body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 }

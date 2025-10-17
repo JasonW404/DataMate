@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -17,10 +17,10 @@ public class TemplateWithInstance {
     private String description;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     private String operatorId;
 
