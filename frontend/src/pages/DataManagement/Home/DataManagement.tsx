@@ -286,9 +286,9 @@ export default function DatasetManagementPage() {
         </Card>
       </div>
       <SearchControls
-        searchTerm={searchParams.keywords}
-        onSearchChange={(keywords) =>
-          setSearchParams({ ...searchParams, keywords })
+        searchTerm={searchParams.keyword}
+        onSearchChange={(keyword) =>
+          setSearchParams({ ...searchParams, keyword })
         }
         searchPlaceholder="搜索数据集名称、描述或标签..."
         filters={filterOptions}

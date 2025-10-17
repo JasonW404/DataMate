@@ -60,10 +60,10 @@ function DetailHeader<T>({
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-lg font-bold text-gray-900">{data.name}</h1>
               {data?.status && (
-                <Tag color={data.status.color}>
+                <Tag color={data.status?.color}>
                   <div className="flex items-center gap-2 text-xs">
-                    <span>{data.status.icon}</span>
-                    <span>{data.status.label}</span>
+                    <span>{data.status?.icon}</span>
+                    <span>{data.status?.label}</span>
                   </div>
                 </Tag>
               )}
@@ -74,7 +74,7 @@ function DetailHeader<T>({
                   <Tag
                     key={tag.id}
                     className="mr-1"
-                    style={{ background: tag.color }}
+                    style={{ background: tag?.color }}
                   >
                     {tag.name}
                   </Tag>

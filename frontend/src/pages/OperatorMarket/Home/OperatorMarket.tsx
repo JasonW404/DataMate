@@ -119,7 +119,7 @@ export default function OperatorMarketPage() {
         <h1 className="text-xl font-bold text-gray-900">算子市场</h1>
         <div className="flex items-center">
           <div className="flex gap-2">
-            <TagManagement />
+            {/* <TagManagement /> */}
             <Button
               type="primary"
               onClick={handleUploadOperator}
@@ -158,9 +158,9 @@ export default function OperatorMarketPage() {
             <div className="flex-1">
               <SearchControls
                 className="mb-4"
-                searchTerm={searchParams.keywords}
-                onSearchChange={(keywords) =>
-                  setSearchParams({ ...searchParams, keywords })
+                searchTerm={searchParams.keyword}
+                onSearchChange={(keyword) =>
+                  setSearchParams({ ...searchParams, keyword })
                 }
                 searchPlaceholder="搜索算子名称、描述..."
                 filters={filterOptions}

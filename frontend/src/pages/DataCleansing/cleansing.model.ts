@@ -42,10 +42,10 @@ export enum RuleCategory {
 }
 
 export enum TaskStatus {
-  PENDING = "pending",
-  RUNNING = "running",
-  COMPLETED = "completed",
-  FAILED = "failed",
+  PENDING = "PENDING",
+  RUNNING = "RUNNING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
 }
 
 export interface RuleCondition {

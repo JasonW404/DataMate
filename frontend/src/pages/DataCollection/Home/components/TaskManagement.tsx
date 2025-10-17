@@ -158,11 +158,11 @@ export default function TaskManagement() {
     <div>
       {/* Header Actions */}
       <SearchControls
-        searchTerm={searchParams.keywords}
+        searchTerm={searchParams.keyword}
         onSearchChange={(newSearchTerm) =>
           setSearchParams((prev) => ({
             ...prev,
-            keywords: newSearchTerm,
+            keyword: newSearchTerm,
             current: 1,
           }))
         }

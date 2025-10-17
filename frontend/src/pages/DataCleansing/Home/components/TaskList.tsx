@@ -201,9 +201,9 @@ export default function TaskList() {
       {/* Search and Filters */}
       <SearchControls
         className="mb-4"
-        searchTerm={searchParams.keywords}
-        onSearchChange={(keywords) =>
-          setSearchParams({ ...searchParams, keywords })
+        searchTerm={searchParams.keyword}
+        onSearchChange={(keyword) =>
+          setSearchParams({ ...searchParams, keyword })
         }
         searchPlaceholder="搜索任务名称、描述"
         filters={filterOptions}

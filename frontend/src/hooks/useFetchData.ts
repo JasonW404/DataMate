@@ -16,7 +16,7 @@ export default function useFetchData<T>(
 
   // 搜索参数
   const [searchParams, setSearchParams] = useState({
-    keywords: "",
+    keyword: "",
     filter: {
       type: [] as string[],
       status: [] as string[],
@@ -56,14 +56,14 @@ export default function useFetchData<T>(
   }
 
   async function fetchData(extraParams = {}) {
-    const { keywords, filter, current, pageSize } = searchParams;
+    const { keyword, filter, current, pageSize } = searchParams;
     Loading.show();
     setLoading(true);
     try {
       const { data } = await fetchFunc({
         ...filter,
         ...extraParams,
-        keywords,
+        keyword,
         type: getFirstOfArray(filter?.type) || undefined,
         status: getFirstOfArray(filter?.status) || undefined,
         tags: filter?.tags?.length ? filter.tags.join(",") : undefined,
@@ -93,7 +93,7 @@ export default function useFetchData<T>(
       fetchData();
     },
     [searchParams],
-    searchParams?.keywords ? 500 : 0
+    searchParams?.keyword ? 500 : 0
   );
 
   return {
