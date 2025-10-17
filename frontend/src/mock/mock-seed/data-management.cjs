@@ -157,17 +157,17 @@ module.exports = function (router) {
 
   // 获取数据集列表
   router.get(API.queryDatasetsUsingGet, (req, res) => {
-    const { page = 0, size = 10, keywords, type, status, tags } = req.query;
+    const { page = 0, size = 10, keyword, type, status, tags } = req.query;
     console.log("Received query params:", req.query);
 
     let filteredDatasets = datasetList;
-    if (keywords) {
-      console.log("filter keywords:", keywords);
+    if (keyword) {
+      console.log("filter keyword:", keyword);
 
       filteredDatasets = filteredDatasets.filter(
         (dataset) =>
-          dataset.name.includes(keywords) ||
-          dataset.description.includes(keywords)
+          dataset.name.includes(keyword) ||
+          dataset.description.includes(keyword)
       );
     }
     if (type) {

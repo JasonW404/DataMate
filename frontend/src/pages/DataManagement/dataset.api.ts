@@ -103,8 +103,6 @@ export function updateDatasetTagByIdUsingPut(id: string | number, data: any) {
 
 // 删除数据集标签
 export function deleteDatasetTagByIdUsingDelete(tag) {
-  console.log(tag);
-
   return del(`/api/data-management/tags/${tag.id}`);
 }
 
@@ -188,8 +186,7 @@ export function cancelUploadUsingPut(id) {
 }
 
 export function uploadFileChunkUsingPost(id: string | number, params, config) {
-  console.log('upload chunk');
-  return upload(`/api/data-management/datasets/${id}/upload/chunk`, params, {
+  return upload(`/api/data-management/datasets/${id}/files/upload/chunk`, params, {
     headers: {
       accept: "*/*",
       "Content-Type": "multipart/form-data;charset=UTF-8",

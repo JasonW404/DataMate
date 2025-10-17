@@ -12,6 +12,7 @@ import {
   AlertOutlined,
   DatabaseOutlined,
   AppstoreOutlined,
+  PauseCircleOutlined,
 } from "@ant-design/icons";
 
 export const templateTypesMap = {
@@ -71,6 +72,12 @@ export const TaskStatusMap = {
     value: TaskStatus.FAILED,
     color: "red",
     icon: <AlertOutlined />,
+  },
+  [TaskStatus.STOPPED]: {
+    label: "已停止",
+    value: TaskStatus.STOPPED,
+    color: "orange",
+    icon: <PauseCircleOutlined />,
   },
 };
 

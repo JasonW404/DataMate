@@ -46,6 +46,7 @@ export enum TaskStatus {
   RUNNING = "RUNNING",
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
+  STOPPED = "STOPPED",
 }
 
 export interface RuleCondition {
