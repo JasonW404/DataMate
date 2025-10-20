@@ -6,12 +6,12 @@
 # Description:
 # Create: 2024/1/30 15:24
 # """
-import logging as logger
 import time
 from typing import Dict, Any
 
 import cv2
 import numpy as np
+from loguru import logger
 
 from data_platform.common.utils import numpy_to_bytes
 from data_platform.core.base_op import Mapper
@@ -29,7 +29,7 @@ class ImgFormatter(Mapper):
         file_path = sample[self.filepath_key]
         img_data = _img_extract(file_path)
         sample[self.data_key] = numpy_to_bytes(img_data, file_type)
-        logger.info("fileName: %s, method: ImgExtract costs %.6f s", file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: ImgExtract costs {(time.time() - start):6f} s")
         return sample
 
 

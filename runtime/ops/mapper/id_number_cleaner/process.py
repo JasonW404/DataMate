@@ -7,12 +7,13 @@
 Description: 身份证号码匿名化插件
 Create: 2024/12/5 15:43
 """
-import logging as logger
 import re
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
+
+from loguru import logger
 
 import pytz
 
@@ -73,8 +74,7 @@ class AnonymizedIdNumber(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._id_number_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: IDNumberCleaner costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, method: IDNumberCleaner costs {time.time() - start:6f} s")
         return sample
 
     def _verify_area_code(self, area_code: str):

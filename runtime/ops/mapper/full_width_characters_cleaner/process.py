@@ -7,9 +7,10 @@
 Description: 全角转半角
 Create: 2025/01/13
 """
-import logging as logger
 import time
 from typing import Dict, Any
+
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -36,9 +37,8 @@ class FullWidthCharacterCleaner(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._full_width_character_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: FullWidthCharactersCleaner costs %.6f s" % (
-            sample[self.filename_key], time.time() - start
-        ))
+        logger.info(f"fileName: {sample[self.filename_key]}, "
+                    f"method: FullWidthCharactersCleaner costs {time.time() - start:6f} s")
         return sample
 
     def _full_width_character_filter(self, input_data: str):

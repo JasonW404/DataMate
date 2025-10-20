@@ -9,10 +9,10 @@ Create: 2023/11/7 9:26
 """
 import re
 import time
-import logging as logger
 
 from collections import Counter
 from typing import Dict, Any
+from loguru import logger
 
 from data_platform.core.base_op import Filter
 
@@ -34,8 +34,8 @@ class FileWithHighRepeatWordRateFilter(Filter):
         start = time.time()
         sample[self.text_key] = self._file_with_high_repeat_word_rate_filter(sample[self.text_key],
                                                                              sample[self.filename_key])
-        logger.info("fileName: %s, method: FileWithHighRepeatWordRateFilter costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, "
+                    f"method: FileWithHighRepeatWordRateFilter costs {(time.time() - start):6f} s")
         return sample
 
     def _file_with_high_repeat_word_rate_filter(self, input_data: str, file_name):
@@ -48,6 +48,6 @@ class FileWithHighRepeatWordRateFilter(Filter):
         repeat_word_rate = max_value / len(tmp)
         if repeat_word_rate >= self._min_threshold:
             output_data = ""
-            logger.info("The repeat word rate of the input data is %s. Threshold is %s. "
-                        "The document %s is filtered.", repeat_word_rate, self._min_threshold, file_name)
+            logger.info(f"The repeat word rate of the input data is {repeat_word_rate}. "
+                        f"Threshold is {self._min_threshold}. The document %s is filtered.")
         return output_data

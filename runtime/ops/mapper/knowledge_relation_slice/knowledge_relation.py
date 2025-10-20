@@ -54,7 +54,7 @@ class KnowledgeSlice:
         try:
             chunks = self.slice_op.process(self.file_text)
         except Exception as err:
-            logger.error("split text failed, error is: %s", err, exc_info=True)
+            logger.exception(f"split text failed, error is: {err}")
             chunks = []
 
         return chunks

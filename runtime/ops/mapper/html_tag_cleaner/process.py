@@ -7,10 +7,11 @@
 Description: HTML标签去除插件
 Create: 2025/01/13
 """
-import logging as logger
 import re
 import time
 from typing import List, Dict, Any
+
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -67,11 +68,10 @@ class HtmlTagCleaner(Mapper):
         start = time.time()
         if sample[self.filetype_key] != "xml":
             sample[self.text_key] = self._remove_html_tags(sample[self.text_key])
-            logger.info("fileName: %s, method: HtmlTagCleaner costs %.6f s",
-                        sample[self.filename_key], time.time() - start)
+            logger.info(
+                f"fileName: ｛sample[self.filename_key]｝, method: HtmlTagCleaner costs {time.time() - start:6f} s")
         else:
-            logger.info("fileName: %s, method: HtmlTagCleaner, The file is xml!",
-                        sample[self.filename_key])
+            logger.info(f"fileName: {sample[self.filename_key]}, method: HtmlTagCleaner, The file is xml!")
         return sample
 
     def _remove_html_tags(self, input_data: str):

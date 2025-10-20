@@ -7,10 +7,11 @@
 Description: 暴力色情文本过滤
 Create: 2024/12/26 15:43
 """
-import logging as logger
 import time
 from pathlib import Path
 from typing import Dict, Any
+
+from loguru import logger
 
 from data_platform.common.utils.aho_corasick import AhoCorasic
 from data_platform.core.base_op import Mapper
@@ -58,8 +59,8 @@ class SexualAndViolentWordCleaner(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._sexual_and_violent_word_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: SexualAndViolentWordCleaner costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, "
+                    f"method: SexualAndViolentWordCleaner costs {time.time() - start:6f} s")
         return sample
 
     def _sexual_and_violent_word_filter(self, text):

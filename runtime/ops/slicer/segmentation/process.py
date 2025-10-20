@@ -22,7 +22,7 @@ class TextSegmentationOperator:
         try:
             self.text_splitter = TextSplitter(max_characters, chunk_size, chunk_overlap)
         except Exception as err:
-            logger.error("init text splitter failed, error is： %s", err, exc_info=True)
+            logger.exception(f"init text splitter failed, error is： {err}")
             raise Exception(83001, "init text splitter failed") from None
 
     def process(self, input_data: str) -> List[str]:
@@ -49,7 +49,7 @@ class Segmentation(Slicer):
         try:
             chunks = self.op.process(sample[self.text_key])
         except Exception as err:
-            logger.error("split text failed, error is: %s", err, exc_info=True)
+            logger.exception(f"split text failed, error is: {err}")
             raise Exception(83002, "init text splitter failed") from None
         num_to_sample = min(self.slice_num, len(chunks))
         sampled_indices = random.sample(chunks, num_to_sample)

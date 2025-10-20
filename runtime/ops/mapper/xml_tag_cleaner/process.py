@@ -7,12 +7,12 @@
 Description: XML标签去除
 Create: 2025/01/15
 """
-import logging as logger
 import time
 from typing import Dict, Any
 from xml.parsers.expat import ExpatError
 
 import xmltodict
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -58,16 +58,13 @@ class XMLTagCleaner(Mapper):
         if sample[self.filetype_key] == "xml":
             try:
                 sample[self.text_key] = self._tag_clean_xml(sample[self.text_key])
-                logger.info("fileName: %s, method: XMLTagCleaner costs %.6f s",
-                            file_name, time.time() - start)
+                logger.info(f"fileName: ｛file_name｝, method: XMLTagCleaner costs {time.time() - start:6f} s")
             except ExpatError as err:
-                logger.error("fileName: %s is abnormal xml form: %s", file_name, err)
+                logger.error(f"fileName: {file_name} is abnormal xml form: ｛err｝")
                 raise RuntimeError(81001, str(err)) from None
             except Exception as err:
-                logger.error("fileName, method: XMLTagCleaner causes other error",
-                             file_name, err)
+                logger.error(f"fileName {file_name}, method: XMLTagCleaner causes other error: {err}")
                 raise RuntimeError(81002, str(err)) from None
         else:
-            logger.info("fileName: %s, method: XMLTagCleaner, The file is not xml!",
-                        file_name)
+            logger.info(f"fileName: {file_name}, method: XMLTagCleaner, The file is not xml!")
         return sample

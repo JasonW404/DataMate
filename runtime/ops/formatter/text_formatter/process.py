@@ -8,7 +8,7 @@ Description: Json文本抽取
 Create: 2024/06/06 15:43
 """
 import time
-import logging as logger
+from loguru import logger
 from typing import Dict, Any
 
 from data_platform.core.base_op import Mapper
@@ -38,10 +38,9 @@ class TextFormatter(Mapper):
             self.byte_read(sample)
             sample[self.text_key] = self._extract_json(sample[self.data_key])
             sample[self.data_key] = b""  # 将sample[self.data_key]置空
-            logger.info("fileName: %s, method: TextFormatter costs %.6f s",
-                        sample[self.filename_key], time.time() - start)
+            logger.info(
+                f"fileName: {sample[self.filename_key]}, method: TextFormatter costs {(time.time() - start):6f} s")
         except UnicodeDecodeError as err:
-            logger.error("fileName: %s, method: TextFormatter causes decode error: %s",
-                         sample[self.filename_key], err, exc_info=True)
+            logger.exception(f"fileName: {sample[self.filename_key]}, method: TextFormatter causes decode error: {err}")
             raise
         return sample

@@ -8,10 +8,10 @@ Description: 文档特殊字符率检查
 Create: 2023/11/7 9:26
 """
 import time
-import logging as logger
 
 from pathlib import Path
 from typing import Dict, Any
+from loguru import logger
 
 from data_platform.core.base_op import Filter
 
@@ -30,8 +30,8 @@ class FileWithHighSpecialCharRateFilter(Filter):
         start = time.time()
         sample[self.text_key] = self._file_with_high_special_char_rate_filter(sample[self.text_key],
                                                                               sample[self.filename_key])
-        logger.info("fileName: %s, method: FileWithHighSpecialCharRateFilter costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, "
+                    f"method: FileWithHighSpecialCharRateFilter costs {(time.time() - start):6f} s")
         return sample
 
     def _file_with_high_special_char_rate_filter(self, input_data: str, file_name):
@@ -45,7 +45,7 @@ class FileWithHighSpecialCharRateFilter(Filter):
 
         special_char_rate = total / len(input_data)
         if special_char_rate >= self._min_threshold:
-            logger.info("The special char rate of the input data is %s. Threshold is %s. "
-                        "The document %s is filtered.", special_char_rate, self._min_threshold, file_name)
+            logger.info(f"The special char rate of the input data is {special_char_rate}. "
+                        f"Threshold is {self._min_threshold}. The document {file_name} is filtered.")
             output_data = ""
         return output_data

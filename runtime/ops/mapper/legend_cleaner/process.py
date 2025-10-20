@@ -7,10 +7,11 @@
 Description: 图注表注去除
 Create: 2024/12/5 15:43
 """
-import logging as logger
 import re
 import time
 from typing import Dict, Any
+
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -38,7 +39,5 @@ class LegendCleaner(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._clean_html_tag(sample[self.text_key])
-        logger.info("fileName: %s, method: LegendCleaner costs %.6f s" % (
-            sample[self.filename_key], time.time() - start
-        ))
+        logger.info(f"fileName: {sample[self.filename_key]}, method: LegendCleaner costs {time.time() - start:6f} s")
         return sample
