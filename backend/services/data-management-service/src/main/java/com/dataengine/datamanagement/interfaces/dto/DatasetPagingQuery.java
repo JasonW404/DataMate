@@ -1,12 +1,14 @@
 package com.dataengine.datamanagement.interfaces.dto;
 
 import com.dataengine.common.interfaces.PagingQuery;
+import com.dataengine.datamanagement.common.enums.DatasetStatusType;
+import com.dataengine.datamanagement.common.enums.DatasetType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,12 +23,12 @@ public class DatasetPagingQuery extends PagingQuery {
     /**
      * 数据集类型过滤
      */
-    private String type;
+    private DatasetType type;
 
     /**
-     * 标签过滤，多个标签用逗号分隔
+     * 标签名过滤
      */
-    private String tags;
+    private List<String> tags = new ArrayList<>();
 
     /**
      * 关键词搜索（名称或描述）
@@ -36,17 +38,5 @@ public class DatasetPagingQuery extends PagingQuery {
     /**
      * 状态过滤
      */
-    private String status;
-
-    /**
-     * 将逗号分隔的标签字符串转换为标签列表
-     *
-     * @return 标签列表，如果tags为空则返回null
-     */
-    public List<String> getTagList() {
-        if (tags != null && !tags.trim().isEmpty()) {
-            return Arrays.asList(tags.split(","));
-        }
-        return null;
-    }
+    private DatasetStatusType status;
 }

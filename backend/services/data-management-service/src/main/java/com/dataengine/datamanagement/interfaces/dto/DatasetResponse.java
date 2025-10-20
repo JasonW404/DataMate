@@ -40,4 +40,8 @@ public class DatasetResponse {
     private LocalDateTime updatedAt;
     /** 创建者 */
     private String createdBy;
+    /**
+     * 更新者
+     */
+    private String updatedBy;
 }

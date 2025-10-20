@@ -1,8 +1,10 @@
 package com.dataengine.datamanagement.infrastructure.persistence.repository;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.repository.IRepository;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.interfaces.dto.AllDatasetStatisticsResponse;
+import com.dataengine.datamanagement.interfaces.dto.DatasetPagingQuery;
 import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
@@ -22,4 +24,6 @@ public interface DatasetRepository extends IRepository<Dataset> {
     long countByCriteria(String type, String status, String keyword, List<String> tagList);
 
     AllDatasetStatisticsResponse getAllDatasetStatistics();
+
+    IPage<Dataset> findByCriteria(IPage<Dataset> page, DatasetPagingQuery query);
 }

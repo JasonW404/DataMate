@@ -12,10 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PagedResponse <T> {
-    private int page;
-    private int size;
+    private long page;
+    private long size;
     private long totalElements;
-    private int totalPages;
+    private long totalPages;
     private List<T> content;
 
     public PagedResponse(List<T> content) {
@@ -26,7 +26,7 @@ public class PagedResponse <T> {
         this.content = content;
     }
 
-    public PagedResponse(List<T> content, int page, int totalElements, int totalPages) {
+    public PagedResponse(List<T> content, long page, long totalElements, long totalPages) {
         this.page = page;
         this.size = content.size();
         this.totalElements = totalElements;
@@ -38,7 +38,7 @@ public class PagedResponse <T> {
         return new PagedResponse<>(content);
     }
 
-    public static <T> PagedResponse<T> of(List<T> content, int page, int totalElements, int totalPages) {
+    public static <T> PagedResponse<T> of(List<T> content, long page, long totalElements, long totalPages) {
         return new PagedResponse<>(content, page, totalElements, totalPages);
     }
 }
