@@ -6,26 +6,35 @@ import com.dataengine.collection.domain.model.TaskStatus;
 import com.dataengine.collection.domain.model.DataxTemplate;
 import com.dataengine.collection.infrastructure.persistence.mapper.CollectionTaskMapper;
 import com.dataengine.collection.infrastructure.persistence.mapper.TaskExecutionMapper;
+import com.dataengine.collection.interfaces.dto.SyncMode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CollectionTaskService {
     private final CollectionTaskMapper taskMapper;
     private final TaskExecutionMapper executionMapper;
+    private final DataxExecutionService dataxExecutionService;
 
     @Transactional
     public CollectionTask create(CollectionTask task) {
-        task.setId(UUID.randomUUID().toString());
         task.setStatus(TaskStatus.READY);
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.insert(task);
+        if (Objects.equals(task.getSyncMode(), SyncMode.ONCE.getValue())) {
+            TaskExecution exec = dataxExecutionService.createExecution(task);
+            int timeout = task.getTimeoutSeconds() == null ? 3600 : task.getTimeoutSeconds();
+            dataxExecutionService.runAsync(task, exec.getId(), timeout);
+            log.info("Triggered DataX execution for task {} at {}, execId={}", task.getId(), LocalDateTime.now(), exec.getId());
+        }
         return task;
     }
 
