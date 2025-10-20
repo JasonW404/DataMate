@@ -11,10 +11,12 @@ export default function EditDataset({
   open,
   data,
   onClose,
+  onRefresh,
 }: {
   open: boolean;
   data: Dataset | null;
   onClose: () => void;
+  onRefresh?: () => void;
 }) {
   const [form] = Form.useForm();
   const { message } = App.useApp();
@@ -58,6 +60,7 @@ export default function EditDataset({
       await updateDatasetByIdUsingPut(data?.id, params);
       onClose();
       message.success("数据集更新成功");
+      onRefresh?.();
     } catch (error) {
       console.error(error);
       message.error("数据集更新失败，请重试");

@@ -313,6 +313,7 @@ export default function DatasetManagementPage() {
         open={editDatasetOpen}
         data={currentDataset}
         onClose={() => setEditDatasetOpen(false)}
+        onRefresh={fetchData}
       />
     </div>
   );

@@ -71,11 +71,7 @@ function DetailHeader<T>({
             {data?.tags && (
               <div className="flex flex-wrap mb-2">
                 {data?.tags?.map((tag) => (
-                  <Tag
-                    key={tag.id}
-                    className="mr-1"
-                    style={{ background: tag?.color }}
-                  >
+                  <Tag key={tag.id} className="mr-1">
                     {tag.name}
                   </Tag>
                 ))}

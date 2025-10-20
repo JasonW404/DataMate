@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Breadcrumb, Modal, App, Tabs } from "antd";
 import {
   ReloadOutlined,
@@ -12,7 +12,7 @@ import {
 import DetailHeader from "@/components/DetailHeader";
 import { mapDataset, datasetTypeMap } from "../dataset.const";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useFilesOperation, useImportFile } from "../hooks";
 import {
   createDatasetTagUsingPost,
@@ -25,15 +25,7 @@ import DataQuality from "./components/DataQuality";
 import DataLineageFlow from "./components/DataLineageFlow";
 import Overview from "./components/Overview";
 import { Activity, Clock, File, FileType } from "lucide-react";
-
-const navigateItems = [
-  {
-    title: <Link to="/data/management">数据管理</Link>,
-  },
-  {
-    title: "数据集详情",
-  },
-];
+import EditDataset from "../Create/EditDataset";
 
 const tabList = [
   {
@@ -51,17 +43,27 @@ const tabList = [
 ];
 
 export default function DatasetDetail() {
-  const navigate = useNavigate();
   const { id } = useParams(); // 获取动态路由参数
   const [activeTab, setActiveTab] = useState("overview");
   const { message } = App.useApp();
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [dataset, setDataset] = useState<Dataset>({} as Dataset);
   const { importFileRender, handleUpload } = useImportFile();
   const filesOperation = useFilesOperation(dataset);
 
   const [showUploadDialog, setShowUploadDialog] = useState(false);
-
+  const navigateItems = useMemo(
+    () => [
+      {
+        title: <Link to="/data/management">数据管理</Link>,
+      },
+      {
+        title: dataset.name || "数据集详情",
+      },
+    ],
+    [dataset]
+  );
   const fetchDataset = async () => {
     const { data } = await queryDatasetByIdUsingGet(id as unknown as number);
     setDataset(mapDataset(data));
@@ -130,7 +132,7 @@ export default function DatasetDetail() {
       label: "编辑",
       icon: <EditOutlined />,
       onClick: () => {
-        navigate(`/data/management/create/${dataset.id}`);
+        setShowEditDialog(true);
       },
     },
     {
@@ -218,6 +220,12 @@ export default function DatasetDetail() {
       >
         {importFileRender()}
       </Modal>
+      <EditDataset
+        data={dataset}
+        open={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        onRefresh={handleRefresh}
+      />
     </div>
   );
 }
