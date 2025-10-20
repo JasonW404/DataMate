@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Breadcrumb, Modal, App, Tabs } from "antd";
+import { Breadcrumb, Modal, App, Tabs } from "antd";
 import {
   ReloadOutlined,
   DownloadOutlined,
@@ -7,11 +7,12 @@ import {
   FileTextOutlined,
   DatabaseOutlined,
   FileImageOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import DetailHeader from "@/components/DetailHeader";
-import { mapDataset, datasetSubTypeMap } from "../dataset.const";
+import { mapDataset, datasetTypeMap } from "../dataset.const";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useFilesOperation, useImportFile } from "../hooks";
 import {
   createDatasetTagUsingPost,
@@ -50,6 +51,7 @@ const tabList = [
 ];
 
 export default function DatasetDetail() {
+  const navigate = useNavigate();
   const { id } = useParams(); // 获取动态路由参数
   const [activeTab, setActiveTab] = useState("overview");
   const { message } = App.useApp();
@@ -84,7 +86,7 @@ export default function DatasetDetail() {
   useEffect(() => {
     const refreshDataset = () => {
       fetchDataset();
-    }
+    };
     window.addEventListener("update:dataset", handleRefresh);
     window.addEventListener("update:dataset-status", refreshDataset);
     return () => {
@@ -98,7 +100,7 @@ export default function DatasetDetail() {
     {
       icon: <File className="text-blue-400 w-4 h-4" />,
       key: "file",
-      value: dataset?.itemCount || 0,
+      value: dataset?.fileCount || 0,
     },
     {
       icon: <Activity className="text-blue-400 w-4 h-4" />,
@@ -109,7 +111,7 @@ export default function DatasetDetail() {
       icon: <FileType className="text-blue-400 w-4 h-4" />,
       key: "type",
       value:
-        datasetSubTypeMap[dataset?.type as keyof typeof datasetSubTypeMap]
+        datasetTypeMap[dataset?.datasetType as keyof typeof datasetTypeMap]
           ?.label ||
         dataset?.type ||
         "未知",
@@ -123,6 +125,14 @@ export default function DatasetDetail() {
 
   // 数据集操作列表
   const operations = [
+    {
+      key: "edit",
+      label: "编辑",
+      icon: <EditOutlined />,
+      onClick: () => {
+        navigate(`/data/management/create/${dataset.id}`);
+      },
+    },
     {
       key: "refresh",
       label: "刷新",

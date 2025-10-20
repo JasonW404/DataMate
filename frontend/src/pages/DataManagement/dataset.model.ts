@@ -44,7 +44,7 @@ export interface Dataset {
   name: string;
   description: string;
   parentId?: number;
-  type: DatasetType;
+  datasetType: DatasetType;
   status: DatasetStatus;
   size?: string;
   itemCount?: number;

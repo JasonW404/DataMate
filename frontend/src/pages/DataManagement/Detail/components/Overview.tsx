@@ -1,15 +1,7 @@
-import {
-  Button,
-  Card,
-  Descriptions,
-  DescriptionsProps,
-  Modal,
-  Table,
-  Tag,
-} from "antd";
+import { Button, Descriptions, DescriptionsProps, Modal, Table } from "antd";
 import { formatBytes, formatDateTime } from "@/utils/unit";
 import { Download, Trash2 } from "lucide-react";
-import { datasetSubTypeMap } from "../../dataset.const";
+import { datasetTypeMap } from "../../dataset.const";
 
 export default function Overview({ dataset, filesOperation }) {
   const {
@@ -84,7 +76,7 @@ export default function Overview({ dataset, filesOperation }) {
     {
       key: "type",
       label: "数据集类型",
-      children: datasetSubTypeMap[dataset?.type?.code]?.label || "未知",
+      children: datasetTypeMap[dataset?.datasetType]?.label || "未知",
     },
     {
       key: "status",

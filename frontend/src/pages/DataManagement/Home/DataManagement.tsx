@@ -24,11 +24,14 @@ import {
   deleteDatasetTagByIdUsingDelete,
 } from "../dataset.api";
 import { formatBytes } from "@/utils/unit";
+import EditDataset from "../Create/EditDataset";
 
 export default function DatasetManagementPage() {
   const navigate = useNavigate();
   const { message } = App.useApp();
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [editDatasetOpen, setEditDatasetOpen] = useState(false);
+  const [currentDataset, setCurrentDataset] = useState<Dataset | null>(null);
 
   const [statisticsData, setStatisticsData] = useState<any>({
     count: {},
@@ -135,21 +138,26 @@ export default function DatasetManagementPage() {
       key: "edit",
       label: "编辑",
       icon: <EditOutlined />,
-      onClick: (item) => {
-        navigate(`/data/management/create/${item.id}`);
+      onClick: (item: Dataset) => {
+        console.log(item)
+        setCurrentDataset(item);
+        setEditDatasetOpen(true);
       },
     },
     {
       key: "download",
       label: "下载",
       icon: <DownloadOutlined />,
-      onClick: handleDownloadDataset,
+      onClick: (item: Dataset) => {
+        if (!item.id) return;
+        handleDownloadDataset(item);
+      },
     },
     {
       key: "delete",
       label: "删除",
       icon: <DeleteOutlined />,
-      onClick: (item) => handleDeleteDataset(item.id),
+      onClick: (item: Dataset) => handleDeleteDataset(item.id),
     },
   ];
 
@@ -301,6 +309,11 @@ export default function DatasetManagementPage() {
         onReload={fetchData}
       />
       {viewMode === "card" ? renderCardView() : renderListView()}
+      <EditDataset
+        open={editDatasetOpen}
+        data={currentDataset}
+        onClose={() => setEditDatasetOpen(false)}
+      />
     </div>
   );
 }

@@ -11,7 +11,6 @@ import {
   ClockCircleOutlined,
   CloseCircleOutlined,
 } from "@ant-design/icons";
-import React from "react";
 import {
   FileImage,
   FileText,
@@ -187,10 +186,7 @@ export const dataSourceMap: Record<string, { label: string; value: string }> = {
 export const dataSourceOptions = Object.values(dataSourceMap);
 
 export function mapDataset(dataset: Dataset) {
-  const IconComponent =
-    datasetSubTypeMap[dataset?.datasetType]?.icon ||
-    datasetTypeMap[dataset?.datasetType]?.icon ||
-    null;
+  const IconComponent = datasetTypeMap[dataset?.datasetType]?.icon || null;
   return {
     ...dataset,
     size: formatBytes(dataset.totalSize || 0),

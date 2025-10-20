@@ -1,5 +1,5 @@
 import { Button, Avatar, List, Tag, Badge } from "antd";
-import { StarFilled } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, StarFilled } from "@ant-design/icons";
 import {
   Edit,
   Trash2,
@@ -97,7 +97,7 @@ export function ListView({ operators }) {
               type="text"
               size="small"
               onClick={() => handleUpdateOperator(operator)}
-              icon={<Edit className="w-4 h-4" />}
+              icon={<EditOutlined className="w-4 h-4" />}
               title="更新算子"
             />,
             <Button
@@ -129,7 +129,7 @@ export function ListView({ operators }) {
               type="text"
               size="small"
               danger
-              icon={<Trash2 className="w-4 h-4" />}
+              icon={<DeleteOutlined className="w-4 h-4" />}
               title="删除算子"
             />,
           ]}
@@ -165,7 +165,7 @@ export function ListView({ operators }) {
                   <span>作者: {operator.author}</span>
                   <span>类型: {operator.type}</span>
                   <span>框架: {operator.framework}</span>
-                  <span>使用次数: {operator.usage.toLocaleString()}</span>
+                  <span>使用次数: {operator?.usage?.toLocaleString()}</span>
                 </div>
               </div>
             }

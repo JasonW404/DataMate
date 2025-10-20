@@ -20,7 +20,7 @@ export default function CleansingTaskCreate() {
     srcDatasetId: "",
     srcDatasetName: "",
     destDatasetName: "",
-    destDatasetType: DatasetSubType.TEXT_DOCUMENT,
+    destDatasetType: DatasetType.TEXT,
     type: DatasetType.TEXT,
   });
 

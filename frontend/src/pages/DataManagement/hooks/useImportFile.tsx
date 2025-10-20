@@ -33,22 +33,18 @@ export const useImportFile = () => {
     resetFiles();
   };
 
-  const handleBeforeUpload = (file: UploadFile) => {
-    setFileList([...fileList, file]);
+  const handleBeforeUpload = (_, files: UploadFile[]) => {
+    setFileList([...fileList, ...files]);
     return false;
   };
 
   const handleRemoveFile = (file: UploadFile) => {
-    const index = fileList.indexOf(file);
-    const newFileList = fileList.slice();
-    newFileList.splice(index, 1);
-    setFileList(newFileList);
+    setFileList((prev) => prev.filter((f) => f.uid !== file.uid));
   };
 
   const importFileRender = () => (
     <Dragger
       className="w-full"
-      fileList={fileList}
       onRemove={handleRemoveFile}
       beforeUpload={handleBeforeUpload}
       multiple

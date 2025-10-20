@@ -1,7 +1,7 @@
 import RadioCard from "@/components/RadioCard";
 import { queryDatasetsUsingGet } from "@/pages/DataManagement/dataset.api";
 import {
-  datasetSubTypeMap,
+  datasetTypeMap,
   datasetTypes,
 } from "@/pages/DataManagement/dataset.const";
 import {
@@ -9,7 +9,7 @@ import {
   DatasetSubType,
   DatasetType,
 } from "@/pages/DataManagement/dataset.model";
-import { Input, Select, Form, Radio } from "antd";
+import { Input, Select, Form } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { Database } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -40,14 +40,6 @@ export default function CreateTaskStepOne({
   useEffect(() => {
     fetchDatasets();
   }, []);
-
-  const destDatasetTypeOptions = useMemo(() => {
-    const options =
-      datasetTypes.find((item) => item.value === taskConfig?.type)?.options ??
-      [];
-
-    return options;
-  }, [taskConfig?.type]);
 
   const handleValuesChange = (currentValue, allValues) => {
     const [key, value] = Object.entries(currentValue)[0];
@@ -94,7 +86,7 @@ export default function CreateTaskStepOne({
                   <span>{dataset.name}</span>
                 </div>
                 <div className="text-xs text-gray-500">
-                  {datasetSubTypeMap[dataset?.type]?.label}
+                  {datasetTypeMap[dataset?.datasetType]?.label}
                 </div>
               </div>
             ),
@@ -106,22 +98,12 @@ export default function CreateTaskStepOne({
         <Input placeholder="输入目标数据集名称" />
       </Form.Item>
       <Form.Item
-        label="目标数据类型"
-        name="type"
-        rules={[{ required: true, message: "请选择目标数据类型" }]}
-      >
-        <Radio.Group
-          buttonStyle="solid"
-          options={datasetTypes}
-          optionType="button"
-        />
-      </Form.Item>
-      <Form.Item
+        label="目标数据集类型"
         name="destDatasetType"
-        rules={[{ required: true, message: "请选择目标数据类型" }]}
+        rules={[{ required: true, message: "请选择目标数据集类型" }]}
       >
         <RadioCard
-          options={destDatasetTypeOptions}
+          options={datasetTypes}
           value={taskConfig.destDatasetType}
           onChange={(type) => {
             form.setFieldValue("destDatasetType", type);

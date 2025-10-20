@@ -147,7 +147,7 @@ export default function OperatorMarketPage() {
           />
         </div>
         <div className="flex-1 bg-yellow flex flex-col px-4 my-4">
-          <div className="flex w-full items-center gap-4 border-b border-gray-200 mb-4">
+          <div className="flex w-full items-top gap-4 border-b border-gray-200 mb-4">
             {!showFilters && (
               <Button
                 type="text"
