@@ -23,14 +23,14 @@ export default function useFetchData<T>(
       tags: [] as string[],
     },
     current: 1,
-    pageSize: 10,
+    pageSize: 12,
   });
 
   // 分页配置
   const [pagination, setPagination] = useState({
     total: 0,
     showSizeChanger: true,
-    pageSizeOptions: ["10", "15", "20", "50"],
+    pageSizeOptions: ["12", "24", "48"],
     showTotal: (total: number) => `共 ${total} 条`,
     onChange: (current: number, pageSize?: number) => {
       setSearchParams((prev) => ({
@@ -99,7 +99,11 @@ export default function useFetchData<T>(
   return {
     loading,
     tableData,
-    pagination,
+    pagination: {
+      ...pagination,
+      current: searchParams.current,
+      pageSize: searchParams.pageSize,
+    },
     searchParams,
     setSearchParams,
     setPagination,

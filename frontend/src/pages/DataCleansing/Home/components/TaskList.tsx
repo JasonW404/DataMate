@@ -164,8 +164,8 @@ export default function TaskList() {
     },
     {
       title: "结束时间",
-      dataIndex: "endedAt",
-      key: "endedAt",
+      dataIndex: "finishedAt",
+      key: "finishedAt",
       width: 180,
     },
     {
@@ -176,6 +176,30 @@ export default function TaskList() {
       render: (progress: number) => (
         <Progress percent={progress} size="small" />
       ),
+    },
+    {
+      title: "创建时间",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+    },
+    {
+      title: "执行耗时",
+      dataIndex: "duration",
+      key: "duration",
+      width: 180,
+    },
+    {
+      title: "数据量变化",
+      dataIndex: "dataSizeChange",
+      key: "dataSizeChange",
+      width: 180,
+      render: (_: any, record: CleansingTask) => {
+        if (record.before !== undefined && record.after !== undefined) {
+          return `${record.before} → ${record.after}`;
+        }
+        return "-";
+      },
     },
     {
       title: "操作",

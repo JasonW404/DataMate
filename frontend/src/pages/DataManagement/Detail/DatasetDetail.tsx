@@ -135,12 +135,7 @@ export default function DatasetDetail() {
         setShowEditDialog(true);
       },
     },
-    {
-      key: "refresh",
-      label: "刷新",
-      icon: <ReloadOutlined />,
-      onClick: handleRefresh,
-    },
+
     {
       key: "upload",
       label: "上传文件",
@@ -159,6 +154,12 @@ export default function DatasetDetail() {
         { key: "coco", label: "COCO 格式", icon: <FileImageOutlined /> },
       ],
       onMenuClick: handleExportFormat,
+    },
+    {
+      key: "refresh",
+      label: "刷新",
+      icon: <ReloadOutlined />,
+      onClick: handleRefresh,
     },
   ];
 

@@ -1,7 +1,6 @@
 import {
   FolderOpen,
   Tag,
-  Sparkles,
   Target,
   BookOpen,
   Shuffle,
@@ -12,6 +11,7 @@ import {
   Shield,
   Database,
   Store,
+  Merge,
 } from "lucide-react";
 
 export const menuItems = [
@@ -53,7 +53,7 @@ export const menuItems = [
       {
         id: "synthesis/task",
         title: "合成任务",
-        icon: Sparkles,
+        icon: Merge,
       },
       {
         id: "synthesis/ratio-task",

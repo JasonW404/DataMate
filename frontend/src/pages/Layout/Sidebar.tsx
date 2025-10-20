@@ -91,6 +91,15 @@ const AsiderAndHeaderLayout = () => {
             key: item.id,
             label: item.title,
             icon: item.icon ? <item.icon className="w-4 h-4" /> : null,
+            children: item.children
+              ? item.children.map((subItem) => ({
+                  key: subItem.id,
+                  label: subItem.title,
+                  icon: subItem.icon ? (
+                    <subItem.icon className="w-4 h-4" />
+                  ) : null,
+                }))
+              : undefined,
           }))}
           selectedKeys={[activeItem]}
           defaultOpenKeys={["synthesis"]}

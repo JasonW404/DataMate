@@ -44,16 +44,16 @@ export default function DatasetManagementPage() {
     const statistics = {
       size: [
         {
-          title: "总计",
-          value: data?.totalDatasets,
+          title: "文本",
+          value: data?.size?.text || "0 MB",
         },
         {
-          title: "文件数",
-          value: data?.totalFiles,
+          title: "图像",
+          value: data?.size?.image || "0 MB",
         },
         {
-          title: "大小",
-          value: formatBytes(data?.totalSize),
+          title: "音频",
+          value: data?.size?.audio || "0 MB",
         },
         {
           title: "视频",
@@ -79,6 +79,7 @@ export default function DatasetManagementPage() {
         },
       ],
     };
+    console.log(statistics);
     setStatisticsData(statistics);
   }
 
@@ -108,6 +109,7 @@ export default function DatasetManagementPage() {
       options: tags.map((tag) => ({ label: tag, value: tag })),
     },
   ];
+
   const {
     tableData,
     searchParams,
@@ -139,7 +141,7 @@ export default function DatasetManagementPage() {
       label: "编辑",
       icon: <EditOutlined />,
       onClick: (item: Dataset) => {
-        console.log(item)
+        console.log(item);
         setCurrentDataset(item);
         setEditDatasetOpen(true);
       },
@@ -201,8 +203,8 @@ export default function DatasetManagementPage() {
       key: "status",
       render: (status: any) => {
         return (
-          <Tag icon={status.icon} color={status.color}>
-            {status.label}
+          <Tag icon={status?.icon} color={status?.color}>
+            {status?.label}
           </Tag>
         );
       },
@@ -280,14 +282,36 @@ export default function DatasetManagementPage() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 mt-4">
-        <Card>
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        {/* <Card>
+          <div className="grid grid-cols-4">
+            {statisticsData.size?.map?.((item) => (
+              <Statistic
+                title={item.title}
+                key={item.title}
+                value={`${item.value}`}
+              />
+            ))}
+          </div>
+        </Card> */}
+        <Card title="数量统计">
+          <div className="grid grid-cols-4">
+            {statisticsData.count?.map?.((item) => (
+              <Statistic
+                key={item.title}
+                title={item.title}
+                value={item.value}
+              />
+            ))}
+          </div>
+        </Card>
+        <Card title="大小统计">
           <div className="grid grid-cols-4">
             {statisticsData.size?.map?.((item) => (
               <Statistic
                 key={item.title}
                 title={item.title}
-                value={`${item.value}`}
+                value={item.value}
               />
             ))}
           </div>

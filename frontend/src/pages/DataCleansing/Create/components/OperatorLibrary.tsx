@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { Card, Input, Select, Tooltip, Collapse, Tag, Checkbox } from "antd";
+import {
+  Card,
+  Input,
+  Select,
+  Tooltip,
+  Collapse,
+  Tag,
+  Checkbox,
+  Button,
+} from "antd";
 import { StarFilled, StarOutlined, SearchOutlined } from "@ant-design/icons";
 import { CategoryI, OperatorI } from "@/pages/OperatorMarket/operator.model";
 import { Layers } from "lucide-react";
@@ -76,6 +85,7 @@ interface OperatorLibraryProps {
   selectedOperators: OperatorI[];
   operatorList: OperatorI[];
   categoryOptions: CategoryI[];
+  setSelectedOperators: (operators: OperatorI[]) => void;
   toggleOperator: (template: OperatorI) => void;
   handleDragStart: (
     e: React.DragEvent,
@@ -88,6 +98,7 @@ const OperatorLibrary: React.FC<OperatorLibraryProps> = ({
   selectedOperators,
   operatorList,
   categoryOptions,
+  setSelectedOperators,
   toggleOperator,
   handleDragStart,
 }) => {
@@ -116,25 +127,40 @@ const OperatorLibrary: React.FC<OperatorLibraryProps> = ({
         }
       });
     }
+
+    if (searchTerm) {
+      Object.keys(groups).forEach((key) => {
+        groups[key].operators = groups[key].operators.filter((operator) =>
+          operator.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        if (groups[key].operators.length === 0) {
+          delete groups[key];
+        }
+      });
+    }
+
+    if (showFavorites) {
+      Object.keys(groups).forEach((key) => {
+        groups[key].operators = groups[key].operators.filter((operator) =>
+          favorites.has(operator.id)
+        );
+        if (groups[key].operators.length === 0) {
+          delete groups[key];
+        }
+      });
+    }
+
     setExpandedCategories(new Set(Object.keys(groups)));
     return groups;
-  }, [categoryOptions, selectedCategory]);
+  }, [categoryOptions, selectedCategory, searchTerm, showFavorites]);
 
   // 过滤算子
   const filteredOperators = useMemo(() => {
-    let filtered = operatorList;
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (operator) =>
-          operator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          operator.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    if (showFavorites) {
-      filtered = filtered.filter((operator) => favorites.has(operator.id));
-    }
+    const filtered = Object.values(groupedOperators).flatMap(
+      (category) => category.operators
+    );
     return filtered;
-  }, [groupedOperators, searchTerm, showFavorites, favorites]);
+  }, [groupedOperators]);
 
   // 收藏切换
   const toggleFavorite = (operatorId: string) => {
@@ -147,12 +173,23 @@ const OperatorLibrary: React.FC<OperatorLibraryProps> = ({
     setFavorites(newFavorites);
   };
 
+  // 全选分类算子
+  const handleSelectAll = (operators: OperatorI[]) => {
+    const newSelected = [...selectedOperators];
+    operators.forEach((operator) => {
+      if (!newSelected.some((op) => op.id === operator.id)) {
+        newSelected.push(operator);
+      }
+    });
+    setSelectedOperators(newSelected);
+  };
+
   return (
     <div className="w-1/4 h-full min-w-3xs flex flex-col">
       <div className="pb-4 border-b border-gray-200">
         <span className="flex items-center font-semibold text-base">
           <Layers className="w-4 h-4 mr-2" />
-          算子库({operatorList.length})
+          算子库({filteredOperators.length})
         </span>
       </div>
       <div className="flex flex-col h-full pt-4 pr-4 overflow-hidden">
@@ -160,8 +197,9 @@ const OperatorLibrary: React.FC<OperatorLibraryProps> = ({
         <div className="flex flex-wrap gap-2 border-b border-gray-100 pb-4">
           <Input
             prefix={<SearchOutlined />}
-            placeholder="搜索算子..."
+            placeholder="搜索算子名称..."
             value={searchTerm}
+            allowClear
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Select
@@ -200,10 +238,22 @@ const OperatorLibrary: React.FC<OperatorLibraryProps> = ({
               <Collapse.Panel
                 key={key}
                 header={
-                  <span className="flex items-center gap-2">
-                    <span>{category.name}</span>
-                    <Tag>{category.operators.length}</Tag>
-                  </span>
+                  <div className="flex items-center justify-between w-full">
+                    <span className="flex items-center gap-2">
+                      <span>{category.name}</span>
+                      <Tag>{category.operators.length}</Tag>
+                    </span>
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectAll(category.operators);
+                      }}
+                    >
+                      全选
+                    </Button>
+                  </div>
                 }
               >
                 <OperatorList

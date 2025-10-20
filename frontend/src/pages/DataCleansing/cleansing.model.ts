@@ -20,6 +20,9 @@ export interface CleansingTask {
   operators: OperatorI[];
   createdAt: string;
   updatedAt: string;
+  finishedAt: string;
+  beforeSize?: number;
+  afterSize?: number;
 }
 
 export interface CleansingTemplate {

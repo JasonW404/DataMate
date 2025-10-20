@@ -43,14 +43,25 @@ export default function Overview({ dataset, filesOperation }) {
       children: dataset.name,
     },
     {
-      key: "itemCount",
+      key: "fileCount",
       label: "文件数",
-      children: dataset.itemCount || 0,
+      children: dataset.fileCount || 0,
     },
     {
       key: "size",
       label: "数据大小",
       children: dataset.size || "0 B",
+    },
+
+    {
+      key: "datasetType",
+      label: "类型",
+      children: datasetTypeMap[dataset?.datasetType]?.label || "未知",
+    },
+    {
+      key: "status",
+      label: "状态",
+      children: dataset?.status?.label || "未知",
     },
     {
       key: "createdBy",
@@ -71,17 +82,6 @@ export default function Overview({ dataset, filesOperation }) {
       key: "dataSource",
       label: "数据源",
       children: dataset.dataSource || "未知",
-    },
-
-    {
-      key: "type",
-      label: "数据集类型",
-      children: datasetTypeMap[dataset?.datasetType]?.label || "未知",
-    },
-    {
-      key: "status",
-      label: "状态",
-      children: dataset?.status?.label || "未知",
     },
     {
       key: "description",
@@ -183,7 +183,7 @@ export default function Overview({ dataset, filesOperation }) {
             rowKey="id"
             columns={columns}
             dataSource={fileList}
-            rowSelection={rowSelection}
+            // rowSelection={rowSelection}
             scroll={{ x: "max-content", y: 600 }}
           />
         </div>
