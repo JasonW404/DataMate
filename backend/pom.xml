@@ -106,9 +106,11 @@
             </dependency>
             <!-- MyBatis version alignment -->
             <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
+              <groupId>com.baomidou</groupId>
+              <artifactId>mybatis-plus-bom</artifactId>
+              <version>${mybatis-plus.version}</version>
+              <type>pom</type>
+              <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -167,6 +169,10 @@
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>${mybatis-plus.version}</version>
         </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-jsqlparser</artifactId>
+      </dependency>
 
         <!-- Log4j2 API -->
         <dependency>

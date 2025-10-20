@@ -2,17 +2,17 @@ package com.dataengine.operator.application;
 
 
 import com.dataengine.operator.domain.modal.Category;
-import com.dataengine.operator.domain.modal.RelationCategoryDTO;
+import com.dataengine.operator.domain.modal.CategoryRelation;
 import com.dataengine.operator.infrastructure.persistence.mapper.CategoryMapper;
 import com.dataengine.operator.infrastructure.persistence.mapper.CategoryRelationMapper;
 import com.dataengine.operator.interfaces.dto.CategoryTreeResponse;
 import com.dataengine.operator.interfaces.dto.SubCategory;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,45 +24,39 @@ public class CategoryService {
 
     public List<CategoryTreeResponse> getAllCategories() {
         List<Category> allCategories = categoryMapper.findAllCategories();
-        Map<Integer, Category> categories = allCategories.stream().collect(Collectors.toMap(
-            Category::getId,
-            obj -> obj
-        ));
-        List<RelationCategoryDTO> allRelations = categoryRelationMapper.findFullOuterJoinNative();
-        return groupByParentIdSorted(allRelations, categories);
-    }
+        List<CategoryRelation> allRelations = categoryRelationMapper.findAllRelation();
 
-    private List<CategoryTreeResponse> groupByParentIdSorted(List<RelationCategoryDTO> relations,
-                                                             Map<Integer, Category> categories) {
-        Map<Integer, List<RelationCategoryDTO>> groupedByParentId = relations.stream()
-            .filter(relation -> StringUtils.isNotBlank(relation.getOperatorId()))
-            .collect(Collectors.groupingBy(RelationCategoryDTO::getParentId));
+        Map<Integer, Integer> relationMap = allRelations.stream()
+                .collect(Collectors.groupingBy(
+                        CategoryRelation::getCategoryId,
+                        Collectors.collectingAndThen(Collectors.counting(), Math::toIntExact)));
+
+        Map<Integer, String> nameMap = allCategories.stream()
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+        Map<Integer, List<Category>> groupedByParentId = allCategories.stream()
+                .filter(relation -> relation.getParentId() > 0)
+                .collect(Collectors.groupingBy(Category::getParentId));
 
         return groupedByParentId.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .map(entry -> {
-                Integer parentId = entry.getKey();
-                List<RelationCategoryDTO> group = entry.getValue();
-                Map<Integer, List<RelationCategoryDTO>> collect = group.stream().collect(
-                    Collectors.groupingBy(RelationCategoryDTO::getCategoryId));
-
-                CategoryTreeResponse response = new CategoryTreeResponse();
-                response.setId(parentId);
-                response.setCount(group.size());
-                response.setName(categories.get(parentId).getName());
-                response.setCategories(collect.entrySet().stream().map(relation -> {
-                    List<RelationCategoryDTO> value = relation.getValue();
-                    SubCategory category = new SubCategory();
-                    category.setId(relation.getKey());
-                    category.setName(value.get(0).getName());
-                    category.setCount((int) value.stream()
-                        .filter(dto -> StringUtils.isNotEmpty(dto.getOperatorId()))
-                        .count());
-                    category.setParentId(parentId);
-                    return category;
-                }).collect(Collectors.toList()));
-                return response;
-            })
-            .collect(Collectors.toList());
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> {
+                    Integer parentId = entry.getKey();
+                    List<Category> group = entry.getValue();
+                    CategoryTreeResponse response = new CategoryTreeResponse();
+                    response.setId(parentId);
+                    response.setName(nameMap.get(parentId));
+                    AtomicInteger totalCount = new AtomicInteger();
+                    response.setCategories(group.stream().map(category -> {
+                        SubCategory subCategory = new SubCategory();
+                        subCategory.setId(category.getId());
+                        subCategory.setName(category.getName());
+                        subCategory.setCount(relationMap.getOrDefault(category.getId(), 0));
+                        totalCount.getAndAdd(relationMap.getOrDefault(category.getId(), 0));
+                        subCategory.setParentId(parentId);
+                        return subCategory;
+                    }).toList());
+                    response.setCount(totalCount.get());
+                    return response;
+                }).toList();
     }
 }

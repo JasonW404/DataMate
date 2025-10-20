@@ -17,9 +17,7 @@ outputs: 'text'
 settings:
   sensitiveWordsRate:
     name: 文档敏感词率
-    name_en: Sensitive Phrase Rate
     description: 敏感词的字数/文档总字数 > 设定值，该文档被去除。
-    description_en: 'Filters out files that meet the following formula: Number of words in sensitive phrases/Total number of words > Value you set.'
     type: slider
     defaultVal: 0.01
     min: 0

@@ -1,5 +1,6 @@
 package com.dataengine.operator.infrastructure.persistence.mapper;
 
+import com.dataengine.operator.domain.modal.CategoryRelation;
 import com.dataengine.operator.domain.modal.RelationCategoryDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -11,7 +12,7 @@ public interface CategoryRelationMapper {
 
     List<RelationCategoryDTO> findAllRelationWithCategory();
 
-    List<RelationCategoryDTO> findFullOuterJoinNative();
+    List<CategoryRelation> findAllRelation();
 
     void batchInsert(@Param("operatorId") String operatorId, @Param("categories") List<Integer> categories);
 }

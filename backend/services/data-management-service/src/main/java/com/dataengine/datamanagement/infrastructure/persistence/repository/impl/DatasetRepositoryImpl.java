@@ -1,11 +1,13 @@
 package com.dataengine.datamanagement.infrastructure.persistence.repository.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.repository.CrudRepository;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetMapper;
 import com.dataengine.datamanagement.infrastructure.persistence.repository.DatasetRepository;
 import com.dataengine.datamanagement.interfaces.dto.AllDatasetStatisticsResponse;
+import com.dataengine.datamanagement.interfaces.dto.DatasetPagingQuery;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.stereotype.Repository;
@@ -42,5 +44,29 @@ public class DatasetRepositoryImpl extends CrudRepository<DatasetMapper, Dataset
     @Override
     public AllDatasetStatisticsResponse getAllDatasetStatistics() {
         return datasetMapper.getAllDatasetStatistics();
+    }
+
+
+    @Override
+    public IPage<Dataset> findByCriteria(IPage<Dataset> page, DatasetPagingQuery query) {
+        LambdaQueryWrapper<Dataset> wrapper = new LambdaQueryWrapper<Dataset>()
+            .eq(query.getType() != null, Dataset::getDatasetType, query.getType())
+            .eq(query.getStatus() != null, Dataset::getStatus, query.getStatus())
+            .like(query.getKeyword() != null, Dataset::getName, query.getKeyword())
+            .like(query.getKeyword() != null, Dataset::getDescription, query.getKeyword());
+
+        /*
+          标签过滤 {@link Tag}
+          */
+        for (String tagName : query.getTags()) {
+            wrapper.and(w ->
+                w.apply("tags IS NOT NULL " +
+                    "AND JSON_VALID(tags) = 1 " +
+                    "AND JSON_LENGTH(tags) > 0 " +
+                    "AND JSON_SEARCH(tags, 'one', {0}, NULL, '$[*].name') IS NOT NULL", tagName)
+            );
+        }
+        wrapper.orderByDesc(Dataset::getCreatedAt);
+        return datasetMapper.selectPage(page, wrapper);
     }
 }

@@ -42,7 +42,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * 数据集文件应用服务（UUID 模式）
+ * 数据集文件应用服务
  */
 @Slf4j
 @Service

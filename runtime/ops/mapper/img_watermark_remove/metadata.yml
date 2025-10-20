@@ -17,13 +17,10 @@ outputs: 'image'
 settings:
   watermarkStr:
     name: 需要去除的水印文字信息
-    name_en: Watermark Text to Be Removed
     type: checkbox
     defaultVal: '知乎,抖音'
     options:
       - label: 知乎
-        label_en: 知乎
         value: 知乎
       - label: 抖音
-        label_en: 抖音
         value: 抖音

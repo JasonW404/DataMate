@@ -7,9 +7,9 @@ import com.dataengine.datamanagement.application.DatasetApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
 import com.dataengine.datamanagement.interfaces.dto.*;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +17,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * 数据集 REST 控制器（UUID 模式）
+ * 数据集 REST 控制器
  */
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/data-management/datasets")
 public class DatasetController {
     private final DatasetApplicationService datasetApplicationService;
-
-    @Autowired
-    public DatasetController(DatasetApplicationService datasetApplicationService) {
-        this.datasetApplicationService = datasetApplicationService;
-    }
 
     /**
      * 获取数据集列表
@@ -37,63 +33,61 @@ public class DatasetController {
      * @return 分页的数据集列表
      */
     @GetMapping
-    public ResponseEntity<Response<PagedResponse<DatasetResponse>>> getDatasets(DatasetPagingQuery query) {
-        query.initPaging();
-        Page<Dataset> datasetsPage = datasetApplicationService.getDatasets(query);
-        return ResponseEntity.ok(Response.ok(DatasetConverter.INSTANCE.convertToPagedResponse(datasetsPage)));
+    public PagedResponse<DatasetResponse> getDatasets(DatasetPagingQuery query) {
+        return datasetApplicationService.getDatasets(query);
     }
 
+    /**
+     * 创建数据集
+     *
+     * @param createDatasetRequest 创建数据集请求参数
+     * @return 创建的数据集响应
+     */
     @PostMapping
-    public ResponseEntity<Response<DatasetResponse>> createDataset(@RequestBody CreateDatasetRequest createDatasetRequest) {
-        try {
-            Dataset dataset = datasetApplicationService.createDataset(createDatasetRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(DatasetConverter.INSTANCE.convertToResponse(dataset)));
-        } catch (IllegalArgumentException e) {
-            log.error("Failed to create dataset", e);
-            return ResponseEntity.badRequest().body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
-        }
+    public DatasetResponse createDataset(@RequestBody @Valid CreateDatasetRequest createDatasetRequest) {
+        Dataset dataset = datasetApplicationService.createDataset(createDatasetRequest);
+        return DatasetConverter.INSTANCE.convertToResponse(dataset);
     }
 
+    /**
+     * 根据ID获取数据集详情
+     *
+     * @param datasetId 数据集ID
+     * @return 数据集响应
+     */
     @GetMapping("/{datasetId}")
-    public ResponseEntity<Response<DatasetResponse>> getDatasetById(@PathVariable("datasetId") String datasetId) {
-        try {
-            Dataset dataset = datasetApplicationService.getDataset(datasetId);
-            return ResponseEntity.ok(Response.ok(DatasetConverter.INSTANCE.convertToResponse(dataset)));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
-        }
+    public DatasetResponse getDatasetById(@PathVariable("datasetId") String datasetId) {
+        Dataset dataset = datasetApplicationService.getDataset(datasetId);
+        return DatasetConverter.INSTANCE.convertToResponse(dataset);
     }
 
+    /**
+     * 根据ID更新数据集
+     *
+     * @param datasetId            数据集ID
+     * @param updateDatasetRequest 更新数据集请求参数
+     * @return 更新后的数据集响应
+     */
     @PutMapping("/{datasetId}")
-    public ResponseEntity<Response<DatasetResponse>> updateDataset(
-            @PathVariable("datasetId") String datasetId,
-            @RequestBody UpdateDatasetRequest updateDatasetRequest) {
-        try {
-            Dataset dataset = datasetApplicationService.updateDataset(
-                    datasetId,
-                    updateDatasetRequest.getName(),
-                    updateDatasetRequest.getDescription(),
-                    updateDatasetRequest.getTags(),
-                    updateDatasetRequest.getStatus() != null ? updateDatasetRequest.getStatus() : null
-            );
-            return ResponseEntity.ok(Response.ok(DatasetConverter.INSTANCE.convertToResponse(dataset)));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
-        }
+    public DatasetResponse updateDataset(@PathVariable("datasetId") String datasetId,
+                                         @RequestBody UpdateDatasetRequest updateDatasetRequest) {
+        Dataset dataset = datasetApplicationService.updateDataset(datasetId, updateDatasetRequest);
+        return DatasetConverter.INSTANCE.convertToResponse(dataset);
     }
 
+    /**
+     * 根据ID删除数据集
+     *
+     * @param datasetId 数据集ID
+     */
     @DeleteMapping("/{datasetId}")
-    public ResponseEntity<Response<Void>> deleteDataset(@PathVariable("datasetId") String datasetId) {
-        try {
-            datasetApplicationService.deleteDataset(datasetId);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
-        }
+    public void deleteDataset(@PathVariable("datasetId") String datasetId) {
+        datasetApplicationService.deleteDataset(datasetId);
     }
 
     @GetMapping("/{datasetId}/statistics")
-    public ResponseEntity<Response<DatasetStatisticsResponse>> getDatasetStatistics(@PathVariable("datasetId") String datasetId) {
+    public ResponseEntity<Response<DatasetStatisticsResponse>> getDatasetStatistics(
+        @PathVariable("datasetId") String datasetId) {
         try {
             Map<String, Object> stats = datasetApplicationService.getDatasetStatistics(datasetId);
 

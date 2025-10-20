@@ -1,34 +1,31 @@
 package com.dataengine.datamanagement.application;
 
-import com.dataengine.datamanagement.common.enums.DatasetStatusType;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dataengine.common.infrastructure.exception.BusinessAssert;
+import com.dataengine.common.interfaces.PagedResponse;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
 import com.dataengine.datamanagement.domain.model.dataset.Tag;
 import com.dataengine.datamanagement.infrastructure.client.CollectionTaskClient;
 import com.dataengine.datamanagement.infrastructure.client.dto.CollectionTaskDetailResponse;
 import com.dataengine.datamanagement.infrastructure.client.dto.LocalCollectionConfig;
+import com.dataengine.datamanagement.infrastructure.exception.DataManagementErrorCode;
 import com.dataengine.datamanagement.infrastructure.persistence.mapper.TagMapper;
 import com.dataengine.datamanagement.infrastructure.persistence.repository.DatasetFileRepository;
 import com.dataengine.datamanagement.infrastructure.persistence.repository.DatasetRepository;
 import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
-import com.dataengine.datamanagement.interfaces.dto.AllDatasetStatisticsResponse;
-import com.dataengine.datamanagement.interfaces.dto.CreateDatasetRequest;
-import com.dataengine.datamanagement.interfaces.dto.DatasetPagingQuery;
+import com.dataengine.datamanagement.interfaces.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.RowBounds;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,8 +36,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DatasetApplicationService {
-
     private final DatasetRepository datasetRepository;
     private final TagMapper tagMapper;
     private final DatasetFileRepository datasetFileRepository;
@@ -51,104 +48,54 @@ public class DatasetApplicationService {
     @Value("${dataset.base.path:/dataset}")
     private String datasetBasePath;
 
-    @Autowired
-    public DatasetApplicationService(DatasetRepository datasetRepository,
-                                     TagMapper tagMapper,
-                                     DatasetFileRepository datasetFileRepository,
-                                     CollectionTaskClient collectionTaskClient,
-                                     FileMetadataService fileMetadataService,
-                                     ObjectMapper objectMapper) {
-        this.datasetRepository = datasetRepository;
-        this.tagMapper = tagMapper;
-        this.datasetFileRepository = datasetFileRepository;
-        this.collectionTaskClient = collectionTaskClient;
-        this.fileMetadataService = fileMetadataService;
-        this.objectMapper = objectMapper;
-    }
-
     /**
      * 创建数据集
      */
     @Transactional
     public Dataset createDataset(CreateDatasetRequest createDatasetRequest) {
-        if (datasetRepository.findByName(createDatasetRequest.getName()) != null) {
-            throw new IllegalArgumentException("Dataset with name '" + createDatasetRequest.getName() + "' already exists");
-        }
-
+        BusinessAssert.isTrue(datasetRepository.findByName(createDatasetRequest.getName()) == null, DataManagementErrorCode.DATASET_ALREADY_EXISTS);
         // 创建数据集对象
         Dataset dataset = DatasetConverter.INSTANCE.convertToDataset(createDatasetRequest);
         dataset.initCreateParam(datasetBasePath);
+        // 处理标签
+        Set<Tag> processedTags = Optional.ofNullable(createDatasetRequest.getTags())
+            .filter(CollectionUtils::isNotEmpty)
+            .map(this::processTagNames)
+            .orElseGet(HashSet::new);
+        dataset.setTags(processedTags);
         datasetRepository.save(dataset);
 
-        // 处理标签
-        Set<Tag> processedTags = new HashSet<>();
-        if (CollectionUtils.isNotEmpty(createDatasetRequest.getTags())) {
-            processedTags = processTagNames(createDatasetRequest.getTags());
-            for (Tag t : processedTags) {
-                tagMapper.insertDatasetTag(dataset.getId(), t.getId());
-            }
-        }
-
-        if (StringUtils.isNotBlank(createDatasetRequest.getDataSource())) {
+        //todo 需要解耦这块逻辑
+        if (StringUtils.hasText(createDatasetRequest.getDataSource())) {
             // 数据源id不为空，使用异步线程进行文件扫盘落库
             processDataSourceAsync(dataset.getId(), createDatasetRequest.getDataSource());
         }
-
-        // 返回创建的数据集，包含标签信息
-        Dataset createdDataset = datasetRepository.getById(dataset.getId());
-        createdDataset.getTags().addAll(processedTags);
-        return createdDataset;
+        return dataset;
     }
 
-    /**
-     * 更新数据集
-     */
-    public Dataset updateDataset(String datasetId, String name, String description,
-                                 List<String> tagNames, String status) {
+    public Dataset updateDataset(String datasetId, UpdateDatasetRequest updateDatasetRequest) {
         Dataset dataset = datasetRepository.getById(datasetId);
-        if (dataset == null) {
-            throw new IllegalArgumentException("Dataset not found: " + datasetId);
+        BusinessAssert.notNull(dataset, DataManagementErrorCode.DATASET_NOT_FOUND);
+        if (StringUtils.hasText(updateDatasetRequest.getName())) {
+            dataset.setName(updateDatasetRequest.getName());
         }
-
-        if (name != null && !name.isEmpty()) dataset.setName(name);
-        if (description != null) dataset.setDescription(description);
-        if (status != null && !status.isEmpty()) dataset.setStatus(DatasetStatusType.valueOf(status));
-        dataset.setUpdatedAt(LocalDateTime.now());
-
-        Set<Tag> processedTags = new HashSet<>();
-        if (tagNames != null) {
-            tagMapper.deleteDatasetTagsByDatasetId(datasetId);
-            if (!tagNames.isEmpty()) {
-                processedTags = processTagNames(tagNames);
-                for (Tag t : processedTags) {
-                    tagMapper.insertDatasetTag(datasetId, t.getId());
-                }
-            }
-        } else {
-            // 如果没有传入标签参数，保持原有标签
-            List<Tag> existingTags = tagMapper.findByDatasetId(datasetId);
-            if (existingTags != null) {
-                processedTags.addAll(existingTags);
-            }
+        if (StringUtils.hasText(updateDatasetRequest.getDescription())) {
+            dataset.setDescription(updateDatasetRequest.getDescription());
         }
-
+        if (CollectionUtils.isNotEmpty(updateDatasetRequest.getTags())) {
+            dataset.setTags(processTagNames(updateDatasetRequest.getTags()));
+        }
+        if (Objects.nonNull(updateDatasetRequest.getStatus())) {
+            dataset.setStatus(updateDatasetRequest.getStatus());
+        }
         datasetRepository.updateById(dataset);
-
-        // 返回更新后的数据集，包含标签信息
-        Dataset updatedDataset = datasetRepository.getById(datasetId);
-        updatedDataset.getTags().addAll(processedTags);
-        return updatedDataset;
+        return dataset;
     }
 
     /**
      * 删除数据集
      */
     public void deleteDataset(String datasetId) {
-        Dataset dataset = datasetRepository.getById(datasetId);
-        if (dataset == null) {
-            throw new IllegalArgumentException("Dataset not found: " + datasetId);
-        }
-        tagMapper.deleteDatasetTagsByDatasetId(datasetId);
         datasetRepository.removeById(datasetId);
     }
 
@@ -158,14 +105,7 @@ public class DatasetApplicationService {
     @Transactional(readOnly = true)
     public Dataset getDataset(String datasetId) {
         Dataset dataset = datasetRepository.getById(datasetId);
-        if (dataset == null) {
-            throw new IllegalArgumentException("Dataset not found: " + datasetId);
-        }
-        // 载入标签
-        List<Tag> tags = tagMapper.findByDatasetId(datasetId);
-        if (tags != null) {
-            dataset.getTags().addAll(tags);
-        }
+        BusinessAssert.notNull(dataset, DataManagementErrorCode.DATASET_NOT_FOUND);
         return dataset;
     }
 
@@ -173,21 +113,10 @@ public class DatasetApplicationService {
      * 分页查询数据集
      */
     @Transactional(readOnly = true)
-    public Page<Dataset> getDatasets(DatasetPagingQuery query) {
-        RowBounds bounds = new RowBounds(query.getPage() * query.getSize(), query.getSize());
-        List<Dataset> content = datasetRepository.findByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList(), bounds);
-        long total = datasetRepository.countByCriteria(query.getType(), query.getStatus(), query.getKeyword(), query.getTagList());
-
-        // 为每个数据集填充标签信息
-        if (CollectionUtils.isNotEmpty(content)) {
-            for (Dataset dataset : content) {
-                List<Tag> tags = tagMapper.findByDatasetId(dataset.getId());
-                if (tags != null) {
-                    dataset.getTags().addAll(tags);
-                }
-            }
-        }
-        return new PageImpl<>(content, PageRequest.of(query.getPage(), query.getSize()), total);
+    public PagedResponse<DatasetResponse> getDatasets(DatasetPagingQuery query) {
+        IPage<Dataset> page = new Page<>(query.getPage(), query.getSize());
+        page = datasetRepository.findByCriteria(page, query);
+        return PagedResponse.of(DatasetConverter.INSTANCE.convertToResponse(page.getRecords()), page.getCurrent(), page.getTotal(), page.getPages());
     }
 
     /**
@@ -272,7 +201,8 @@ public class DatasetApplicationService {
 
     /**
      * 异步处理数据源文件扫描
-     * @param datasetId 数据集ID
+     *
+     * @param datasetId    数据集ID
      * @param dataSourceId 数据源ID（归集任务ID）
      */
     @Async
@@ -309,8 +239,7 @@ public class DatasetApplicationService {
             List<DatasetFile> datasetFiles = fileMetadataService.scanFiles(filePaths, datasetId);
             // 查询数据集中已存在的文件
             List<DatasetFile> existDatasetFileList = datasetFileRepository.findAllByDatasetId(datasetId);
-            Map<String, DatasetFile> existDatasetFilePathMap = existDatasetFileList.
-                stream().collect(Collectors.toMap(DatasetFile::getFilePath, Function.identity()));
+            Map<String, DatasetFile> existDatasetFilePathMap = existDatasetFileList.stream().collect(Collectors.toMap(DatasetFile::getFilePath, Function.identity()));
             Dataset dataset = datasetRepository.getById(datasetId);
 
             // 6. 批量插入数据集文件表
