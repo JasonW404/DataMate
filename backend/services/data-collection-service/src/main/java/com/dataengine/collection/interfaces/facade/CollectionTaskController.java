@@ -81,7 +81,11 @@ public class CollectionTaskController implements CollectionTaskApi {
             if (Objects.nonNull(map) && "DATAX".equals(map.get("type"))) {
                 // NFS相关校验和处理
                 map.put("destPath", "/dataset/local/" + taskId);
-                map.put("filePaths", Arrays.asList(map.get("destPath")));
+                if (map.containsKey("filePaths") && map.get("filePaths") != null && map.get("filePaths") instanceof List) {
+                    ((List) map.get("filePaths")).add(map.get("destPath"));
+                } else {
+                    map.put("filePaths", Collections.singletonList(map.get("destPath")));
+                }
                 return objectMapper.writeValueAsString(map);
             }
 
