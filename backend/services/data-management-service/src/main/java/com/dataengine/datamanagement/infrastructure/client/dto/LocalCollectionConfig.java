@@ -18,10 +18,4 @@ public class LocalCollectionConfig {
      * 文件路径列表
      */
     private List<String> filePaths;
-
-    /**
-     * 其他配置项
-     */
-    private String sourceType;
-    private String targetType;
 }

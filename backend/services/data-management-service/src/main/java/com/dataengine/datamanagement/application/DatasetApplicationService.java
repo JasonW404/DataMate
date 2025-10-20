@@ -281,24 +281,18 @@ public class DatasetApplicationService {
             log.info("开始处理数据源文件扫描，数据集ID: {}, 数据源ID: {}", datasetId, dataSourceId);
 
             // 1. 调用数据归集服务获取任务详情
-            CollectionTaskDetailResponse taskDetail = collectionTaskClient.getTaskDetail(dataSourceId);
+            CollectionTaskDetailResponse taskDetail = collectionTaskClient.getTaskDetail(dataSourceId).getData();
             if (taskDetail == null) {
                 log.error("获取归集任务详情失败，任务ID: {}", dataSourceId);
                 return;
             }
 
-            log.info("获取到归集任务详情: {}", taskDetail.getName());
+            log.info("获取到归集任务详情: {}", taskDetail);
 
             // 2. 解析任务配置
             LocalCollectionConfig config = parseTaskConfig(taskDetail.getConfig());
             if (config == null) {
                 log.error("解析任务配置失败，任务ID: {}", dataSourceId);
-                return;
-            }
-
-            // 3. 检查任务类型是否为 LOCAL_COLLECTION
-            if (!"LOCAL_COLLECTION".equalsIgnoreCase(config.getType())) {
-                log.info("任务类型不是 LOCAL_COLLECTION，跳过文件扫描。任务类型: {}", config.getType());
                 return;
             }
 

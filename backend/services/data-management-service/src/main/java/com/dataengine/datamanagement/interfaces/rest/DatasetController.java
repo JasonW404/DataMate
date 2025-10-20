@@ -7,6 +7,7 @@ import com.dataengine.datamanagement.application.DatasetApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
 import com.dataengine.datamanagement.interfaces.dto.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.Map;
 /**
  * 数据集 REST 控制器（UUID 模式）
  */
+@Slf4j
 @RestController
 @RequestMapping("/data-management/datasets")
 public class DatasetController {
@@ -47,6 +49,7 @@ public class DatasetController {
             Dataset dataset = datasetApplicationService.createDataset(createDatasetRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(DatasetConverter.INSTANCE.convertToResponse(dataset)));
         } catch (IllegalArgumentException e) {
+            log.error("Failed to create dataset", e);
             return ResponseEntity.badRequest().body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
