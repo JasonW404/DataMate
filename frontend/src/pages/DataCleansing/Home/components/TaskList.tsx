@@ -164,8 +164,8 @@ export default function TaskList() {
     },
     {
       title: "结束时间",
-      dataIndex: "endedAt",
-      key: "endedAt",
+      dataIndex: "finishedAt",
+      key: "finishedAt",
       width: 180,
     },
     {

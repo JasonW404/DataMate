@@ -120,11 +120,7 @@ export default function OperatorMarketPage() {
         <div className="flex items-center">
           <div className="flex gap-2">
             {/* <TagManagement /> */}
-            <Button
-              type="primary"
-              onClick={handleUploadOperator}
-              icon={<Plus className="w-4 h-4 mr-2" />}
-            >
+            <Button type="primary" onClick={handleUploadOperator}>
               上传算子
             </Button>
           </div>
