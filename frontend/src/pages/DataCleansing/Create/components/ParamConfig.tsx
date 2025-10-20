@@ -31,18 +31,18 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
   switch (param.type) {
     case "input":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item label={param.name} tooltip={param.description} key={paramKey}>
           <Input
             value={value}
             onChange={(e) => updateValue(e.target.value)}
-            placeholder={`请输入${param.label}`}
+            placeholder={`请输入${param.name}`}
             className="w-full"
           />
         </Form.Item>
       );
     case "select":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item label={param.name} tooltip={param.description} key={paramKey}>
           <Select
             value={value}
             onChange={updateValue}
@@ -51,14 +51,14 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
                 ? { label: option, value: option }
                 : option
             )}
-            placeholder={`请选择${param.label}`}
+            placeholder={`请选择${param.name}`}
             className="w-full"
           />
         </Form.Item>
       );
     case "radio":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item label={param.name} tooltip={param.description} key={paramKey}>
           <Radio.Group
             value={value}
             onChange={(e) => updateValue(e.target.value)}
@@ -76,7 +76,7 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
       );
     case "checkbox":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item label={param.name} tooltip={param.description} key={paramKey}>
           <Checkbox.Group
             value={value}
             onChange={updateValue}
@@ -86,7 +86,7 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
       );
     case "slider":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item label={param.name} tooltip={param.description} key={paramKey}>
           <div className="flex items-center gap-1">
             <Slider
               value={value}
@@ -116,7 +116,7 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
       );
     case "range":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item label={param.name} tooltip={param.description} key={paramKey}>
           <Slider
             value={Array.isArray(value) ? value : [value, value]}
             onChange={(val) =>
