@@ -21,6 +21,7 @@ export enum DatasetStatus {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
   PROCESSING = "PROCESSING",
+  DRAFT = "DRAFT",
 }
 
 export enum DataSource {

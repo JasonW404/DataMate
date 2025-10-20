@@ -1,21 +1,11 @@
 import { Button, Avatar, List, Tag, Badge } from "antd";
 import { DeleteOutlined, EditOutlined, StarFilled } from "@ant-design/icons";
-import {
-  Edit,
-  Trash2,
-  Brain,
-  Code,
-  Cpu,
-  Package,
-  Zap,
-  Settings,
-  X,
-} from "lucide-react";
+import { Brain, Code, Cpu, Package, Zap, Settings, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Operator } from "../../operator.model";
 
-export function ListView({ operators }) {
+export function ListView({ operators, pagination }) {
   const navigate = useNavigate();
   const [favoriteOperators, setFavoriteOperators] = useState<Set<number>>(
     new Set([1, 3, 6])
@@ -70,24 +60,11 @@ export function ListView({ operators }) {
     return <IconComponent className="w-4 h-4" />;
   };
 
-  const getTypeColor = (type: string) => {
-    const colorMap = {
-      preprocessing: "bg-blue-100",
-      training: "bg-green-100",
-      inference: "bg-purple-100",
-      postprocessing: "bg-orange-100",
-    };
-    return colorMap[type as keyof typeof colorMap] || "bg-blue-100";
-  };
   return (
     <List
       className="p-4 overflow-auto mx-4"
       dataSource={operators}
-      pagination={{
-        pageSize: 10,
-        showSizeChanger: true,
-        showQuickJumper: true,
-      }}
+      pagination={pagination}
       renderItem={(operator) => (
         <List.Item
           className="hover:bg-gray-50 transition-colors px-6 py-4"

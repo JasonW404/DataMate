@@ -187,7 +187,7 @@ export default function OperatorMarketPage() {
                   pagination={pagination}
                 />
               ) : (
-                <ListView operators={tableData} />
+                <ListView operators={tableData} pagination={pagination} />
               )}
             </>
           )}

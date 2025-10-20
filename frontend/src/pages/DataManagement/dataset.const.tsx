@@ -10,6 +10,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
+  FileOutlined,
 } from "@ant-design/icons";
 import {
   FileImage,
@@ -172,6 +173,12 @@ export const datasetStatusMap = {
     value: DatasetStatus.INACTIVE,
     color: "#4f4444ff",
     icon: <CloseCircleOutlined />,
+  },
+  [DatasetStatus.DRAFT]: {
+    label: "草稿",
+    value: DatasetStatus.DRAFT,
+    color: "#a1a1a1ff",
+    icon: <FileOutlined />,
   },
 };
 

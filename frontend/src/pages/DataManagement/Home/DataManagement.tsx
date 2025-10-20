@@ -108,6 +108,7 @@ export default function DatasetManagementPage() {
       options: tags.map((tag) => ({ label: tag, value: tag })),
     },
   ];
+
   const {
     tableData,
     searchParams,
@@ -139,7 +140,7 @@ export default function DatasetManagementPage() {
       label: "编辑",
       icon: <EditOutlined />,
       onClick: (item: Dataset) => {
-        console.log(item)
+        console.log(item);
         setCurrentDataset(item);
         setEditDatasetOpen(true);
       },
@@ -201,8 +202,8 @@ export default function DatasetManagementPage() {
       key: "status",
       render: (status: any) => {
         return (
-          <Tag icon={status.icon} color={status.color}>
-            {status.label}
+          <Tag icon={status?.icon} color={status?.color}>
+            {status?.label}
           </Tag>
         );
       },
