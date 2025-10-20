@@ -70,8 +70,11 @@ export default function TaskList() {
 
   const taskOperations = (record) => {
     const isRunning = record.status?.value === TaskStatus.RUNNING;
-    const isPending = record.status?.value === TaskStatus.PENDING;
-
+    const showStart = [
+      TaskStatus.PENDING,
+      TaskStatus.FAILED,
+      TaskStatus.STOPPED,
+    ].includes(record.status?.value);
     const pauseBtn = {
       key: "pause",
       label: "暂停",
@@ -87,7 +90,7 @@ export default function TaskList() {
     };
     return [
       isRunning && pauseBtn,
-      isPending && startBtn,
+      showStart && startBtn,
       {
         key: "delete",
         label: "删除",

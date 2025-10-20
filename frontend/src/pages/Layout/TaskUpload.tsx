@@ -13,29 +13,9 @@ export default function TaskUpload() {
   const { message } = App.useApp();
   const [taskList, setTaskList] = useState<TaskItem[]>([]);
   const taskListRef = useRef<TaskItem[]>([]); // 用于固定任务顺序
-  //   const uploadTaskMap = useRef<{ [key: string]: TaskItem }>(new Map());
-
-  const toggleShowTaskPopover = (show: boolean = true) => {
-    const taskEl = document.getElementById("header-task-popover");
-    if (show && !taskEl?.classList.contains("show-task-popover")) {
-      taskEl?.classList?.add("show-task-popover");
-      return;
-    }
-    if (!show && taskEl?.classList.contains("show-task-popover")) {
-      taskEl?.classList?.remove("show-task-popover");
-    }
-  };
 
   const createTask = (detail: any = {}) => {
     const { dataset } = detail;
-
-    const isTaskUploading = taskListRef.current.findIndex(
-      (item) => item.key === dataset.id
-    );
-    if (isTaskUploading !== -1) {
-      message.error("数据集上传中，请勿重复上传");
-      return;
-    }
     const title = `上传数据集: ${dataset.name} `;
     const controller = new AbortController();
     const task: TaskItem = {
@@ -45,12 +25,6 @@ export default function TaskUpload() {
       reqId: -1,
       controller,
     };
-    // const newTaskMap = new Map(uploadTaskMap.current);
-    // newTaskMap.set(task.key, task);
-    // uploadTaskMap.current = newTaskMap;
-    // taskListRef.current = [task, ...taskListRef.current].map(
-    //   (item) => newTaskMap.get(item.key)!
-    // );
     taskListRef.current = [task, ...taskListRef.current];
 
     setTaskList(taskListRef.current);
@@ -58,12 +32,6 @@ export default function TaskUpload() {
   };
 
   const updateTaskList = (task: TaskItem) => {
-    // const newTaskMap = new Map(uploadTaskMap.current);
-    // newTaskMap.set(task.key, task);
-    // uploadTaskMap.current = newTaskMap;
-    // const newTaskList = taskListRef.current.map(
-    //   (item) => newTaskMap.get(item.key)!
-    // );
     taskListRef.current = taskListRef.current.map((item) =>
       item.key === task.key ? task : item
     );
@@ -72,23 +40,17 @@ export default function TaskUpload() {
 
   const removeTask = (task: TaskItem) => {
     const { key } = task;
-    // const newTaskMap = new Map(uploadTaskMap.current);
-
-    // if (newTaskMap.has(key)) {
-    //   newTaskMap.delete(key);
-    // }
-
-    // uploadTaskMap.current = newTaskMap;
-    // taskListRef.current = taskListRef.current.filter(
-    //   (item) => item.key !== key
-    // );
     taskListRef.current = taskListRef.current.filter(
       (item) => item.key !== key
     );
     setTaskList(taskListRef.current);
-    task.cancelFn?.();
+    if (task.isCancel && task.cancelFn) {
+      task.cancelFn();
+    }
     window.dispatchEvent(new Event("update:dataset"));
-    toggleShowTaskPopover(false);
+    window.dispatchEvent(
+      new CustomEvent("show:task-popover", { detail: { show: false } })
+    );
   };
 
   async function buildFormData({ file, reqId, i, j }) {
@@ -99,7 +61,6 @@ export default function TaskUpload() {
     formData.append("reqId", reqId.toString());
     formData.append("fileNo", (i + 1).toString());
     formData.append("chunkNo", (j + 1).toString());
-    formData.append("hasArchive", "false");
     formData.append("fileName", name);
     formData.append("fileSize", size.toString());
     formData.append("totalChunkNum", slices.length.toString());
@@ -121,15 +82,12 @@ export default function TaskUpload() {
     });
 
     let newTask = { ...task };
-    console.log("upload slice", task, files[i]);
-
     await uploadFileChunkUsingPost(key, formData, {
       onUploadProgress: (e) => {
         const loadedSize = loaded + e.loaded;
         const curPercent = Math.round(loadedSize / totalSize) * 100;
         newTask = {
           ...newTask,
-          //   ...uploadTaskMap.current.get(key),
           ...taskListRef.current.find((item) => item.key === key),
           percent: curPercent >= 100 ? 99.99 : curPercent,
         };
@@ -140,7 +98,7 @@ export default function TaskUpload() {
   }
 
   async function uploadFile({ task, files, totalSize }) {
-    const reqId = await preUploadUsingPost(task.key, {
+    const { data: reqId } = await preUploadUsingPost(task.key, {
       totalFileNum: files.length,
       totalSize,
       datasetId: task.key,
@@ -149,6 +107,7 @@ export default function TaskUpload() {
     const newTask: TaskItem = {
       ...task,
       reqId,
+      isCancel: false,
       cancelFn: () => {
         task.controller.abort();
         cancelUploadUsingPut(reqId);
@@ -156,11 +115,12 @@ export default function TaskUpload() {
       },
     };
     updateTaskList(newTask);
-    toggleShowTaskPopover(true);
+    window.dispatchEvent(
+      new CustomEvent("show:task-popover", { detail: { show: true } })
+    );
+    // 更新数据状态
+    window.dispatchEvent(new Event("update:dataset-status"));
 
-    window.dispatchEvent(new Event("update:dataset"));
-
-    console.log("upload file", task, files);
     let loaded = 0;
     for (let i = 0; i < files.length; i++) {
       const { slices } = files[i];
@@ -184,7 +144,7 @@ export default function TaskUpload() {
       message.error("文件被修改或删除，请重新选择文件上传");
       removeTask({
         ...task,
-        // ...uploadTaskMap.current.get(task.key),
+        isCancel: false,
         ...taskListRef.current.find((item) => item.key === task.key),
       });
       return;
@@ -198,7 +158,7 @@ export default function TaskUpload() {
       message.error("文件上传失败，请稍后重试");
       removeTask({
         ...task,
-        // ...uploadTaskMap.current.get(task.key),
+        isCancel: true,
         ...taskListRef.current.find((item) => item.key === task.key),
       });
     }
@@ -208,10 +168,8 @@ export default function TaskUpload() {
     const uploadHandler = (e: any) => {
       const { files } = e.detail;
       const task = createTask(e.detail);
-      console.log("upload event", e.detail, task);
       handleUpload({ task, files });
     };
-
     window.addEventListener("upload:dataset", uploadHandler);
     return () => {
       window.removeEventListener("upload:dataset", uploadHandler);
@@ -235,10 +193,10 @@ export default function TaskUpload() {
                 onClick={() =>
                   removeTask({
                     ...task,
+                    isCancel: true,
                     ...taskListRef.current.find(
                       (item) => item.key === task.key
                     ),
-                    // ...uploadTaskMap.current.get(task.key),
                   })
                 }
                 icon={<DeleteOutlined />}

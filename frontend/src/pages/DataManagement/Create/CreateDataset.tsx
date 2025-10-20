@@ -77,7 +77,7 @@ export default function DatasetCreate() {
   // 获取归集任务列表
   const fetchCollectionTasks = async () => {
     try {
-      const { data } = await queryTasksUsingGet({ page: 1, size: 100 });
+      const { data } = await queryTasksUsingGet({ page: 0, size: 100 });
       const options = data.map((task: any) => ({
         label: task.name,
         value: task.id,
@@ -156,7 +156,7 @@ export default function DatasetCreate() {
           message.error("请上传文件");
           return;
         }
-        handleUpload(message, dataset);
+        handleUpload(dataset);
       }
       if (importConfig.source === DataSource.NAS) {
         message.error("请填写NAS地址和共享路径");

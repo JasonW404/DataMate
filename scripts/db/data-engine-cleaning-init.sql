@@ -39,14 +39,18 @@ CREATE TABLE IF NOT EXISTS t_operator_instance
 
 CREATE TABLE IF NOT EXISTS t_clean_result
 (
-    instance_id varchar(64) primary key,
+    instance_id varchar(64),
     src_file_id varchar(64),
-    dst_file_id varchar(64),
+    dest_file_id varchar(64),
     src_name    varchar(256),
+    dest_name    varchar(256),
     src_type    varchar(256),
+    dest_type    varchar(256),
     src_size    bigint,
-    dst_size    bigint,
-    status      varchar(256)
+    dest_size    bigint,
+    status      varchar(256),
+    result      TEXT,
+    primary key (instance_id, dest_file_id)
 );
 
 INSERT IGNORE INTO t_clean_template(id, name, description)

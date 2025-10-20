@@ -1,35 +1,45 @@
 package com.dataengine.cleaning.application.service;
 
 
+import com.dataengine.cleaning.domain.converter.OperatorInstanceConverter;
+import com.dataengine.cleaning.domain.model.OperatorInstancePo;
 import com.dataengine.cleaning.domain.model.TemplateWithInstance;
 import com.dataengine.cleaning.infrastructure.persistence.mapper.CleaningTemplateMapper;
+import com.dataengine.cleaning.infrastructure.persistence.mapper.OperatorInstanceMapper;
 import com.dataengine.cleaning.interfaces.dto.CleaningTemplate;
 import com.dataengine.cleaning.interfaces.dto.CreateCleaningTemplateRequest;
 import com.dataengine.cleaning.interfaces.dto.OperatorResponse;
 import com.dataengine.cleaning.interfaces.dto.UpdateCleaningTemplateRequest;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CleaningTemplateService {
+    private final CleaningTemplateMapper cleaningTemplateMapper;
 
-    @Autowired
-    private CleaningTemplateMapper cleaningTemplateMapper;
+    private final OperatorInstanceMapper operatorInstanceMapper;
 
-    public List<CleaningTemplate> getTemplates() {
+    public List<CleaningTemplate> getTemplates(String keywords, Integer page, Integer size) {
         List<OperatorResponse> allOperators = cleaningTemplateMapper.findAllOperators();
         Map<String, OperatorResponse> operatorsMap = allOperators.stream()
                 .collect(Collectors.toMap(OperatorResponse::getId, Function.identity()));
 
-        List<TemplateWithInstance> allTemplates = cleaningTemplateMapper.findAllTemplates();
+        Integer offset = null;
+        if (page != null && size != null) {
+            offset = page * size;
+        }
+        List<TemplateWithInstance> allTemplates = cleaningTemplateMapper.findAllTemplates(keywords, size, offset);
         Map<String, List<TemplateWithInstance>> templatesMap = allTemplates.stream()
                 .collect(Collectors.groupingBy(TemplateWithInstance::getId));
         return templatesMap.entrySet().stream().map(twi -> {
@@ -53,12 +63,22 @@ public class CleaningTemplateService {
         }).toList();
     }
 
+    public int countTemplates(String keywords) {
+        return cleaningTemplateMapper.findAllTemplates(keywords, null, null).size();
+    }
+
     @Transactional
     public CleaningTemplate createTemplate(CreateCleaningTemplateRequest request) {
         CleaningTemplate template = new CleaningTemplate();
+        String templateId = UUID.randomUUID().toString();
+        template.setId(templateId);
         template.setName(request.getName());
         template.setDescription(request.getDescription());
         cleaningTemplateMapper.insertTemplate(template);
+
+        List<OperatorInstancePo> instancePos = request.getInstance().stream()
+                .map(OperatorInstanceConverter.INSTANCE::operatorToDo).toList();
+        operatorInstanceMapper.insertInstance(templateId, instancePos);
         return template;
     }
 

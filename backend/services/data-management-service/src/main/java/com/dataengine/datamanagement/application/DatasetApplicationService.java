@@ -1,5 +1,6 @@
 package com.dataengine.datamanagement.application;
 
+import com.dataengine.datamanagement.common.enums.DatasetStatusType;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
 import com.dataengine.datamanagement.domain.model.dataset.Tag;
@@ -111,7 +112,7 @@ public class DatasetApplicationService {
 
         if (name != null && !name.isEmpty()) dataset.setName(name);
         if (description != null) dataset.setDescription(description);
-        if (status != null && !status.isEmpty()) dataset.setStatus(status);
+        if (status != null && !status.isEmpty()) dataset.setStatus(DatasetStatusType.valueOf(status));
         dataset.setUpdatedAt(LocalDateTime.now());
 
         Set<Tag> processedTags = new HashSet<>();

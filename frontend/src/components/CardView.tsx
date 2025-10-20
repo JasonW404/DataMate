@@ -170,7 +170,7 @@ function CardView<T extends BaseCardDataType>(props: CardViewProps<T>) {
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
-      <div className="flex-1 overflow-auto grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="overflow-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         {data.map((item) => (
           <div
             key={item.id}

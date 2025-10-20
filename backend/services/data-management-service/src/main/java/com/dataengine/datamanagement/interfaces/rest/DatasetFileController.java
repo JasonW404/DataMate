@@ -1,6 +1,7 @@
 package com.dataengine.datamanagement.interfaces.rest;
 
-import com.dataengine.common.interfaces.Response;
+import com.dataengine.common.infrastructure.common.Response;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.dataengine.datamanagement.application.DatasetFileApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
 import com.dataengine.datamanagement.interfaces.dto.DatasetFileResponse;
@@ -76,10 +77,10 @@ public class DatasetFileController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(convertToResponse(datasetFile)));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Response.error("参数错误", null));
+            return ResponseEntity.badRequest().body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         } catch (Exception e) {
             log.error("upload fail", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Response.error("服务器错误", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
@@ -91,7 +92,7 @@ public class DatasetFileController {
             DatasetFile datasetFile = datasetFileApplicationService.getDatasetFile(datasetId, fileId);
             return ResponseEntity.ok(Response.ok(convertToResponse(datasetFile)));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("未找到文件", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
@@ -103,7 +104,7 @@ public class DatasetFileController {
             datasetFileApplicationService.deleteDatasetFile(datasetId, fileId);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("未找到文件", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 

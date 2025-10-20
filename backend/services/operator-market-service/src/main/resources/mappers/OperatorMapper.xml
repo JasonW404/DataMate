@@ -26,6 +26,27 @@
             </if>
         </where>
         GROUP BY operator_id
-        LIMIT ${size} OFFSET ${offset};
+        <if test="size != null and offset != null">
+            LIMIT ${size} OFFSET ${offset}
+        </if>
+    </select>
+
+    <select id="countOperatorsByCriteria" parameterType="map">
+        SELECT COUNT(DISTINCT operator_id) AS count
+        FROM v_operator
+        <where>
+            <if test="operatorName != null and operatorName != ''">
+                AND operator_name LIKE CONCAT('%', #{operatorName}, '%')
+            </if>
+            <if test="categories != null and !categories.isEmpty()">
+                AND category_id IN
+                <foreach collection="categories" item="category" open="(" separator="," close=")">
+                    #{category}
+                </foreach>
+            </if>
+            <if test="isStar != null">
+                AND is_star = #{isStar}
+            </if>
+        </where>
     </select>
 </mapper>

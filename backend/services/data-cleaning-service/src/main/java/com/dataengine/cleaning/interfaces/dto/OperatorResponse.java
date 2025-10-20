@@ -1,6 +1,6 @@
 package com.dataengine.cleaning.interfaces.dto;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,9 +33,9 @@ public class OperatorResponse {
     private Boolean isStar;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 }
 

@@ -81,6 +81,18 @@ export default function DatasetDetail() {
     message.success("文件下载成功");
   };
 
+  useEffect(() => {
+    const refreshDataset = () => {
+      fetchDataset();
+    }
+    window.addEventListener("update:dataset", handleRefresh);
+    window.addEventListener("update:dataset-status", refreshDataset);
+    return () => {
+      window.removeEventListener("update:dataset", handleRefresh);
+      window.removeEventListener("update:dataset-status", refreshDataset);
+    };
+  }, []);
+
   // 基本信息描述项
   const statistics = [
     {
@@ -189,7 +201,7 @@ export default function DatasetDetail() {
         open={showUploadDialog}
         onCancel={() => setShowUploadDialog(false)}
         onOk={async () => {
-          await handleUpload(message, dataset);
+          await handleUpload(dataset);
           setShowUploadDialog(false);
           filesOperation.fetchFiles();
         }}
