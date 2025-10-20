@@ -1,6 +1,7 @@
 package com.dataengine.operator.application;
 
 import com.dataengine.operator.domain.converter.OperatorConverter;
+import com.dataengine.operator.infrastructure.persistence.mapper.CategoryRelationMapper;
 import com.dataengine.operator.infrastructure.persistence.mapper.OperatorMapper;
 import com.dataengine.operator.interfaces.dto.*;
 import com.dataengine.operator.domain.modal.Operator;
@@ -15,6 +16,8 @@ import java.util.List;
 public class OperatorService {
     private final OperatorMapper operatorMapper;
 
+    private final CategoryRelationMapper relationMapper;
+
     public List<OperatorResponse> getOperators(Integer page, Integer size, List<Integer> categories,
                                                String operatorName, Boolean isStar) {
         Integer offset = page * size;
@@ -24,26 +27,45 @@ public class OperatorService {
                 .map(OperatorConverter.INSTANCE::operatorToResponse).toList();
     }
 
-    private OperatorResponse toDto(Operator entity) {
-        OperatorResponse dto = new OperatorResponse();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setVersion(entity.getVersion());
-        return dto;
+    public int getOperatorsCount(List<Integer> categories, String operatorName, Boolean isStar) {
+        return operatorMapper.countOperatorsByCriteria(operatorName, categories, isStar);
     }
+
     public OperatorResponse getOperatorById(String id) {
-        // TODO: 查询算子详情
-        return new OperatorResponse();
+        Operator operator = operatorMapper.findOperatorById(id);
+        return OperatorConverter.INSTANCE.operatorToResponse(operator);
     }
-    public OperatorResponse updateOperator(String id, UpdateOperatorRequest req) {
-        // TODO: 更新算子
-        return new OperatorResponse();
-    }
+
     public OperatorResponse createOperator(CreateOperatorRequest req) {
-        // TODO: 创建算子
-        return new OperatorResponse();
+        Operator operator = new Operator();
+        operator.setId(req.getId());
+        operator.setName(req.getName());
+        operator.setDescription(req.getDescription());
+        operator.setVersion(req.getVersion());
+        operator.setInputs(req.getInputs());
+        operator.setOutputs(req.getOutputs());
+        operator.setRuntime(req.getRuntime());
+        operator.setSettings(req.getSettings());
+        operatorMapper.insertOperator(operator);
+        relationMapper.batchInsert(req.getId(), req.getCategories());
+        return OperatorConverter.INSTANCE.operatorToResponse(operator);
     }
+
+    public OperatorResponse updateOperator(String id, UpdateOperatorRequest req) {
+        Operator operator = new Operator();
+        operator.setId(id);
+        operator.setName(req.getName());
+        operator.setDescription(req.getDescription());
+        operator.setVersion(req.getVersion());
+        operator.setInputs(req.getInputs());
+        operator.setOutputs(req.getOutputs());
+        operator.setRuntime(req.getRuntime());
+        operator.setSettings(req.getSettings());
+        operatorMapper.updateOperator(operator);
+        relationMapper.batchInsert(id, req.getCategories());
+        return getOperatorById(id);
+    }
+
     public OperatorResponse uploadOperator(MultipartFile file, String description) {
         // TODO: 文件上传与解析
         return new OperatorResponse();

@@ -1,6 +1,6 @@
 package com.dataengine.cleaning.interfaces.dto;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +25,9 @@ public class CleaningTemplate {
     private List<OperatorResponse> instance = new ArrayList<>();
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 }
 

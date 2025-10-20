@@ -35,7 +35,7 @@ public class CategoryService {
     private List<CategoryTreeResponse> groupByParentIdSorted(List<RelationCategoryDTO> relations,
                                                              Map<Integer, Category> categories) {
         Map<Integer, List<RelationCategoryDTO>> groupedByParentId = relations.stream()
-            .filter(relation -> relation.getParentId() > 0)
+            .filter(relation -> StringUtils.isNotBlank(relation.getOperatorId()))
             .collect(Collectors.groupingBy(RelationCategoryDTO::getParentId));
 
         return groupedByParentId.entrySet().stream()

@@ -1,0 +1,612 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Label Studio Adapter",
+        "description": "Adapter for integrating Data Management System with Label Studio",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/health": {
+            "get": {
+                "tags": [
+                    "系统"
+                ],
+                "summary": "Health Check",
+                "description": "健康检查端点",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/config": {
+            "get": {
+                "tags": [
+                    "系统"
+                ],
+                "summary": "Get Config",
+                "description": "获取配置信息",
+                "operationId": "get_config_config_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/project/create": {
+            "post": {
+                "tags": [
+                    "项目"
+                ],
+                "summary": "Create Dataset Mapping",
+                "description": "创建数据集映射\n\n根据指定的DM程序中的数据集，创建Label Studio中的数据集，\n在数据库中记录这一关联关系，返回Label Studio数据集的ID\n\n注意：一个数据集可以创建多个标注项目",
+                "operationId": "create_dataset_mapping_project_create_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DatasetMappingCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatasetMappingCreateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/project/sync": {
+            "post": {
+                "tags": [
+                    "项目"
+                ],
+                "summary": "Sync Dataset Content",
+                "description": "同步数据集内容\n\n根据指定的mapping ID，同步DM程序数据集中的内容到Label Studio数据集中，\n在数据库中记录更新时间，返回更新状态",
+                "operationId": "sync_dataset_content_project_sync_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SyncDatasetRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SyncDatasetResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/project/mappings/list": {
+            "get": {
+                "tags": [
+                    "项目"
+                ],
+                "summary": "List Mappings",
+                "description": "查询所有映射关系\n\n返回所有有效的数据集映射关系（未被软删除的）",
+                "operationId": "list_mappings_project_mappings_list_get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "跳过的记录数",
+                            "default": 0,
+                            "title": "Skip"
+                        },
+                        "description": "跳过的记录数"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "description": "返回的最大记录数",
+                            "default": 100,
+                            "title": "Limit"
+                        },
+                        "description": "返回的最大记录数"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DatasetMappingResponse"
+                                    },
+                                    "title": "Response List Mappings Project Mappings List Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/project/mappings/{mapping_uuid}": {
+            "get": {
+                "tags": [
+                    "项目"
+                ],
+                "summary": "Get Mapping",
+                "description": "根据 UUID 查询单个映射关系",
+                "operationId": "get_mapping_project_mappings__mapping_uuid__get",
+                "parameters": [
+                    {
+                        "name": "mapping_uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Mapping Uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DatasetMappingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/project/mappings/by-source/{source_dataset_id}": {
+            "get": {
+                "tags": [
+                    "项目"
+                ],
+                "summary": "Get Mappings By Source",
+                "description": "根据源数据集 ID 查询所有映射关系\n\n返回该数据集创建的所有标注项目（包括已删除的）",
+                "operationId": "get_mappings_by_source_project_mappings_by_source__source_dataset_id__get",
+                "parameters": [
+                    {
+                        "name": "source_dataset_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Source Dataset Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DatasetMappingResponse"
+                                    },
+                                    "title": "Response Get Mappings By Source Project Mappings By Source  Source Dataset Id  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/project/mappings": {
+            "delete": {
+                "tags": [
+                    "项目"
+                ],
+                "summary": "Delete Mapping",
+                "description": "删除映射关系和对应的 Label Studio 项目\n\n可以通过以下任一方式指定要删除的映射：\n- m: 映射UUID\n- proj: Label Studio项目ID\n- 两者都提供（优先使用 m）\n\n此操作会：\n1. 删除 Label Studio 中的项目\n2. 软删除数据库中的映射记录",
+                "operationId": "delete_mapping_project_mappings_delete",
+                "parameters": [
+                    {
+                        "name": "m",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "映射UUID",
+                            "title": "M"
+                        },
+                        "description": "映射UUID"
+                    },
+                    {
+                        "name": "proj",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Label Studio项目ID",
+                            "title": "Proj"
+                        },
+                        "description": "Label Studio项目ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteDatasetResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DatasetMappingCreateRequest": {
+                "properties": {
+                    "source_dataset_id": {
+                        "type": "string",
+                        "title": "Source Dataset Id",
+                        "description": "源数据集ID"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "source_dataset_id"
+                ],
+                "title": "DatasetMappingCreateRequest",
+                "description": "数据集映射 创建 请求模型"
+            },
+            "DatasetMappingCreateResponse": {
+                "properties": {
+                    "mapping_uuid": {
+                        "type": "string",
+                        "title": "Mapping Uuid",
+                        "description": "映射UUID"
+                    },
+                    "labelling_project_id": {
+                        "type": "string",
+                        "title": "Labelling Project Id",
+                        "description": "Label Studio项目ID"
+                    },
+                    "labelling_project_name": {
+                        "type": "string",
+                        "title": "Labelling Project Name",
+                        "description": "Label Studio项目名称"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "响应消息"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "mapping_uuid",
+                    "labelling_project_id",
+                    "labelling_project_name",
+                    "message"
+                ],
+                "title": "DatasetMappingCreateResponse",
+                "description": "数据集映射 创建 响应模型"
+            },
+            "DatasetMappingResponse": {
+                "properties": {
+                    "source_dataset_id": {
+                        "type": "string",
+                        "title": "Source Dataset Id",
+                        "description": "源数据集ID"
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "title": "Uuid",
+                        "description": "映射UUID"
+                    },
+                    "labelling_project_id": {
+                        "type": "string",
+                        "title": "Labelling Project Id",
+                        "description": "标注项目ID"
+                    },
+                    "labelling_project_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Labelling Project Name",
+                        "description": "标注项目名称"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "创建时间"
+                    },
+                    "last_updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Last Updated At",
+                        "description": "最后更新时间"
+                    },
+                    "deleted_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Deleted At",
+                        "description": "删除时间"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "source_dataset_id",
+                    "uuid",
+                    "labelling_project_id",
+                    "created_at",
+                    "last_updated_at"
+                ],
+                "title": "DatasetMappingResponse",
+                "description": "数据集映射 查询 响应模型"
+            },
+            "DeleteDatasetResponse": {
+                "properties": {
+                    "mapping_uuid": {
+                        "type": "string",
+                        "title": "Mapping Uuid",
+                        "description": "映射UUID"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "删除状态"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "响应消息"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "mapping_uuid",
+                    "status",
+                    "message"
+                ],
+                "title": "DeleteDatasetResponse",
+                "description": "删除数据集响应模型"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "SyncDatasetRequest": {
+                "properties": {
+                    "mapping_id": {
+                        "type": "string",
+                        "title": "Mapping Id",
+                        "description": "映射ID（mapping UUID）"
+                    },
+                    "batch_size": {
+                        "type": "integer",
+                        "maximum": 100.0,
+                        "minimum": 1.0,
+                        "title": "Batch Size",
+                        "description": "批处理大小",
+                        "default": 50
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "mapping_id"
+                ],
+                "title": "SyncDatasetRequest",
+                "description": "同步数据集请求模型"
+            },
+            "SyncDatasetResponse": {
+                "properties": {
+                    "mapping_uuid": {
+                        "type": "string",
+                        "title": "Mapping Uuid",
+                        "description": "映射UUID"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "description": "同步状态"
+                    },
+                    "synced_files": {
+                        "type": "integer",
+                        "title": "Synced Files",
+                        "description": "已同步文件数量"
+                    },
+                    "total_files": {
+                        "type": "integer",
+                        "title": "Total Files",
+                        "description": "总文件数量",
+                        "default": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "响应消息"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "mapping_uuid",
+                    "status",
+                    "synced_files",
+                    "message"
+                ],
+                "title": "SyncDatasetResponse",
+                "description": "同步数据集响应模型"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

@@ -4,15 +4,17 @@ import { SearchControls } from "@/components/SearchControls";
 import {
   deleteTaskByIdUsingDelete,
   executeTaskByIdUsingPost,
-  queryTasksUsingPost,
+  queryTasksUsingGet,
   stopTaskByIdUsingPost,
 } from "../../collection.apis";
 import { TaskStatus, type CollectionTask } from "../../collection.model";
 import { StatusMap, SyncModeMap } from "../../collection.const";
 import useFetchData from "@/hooks/useFetchData";
+import { useNavigate } from "react-router";
 
 export default function TaskManagement() {
   const { message } = App.useApp();
+  const navigate = useNavigate();
   const filters = [
     {
       key: "status",
@@ -32,7 +34,7 @@ export default function TaskManagement() {
     setSearchParams,
     fetchData,
     handleFiltersChange,
-  } = useFetchData(queryTasksUsingPost);
+  } = useFetchData(queryTasksUsingGet);
 
   const handleStartTask = async (taskId: string) => {
     await executeTaskByIdUsingPost(taskId);
@@ -52,11 +54,6 @@ export default function TaskManagement() {
     fetchData();
   };
 
-  const handleViewDetail = (record: CollectionTask) => {
-    // Implement your view detail logic here
-    console.log("Viewing details for task:", record);
-  };
-
   const columns = [
     {
       title: "任务名称",
@@ -64,7 +61,10 @@ export default function TaskManagement() {
       key: "name",
       fixed: "left",
       render: (text: string, record: CollectionTask) => (
-        <Button type="link" onClick={() => handleViewDetail(record)}>
+        <Button
+          type="link"
+          onClick={() => navigate("`/data-collection/tasks/${record.id}`)}>")}
+        >
           {text}
         </Button>
       ),
@@ -158,11 +158,11 @@ export default function TaskManagement() {
     <div>
       {/* Header Actions */}
       <SearchControls
-        searchTerm={searchParams.keywords}
+        searchTerm={searchParams.keyword}
         onSearchChange={(newSearchTerm) =>
           setSearchParams((prev) => ({
             ...prev,
-            keywords: newSearchTerm,
+            keyword: newSearchTerm,
             current: 1,
           }))
         }

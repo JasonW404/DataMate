@@ -34,8 +34,10 @@ import { mockKnowledgeBases } from "@/mock/knowledgeBase";
 import { useNavigate } from "react-router";
 import DetailHeader from "@/components/DetailHeader";
 import { SearchControls } from "@/components/SearchControls";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 const KnowledgeBaseDetailPage: React.FC = () => {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const knowledgeBase = mockKnowledgeBases[0];
 

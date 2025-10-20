@@ -1,5 +1,6 @@
 package com.dataengine.datamanagement.infrastructure.client;
 
+import com.dataengine.common.infrastructure.common.Response;
 import com.dataengine.datamanagement.infrastructure.client.dto.CollectionTaskDetailResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,5 +18,5 @@ public interface CollectionTaskClient {
      * @return 任务详情
      */
     @GetMapping("/api/data-collection/tasks/{id}")
-    CollectionTaskDetailResponse getTaskDetail(@PathVariable("id") String taskId);
+    Response<CollectionTaskDetailResponse> getTaskDetail(@PathVariable("id") String taskId);
 }

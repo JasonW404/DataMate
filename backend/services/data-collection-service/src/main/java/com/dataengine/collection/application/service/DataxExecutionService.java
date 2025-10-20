@@ -28,22 +28,15 @@ public class DataxExecutionService {
 
     private final DataxJobBuilder jobBuilder;
     private final DataxProcessRunner processRunner;
-    private final DataxProperties props;
     private final TaskExecutionMapper executionMapper;
     private final CollectionTaskMapper taskMapper;
 
 
     @Transactional
     public TaskExecution createExecution(CollectionTask task) {
-
-        TaskExecution exec = new TaskExecution();
-        exec.setId(UUID.randomUUID().toString());
+        TaskExecution exec = TaskExecution.initTaskExecution();
         exec.setTaskId(task.getId());
         exec.setTaskName(task.getName());
-        exec.setStatus(TaskStatus.RUNNING);
-        exec.setProgress(0.0);
-        exec.setStartedAt(LocalDateTime.now());
-        exec.setCreatedAt(LocalDateTime.now());
         executionMapper.insert(exec);
         taskMapper.updateLastExecution(task.getId(), exec.getId());
         taskMapper.updateStatus(task.getId(), TaskStatus.RUNNING.name());

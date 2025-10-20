@@ -1,5 +1,10 @@
 package com.dataengine.datamanagement.domain.model.dataset;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.dataengine.common.domain.model.base.BaseEntity;
+import com.dataengine.datamanagement.common.enums.DatasetStatusType;
+import com.dataengine.datamanagement.common.enums.DatasetType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,58 +19,88 @@ import java.util.UUID;
  */
 @Getter
 @Setter
-public class Dataset {
-
-    private String id; // UUID
+@TableName(value = "t_dm_datasets", autoResultMap = true)
+public class Dataset extends BaseEntity<String> {
+    /**
+     * 数据集名称
+     */
     private String name;
+    /**
+     * 数据集描述
+     */
     private String description;
-
-    // DB: dataset_type
-    private String datasetType;
-
+    /**
+     * 数据集类型
+     */
+    private DatasetType datasetType;
+    /**
+     * 数据集分类
+     */
     private String category;
-    // DB: data_source_id
-    private String dataSourceId;
-    // DB: path
+    /**
+     * 数据集路径
+     */
     private String path;
-    // DB: format
+    /**
+     * 数据集格式
+     */
     private String format;
-
-    // DB: size_bytes
+    /**
+     * 数据集模式信息，JSON格式, 用于解析当前数据集的文件结构
+     */
+    private String schemaInfo;
+    /**
+     * 数据集大小（字节）
+     */
     private Long sizeBytes = 0L;
+    /**
+     * 文件数量
+     */
     private Long fileCount = 0L;
+    /**
+     * 记录数量
+     */
     private Long recordCount = 0L;
-
-    private Double completionRate = 0.0;
-    private Double qualityScore = 0.0;
-
-    private String status; // DRAFT/ACTIVE/ARCHIVED/PROCESSING
+    /**
+     * 数据集保留天数
+     */
+    private Integer retentionDays = 0;
+    /**
+     * 额外元数据，JSON格式
+     */
+    private String metadata;
+    /**
+     * 数据集状态
+     */
+    private DatasetStatusType status;
+    /**
+     * 是否为公共数据集
+     */
     private Boolean isPublic = false;
+    /**
+     * 是否为精选数据集
+     */
     private Boolean isFeatured = false;
-
-    private Long downloadCount = 0L;
-    private Long viewCount = 0L;
-
+    /**
+     * 数据集版本号
+     */
     private Long version = 0L;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String createdBy;
-    private String updatedBy;
-
     // 聚合内的便捷集合（非持久化关联，由应用服务填充）
+    @TableField(exist = false)
     private List<Tag> tags = new ArrayList<>();
+    @TableField(exist = false)
     private List<DatasetFile> files = new ArrayList<>();
 
-    public Dataset() {}
+    public Dataset() {
+    }
 
-    public Dataset(String name, String description, String datasetType, String category,
-                   String dataSourceId, String path, String format, String status, String createdBy) {
+    public Dataset(String name, String description, DatasetType datasetType, String category, String path,
+                   String format, DatasetStatusType status, String createdBy) {
         this.name = name;
         this.description = description;
         this.datasetType = datasetType;
         this.category = category;
-        this.dataSourceId = dataSourceId;
         this.path = path;
         this.format = format;
         this.status = status;
@@ -77,7 +112,7 @@ public class Dataset {
     public void initCreateParam(String datasetBasePath) {
         this.id = UUID.randomUUID().toString();
         this.path = datasetBasePath + File.separator + this.id;
-        this.status = StatusConstants.DatasetStatuses.ACTIVE;
+        this.status = DatasetStatusType.DRAFT;
         this.createdBy = "system";
         this.updatedBy = "system";
         this.createdAt = LocalDateTime.now();
@@ -91,7 +126,7 @@ public class Dataset {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updateStatus(String status, String updatedBy) {
+    public void updateStatus(DatasetStatusType status, String updatedBy) {
         this.status = status;
         this.updatedBy = updatedBy;
         this.updatedAt = LocalDateTime.now();

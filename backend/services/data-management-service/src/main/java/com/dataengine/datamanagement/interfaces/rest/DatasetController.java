@@ -1,11 +1,13 @@
 package com.dataengine.datamanagement.interfaces.rest;
 
+import com.dataengine.common.infrastructure.common.Response;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.dataengine.common.interfaces.PagedResponse;
-import com.dataengine.datamanagement.application.service.DatasetApplicationService;
+import com.dataengine.datamanagement.application.DatasetApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
 import com.dataengine.datamanagement.interfaces.dto.*;
-import com.dataengine.common.interfaces.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -17,10 +19,10 @@ import java.util.Map;
 /**
  * 数据集 REST 控制器（UUID 模式）
  */
+@Slf4j
 @RestController
 @RequestMapping("/data-management/datasets")
 public class DatasetController {
-
     private final DatasetApplicationService datasetApplicationService;
 
     @Autowired
@@ -47,7 +49,8 @@ public class DatasetController {
             Dataset dataset = datasetApplicationService.createDataset(createDatasetRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(DatasetConverter.INSTANCE.convertToResponse(dataset)));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Response.error("参数错误", null));
+            log.error("Failed to create dataset", e);
+            return ResponseEntity.badRequest().body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
@@ -57,7 +60,7 @@ public class DatasetController {
             Dataset dataset = datasetApplicationService.getDataset(datasetId);
             return ResponseEntity.ok(Response.ok(DatasetConverter.INSTANCE.convertToResponse(dataset)));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("数据集不存在", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
@@ -75,7 +78,7 @@ public class DatasetController {
             );
             return ResponseEntity.ok(Response.ok(DatasetConverter.INSTANCE.convertToResponse(dataset)));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("数据集不存在", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
@@ -85,7 +88,7 @@ public class DatasetController {
             datasetApplicationService.deleteDataset(datasetId);
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("数据集不存在", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
@@ -104,9 +107,9 @@ public class DatasetController {
 
             return ResponseEntity.ok(Response.ok(response));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error("数据集不存在", null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Response.error("服务器内部错误", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 

@@ -1,35 +1,35 @@
 import React, { memo, useEffect, useState } from "react";
-import { Button, Menu } from "antd";
+import { Button, Menu, Popover } from "antd";
 import {
   CloseOutlined,
   MenuOutlined,
-  OrderedListOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { Sparkles, X, Menu as MenuIcon } from "lucide-react";
-import { antMenuItems, antMenuItems as items } from "@/pages/Layout/menu";
-import TaskPopover from "../../components/TaskPopover";
+import { ClipboardList, Sparkles, X } from "lucide-react";
+import { menuItems } from "@/pages/Layout/menu";
 import { NavLink, useLocation, useNavigate } from "react-router";
+import TaskUpload from "./TaskUpload";
 
 const AsiderAndHeaderLayout = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState<string>("management");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [taskCenterVisible, setTaskCenterVisible] = useState(false);
 
   // Initialize active item based on current pathname
   const initActiveItem = () => {
-    for (let index = 0; index < antMenuItems.length; index++) {
-      const element = antMenuItems[index];
+    for (let index = 0; index < menuItems.length; index++) {
+      const element = menuItems[index];
       if (element.children) {
         element.children.forEach((subItem) => {
-          if (pathname.includes(subItem.key)) {
-            setActiveItem(subItem.key);
+          if (pathname.includes(subItem.id)) {
+            setActiveItem(subItem.id);
             return;
           }
         });
-      } else if (pathname.includes(element.key)) {
-        setActiveItem(element.key);
+      } else if (pathname.includes(element.id)) {
+        setActiveItem(element.id);
         return;
       }
     }
@@ -39,11 +39,30 @@ const AsiderAndHeaderLayout = () => {
     initActiveItem();
   }, [pathname]);
 
+  useEffect(() => {
+    const handleShowTaskPopover = (event: CustomEvent) => {
+      const { show } = event.detail;
+      setTaskCenterVisible(show);
+    };
+
+    window.addEventListener(
+      "show:task-popover",
+      handleShowTaskPopover as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "show:task-popover",
+        handleShowTaskPopover as EventListener
+      );
+    };
+  }, []);
+
   return (
     <div
       className={`${
         sidebarOpen ? "w-64" : "w-20"
-      } bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}
+      } bg-white border-r border-gray-200 transition-all duration-300 flex flex-col relative`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -55,12 +74,11 @@ const AsiderAndHeaderLayout = () => {
             <span className="text-lg font-bold text-gray-900">ModelEngine</span>
           </NavLink>
         )}
-        <span className="cursor-pointer hover:text-blue-500" onClick={() => setSidebarOpen(!sidebarOpen)}>
-          {sidebarOpen ? (
-            <CloseOutlined />
-          ) : (
-            <MenuOutlined className="ml-4" />
-          )}
+        <span
+          className="cursor-pointer hover:text-blue-500"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <CloseOutlined /> : <MenuOutlined className="ml-4" />}
         </span>
       </div>
 
@@ -69,7 +87,20 @@ const AsiderAndHeaderLayout = () => {
         <Menu
           mode="inline"
           inlineCollapsed={!sidebarOpen}
-          items={items}
+          items={menuItems.map((item) => ({
+            key: item.id,
+            label: item.title,
+            icon: item.icon ? <item.icon className="w-4 h-4" /> : null,
+            children: item.children
+              ? item.children.map((subItem) => ({
+                  key: subItem.id,
+                  label: subItem.title,
+                  icon: subItem.icon ? (
+                    <subItem.icon className="w-4 h-4" />
+                  ) : null,
+                }))
+              : undefined,
+          }))}
           selectedKeys={[activeItem]}
           defaultOpenKeys={["synthesis"]}
           onClick={({ key }) => {
@@ -84,22 +115,67 @@ const AsiderAndHeaderLayout = () => {
       <div className="p-4 border-t border-gray-200">
         {sidebarOpen ? (
           <div className="space-y-2">
-            {/* <TaskPopover /> */}
+            <Popover
+              forceRender
+              title={
+                <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-2 mb-2">
+                  <h4 className="font-bold">任务中心</h4>
+                  <X
+                    onClick={() => setTaskCenterVisible(false)}
+                    className="cursor-pointer w-4 h-4 text-gray-500 hover:text-gray-900"
+                  />
+                </div>
+              }
+              open={taskCenterVisible}
+              content={<TaskUpload />}
+              trigger="click"
+              destroyOnHidden={false}
+            >
+              <Button block onClick={() => setTaskCenterVisible(true)}>
+                任务中心
+              </Button>
+            </Popover>
             <Button block onClick={() => navigate("/data/settings")}>
               设置
             </Button>
           </div>
         ) : (
           <div className="space-y-2">
-            <Button block>
-              <OrderedListOutlined />
-            </Button>
+            <div className="relative">
+              <Popover
+                forceRender
+                title="任务中心"
+                open={taskCenterVisible}
+                content={<TaskUpload />}
+                trigger="click"
+                destroyOnHidden={false}
+              >
+                <Button
+                  block
+                  onClick={() => setTaskCenterVisible(true)}
+                  icon={<ClipboardList className="w-4 h-4" />}
+                ></Button>
+              </Popover>
+            </div>
             <Button block onClick={() => navigate("/data/settings")}>
               <SettingOutlined />
             </Button>
           </div>
         )}
       </div>
+
+      {/* 添加遮罩层，点击外部区域时关闭 */}
+      {taskCenterVisible && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => {
+            console.log("clicked outside");
+
+            setTaskCenterVisible(false);
+            toggleShowTaskPopover(false);
+          }}
+        />
+      )}
     </div>
   );
 };

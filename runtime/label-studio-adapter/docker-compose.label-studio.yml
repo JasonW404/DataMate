@@ -1,0 +1,65 @@
+services:
+  label-studio:
+    image: heartexlabs/label-studio:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-ls-adapter}_ls-app
+    ports:
+      - "8000:8080"
+    environment:
+      # Label Studio 基础配置
+      LABEL_STUDIO_HOST: ${LABEL_STUDIO_BASE_URL:-http://localhost:8000}
+
+      # 本地文件服务配置
+      LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED: "true"
+      LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT: /label-studio/local_files
+
+      # 自动创建用户配置
+      LABEL_STUDIO_USERNAME: ${LABEL_STUDIO_USERNAME:-datamanager@huawei.com}
+      LABEL_STUDIO_PASSWORD: ${LABEL_STUDIO_PASSWORD:-DataManager123}
+      LABEL_STUDIO_USER_TOKEN: ${LABEL_STUDIO_USER_TOKEN}
+      LABEL_STUDIO_ENABLE_LEGACY_API_TOKEN: "true"
+
+      # 数据库配置
+      DJANGO_DB: default
+      POSTGRE_HOST: label-studio-db
+      POSTGRE_PORT: 5432
+      POSTGRE_NAME: labelstudio
+      POSTGRE_USER: labelstudio
+      POSTGRE_PASSWORD: labelstudio@4321
+    networks:
+      - adapter_network
+    volumes:
+      - label_studio_data:/label-studio/data
+      - label_studio_local:/label-studio/local_files
+
+  # LS DB
+  label-studio-db:
+    image: postgres:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-ls-adapter}_ls-db
+    hostname: label-studio-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE:-labelstudio}
+      POSTGRES_USER: ${POSTGRES_USER:-labelstudio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-labelstudio@4321}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - label_studio_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - adapter_network
+
+volumes:
+  label_studio_db_data:
+  label_studio_data:
+  label_studio_local:
+
+networks:
+  adapter_network:
+    driver: bridge

@@ -17,8 +17,10 @@ import {
 import { mockKnowledgeBases, vectorDatabases } from "@/mock/knowledgeBase";
 import { useNavigate } from "react-router";
 import CardView from "@/components/CardView";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 export default function KnowledgeGenerationPage() {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const [knowledgeBases, setKnowledgeBases] =
     useState<KnowledgeBase[]>(mockKnowledgeBases);
@@ -301,7 +303,6 @@ export default function KnowledgeGenerationPage() {
       ),
     },
   ];
-
   // Main list view
   return (
     <div className="space-y-4">

@@ -12,6 +12,7 @@ from loguru import logger
 
 from data_platform.common.utils import check_valid_path
 from data_platform.core.dataset import RayDataset
+from data_platform.sql_manager.persistence_atction import TaskInfoPersistence
 
 import data_platform.ops
 
@@ -38,8 +39,7 @@ class RayExecutor:
         logger.info('Initing Ray ...')
         ray.init()
 
-    @staticmethod
-    def load_meta(line):
+    def load_meta(self, line):
         meta = json.loads(line)
         if meta.get("fileId"):
             meta["sourceFileId"] = meta.get("fileId")
@@ -55,6 +55,7 @@ class RayExecutor:
             meta["extraFilePath"] = None
         if not meta.get("extraFileType"):
             meta["extraFileType"] = None
+        meta["dataset_id"] = self.cfg.dataset_id
         return meta
 
     def run(self):
@@ -98,6 +99,10 @@ class RayExecutor:
 
         return dataset
 
+    def update_db(self, status):
+        task_info = TaskInfoPersistence()
+        task_info.update_result(self.cfg.dataset_id, self.cfg.instance_id, status)
+
 
 if __name__ == '__main__':
 
@@ -118,4 +123,9 @@ if __name__ == '__main__':
             m_cfg = yaml.safe_load(cfg)
 
     executor = RayExecutor(m_cfg)
-    executor.run()
+    try:
+        executor.run()
+    except Exception as e:
+        executor.update_db("FAILED")
+        raise e
+    executor.update_db("COMPLETED")

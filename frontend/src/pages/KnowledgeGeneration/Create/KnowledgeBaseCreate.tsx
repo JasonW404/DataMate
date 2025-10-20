@@ -31,11 +31,13 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 const KnowledgeBaseCreatePage: React.FC = () => {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [knowledgeBases, setKnowledgeBases] =

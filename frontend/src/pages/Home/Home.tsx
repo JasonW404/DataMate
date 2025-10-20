@@ -22,11 +22,11 @@ export default function WelcomePage() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            ML数据集准备工具
+            AI数据集准备工具
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             构建高质量
-            <span className="text-blue-600"> ML数据集</span>
+            <span className="text-blue-600"> AI数据集</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
             从数据管理到知识生成，一站式解决机器学习数据准备的所有需求。

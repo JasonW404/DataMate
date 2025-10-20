@@ -28,6 +28,7 @@ public class ChunkUploadPreRequest {
     public void incrementUploadedFileNum() {
         if (this.uploadedFileNum == null) {
             this.uploadedFileNum = 1;
+            return;
         }
         this.uploadedFileNum++;
     }

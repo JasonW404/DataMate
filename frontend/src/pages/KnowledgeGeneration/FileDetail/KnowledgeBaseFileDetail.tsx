@@ -29,6 +29,7 @@ import {
 import type { KnowledgeBase, KBFile } from "@/pages/KnowledgeGeneration/knowledge-base.model";
 import { Link, useNavigate } from "react-router";
 import DetailHeader from "@/components/DetailHeader";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 // 状态标签
 const getStatusLabel = (status: string) => {
@@ -58,6 +59,7 @@ const getStatusColor = (status: string) => {
 };
 
 const KnowledgeBaseFileDetail: React.FC = () => {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   // 假设通过 props 或路由参数获取 selectedFile/selectedKB
   const [selectedFile] = useState<KBFile>(

@@ -14,6 +14,7 @@ import {
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { createTaskUsingPost } from "../collection.apis";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 const { TextArea } = Input;
 
@@ -58,6 +59,8 @@ const defaultTemplates = [
 ];
 
 export default function CollectionTaskCreate() {
+  return <DevelopmentInProgress />;
+
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { message } = App.useApp();

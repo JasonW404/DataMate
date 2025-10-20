@@ -1,19 +1,14 @@
 import { useState } from "react";
-import { Table, Progress, Badge, Button, Tooltip, Card, App, Spin } from "antd";
+import { Table, Progress, Badge, Button, Tooltip, Card, App } from "antd";
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
   DeleteOutlined,
-  LoadingOutlined,
 } from "@ant-design/icons";
 import { SearchControls } from "@/components/SearchControls";
 import CardView from "@/components/CardView";
 import { useNavigate } from "react-router";
-import {
-  mapTask,
-  TaskStatusMap,
-  templateTypesMap,
-} from "../../cleansing.const";
+import { mapTask, TaskStatusMap } from "../../cleansing.const";
 import {
   TaskStatus,
   type CleansingTask,
@@ -75,8 +70,11 @@ export default function TaskList() {
 
   const taskOperations = (record) => {
     const isRunning = record.status?.value === TaskStatus.RUNNING;
-    const isPending = record.status?.value === TaskStatus.PENDING;
-
+    const showStart = [
+      TaskStatus.PENDING,
+      TaskStatus.FAILED,
+      TaskStatus.STOPPED,
+    ].includes(record.status?.value);
     const pauseBtn = {
       key: "pause",
       label: "暂停",
@@ -92,7 +90,7 @@ export default function TaskList() {
     };
     return [
       isRunning && pauseBtn,
-      isPending && startBtn,
+      showStart && startBtn,
       {
         key: "delete",
         label: "删除",
@@ -108,6 +106,7 @@ export default function TaskList() {
       dataIndex: "name",
       key: "name",
       fixed: "left",
+      width: 150,
       render: (text: string, record: any) => (
         <a onClick={() => handleViewTask(record)}>{text}</a>
       ),
@@ -116,6 +115,7 @@ export default function TaskList() {
       title: "源数据集",
       dataIndex: "srcDatasetId",
       key: "srcDatasetId",
+      width: 150,
       render: (_, record: CleansingTask) => {
         return (
           <Button
@@ -133,6 +133,7 @@ export default function TaskList() {
       title: "目标数据集",
       dataIndex: "destDatasetId",
       key: "destDatasetId",
+      width: 150,
       render: (_, record: CleansingTask) => {
         return (
           <Button
@@ -150,6 +151,7 @@ export default function TaskList() {
       title: "状态",
       dataIndex: "status",
       key: "status",
+      width: 100,
       render: (status: any) => {
         return <Badge color={status.color} text={status.label} />;
       },
@@ -162,10 +164,9 @@ export default function TaskList() {
     },
     {
       title: "结束时间",
-      dataIndex: "endedAt",
-      key: "endedAt",
+      dataIndex: "finishedAt",
+      key: "finishedAt",
       width: 180,
-      sorter: true,
     },
     {
       title: "进度",
@@ -175,6 +176,30 @@ export default function TaskList() {
       render: (progress: number) => (
         <Progress percent={progress} size="small" />
       ),
+    },
+    {
+      title: "创建时间",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+    },
+    {
+      title: "执行耗时",
+      dataIndex: "duration",
+      key: "duration",
+      width: 180,
+    },
+    {
+      title: "数据量变化",
+      dataIndex: "dataSizeChange",
+      key: "dataSizeChange",
+      width: 180,
+      render: (_: any, record: CleansingTask) => {
+        if (record.before !== undefined && record.after !== undefined) {
+          return `${record.before} → ${record.after}`;
+        }
+        return "-";
+      },
     },
     {
       title: "操作",
@@ -203,9 +228,9 @@ export default function TaskList() {
       {/* Search and Filters */}
       <SearchControls
         className="mb-4"
-        searchTerm={searchParams.keywords}
-        onSearchChange={(keywords) =>
-          setSearchParams({ ...searchParams, keywords })
+        searchTerm={searchParams.keyword}
+        onSearchChange={(keyword) =>
+          setSearchParams({ ...searchParams, keyword })
         }
         searchPlaceholder="搜索任务名称、描述"
         filters={filterOptions}
@@ -216,29 +241,27 @@ export default function TaskList() {
         onReload={fetchData}
       />
       {/* Task List */}
-      <Spin indicator={<LoadingOutlined spin />} spinning={loading}>
-        {viewMode === "card" ? (
-          <CardView
-            data={tableData}
-            operations={taskOperations}
-            onView={(item) =>
-              handleViewTask(tableData.find((t) => t.id === item.id))
-            }
+      {viewMode === "card" ? (
+        <CardView
+          data={tableData}
+          operations={taskOperations}
+          onView={(item) =>
+            handleViewTask(tableData.find((t) => t.id === item.id))
+          }
+          pagination={pagination}
+        />
+      ) : (
+        <Card>
+          <Table
+            columns={taskColumns}
+            dataSource={tableData}
+            rowKey="id"
+            loading={loading}
+            scroll={{ x: "max-content", y: "calc(100vh - 35rem)" }}
             pagination={pagination}
           />
-        ) : (
-          <Card>
-            <Table
-              columns={taskColumns}
-              dataSource={tableData}
-              rowKey="id"
-              loading={loading}
-              scroll={{ x: "max-content", y: "calc(100vh - 20rem)" }}
-              pagination={pagination}
-            />
-          </Card>
-        )}
-      </Spin>
+        </Card>
+      )}
     </>
   );
 }

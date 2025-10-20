@@ -2,7 +2,7 @@ package com.dataengine.cleaning.application.service;
 
 
 import com.dataengine.cleaning.application.httpclient.DatasetClient;
-import com.dataengine.cleaning.application.httpclient.RuntimeClient;
+import com.dataengine.cleaning.application.scheduler.CleaningTaskScheduler;
 import com.dataengine.cleaning.domain.converter.OperatorInstanceConverter;
 import com.dataengine.cleaning.domain.model.DatasetResponse;
 import com.dataengine.cleaning.domain.model.ExecutorType;
@@ -14,11 +14,14 @@ import com.dataengine.cleaning.infrastructure.persistence.mapper.OperatorInstanc
 import com.dataengine.cleaning.interfaces.dto.CleaningTask;
 import com.dataengine.cleaning.interfaces.dto.CreateCleaningTaskRequest;
 import com.dataengine.cleaning.interfaces.dto.OperatorInstance;
+import com.dataengine.common.infrastructure.exception.BusinessException;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +35,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CleaningTaskService {
@@ -42,7 +44,7 @@ public class CleaningTaskService {
 
     private final OperatorInstanceMapper operatorInstanceMapper;
 
-    private final ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
+    private final CleaningTaskScheduler taskScheduler;
 
     private final String DATASET_PATH = "/dataset";
 
@@ -50,7 +52,11 @@ public class CleaningTaskService {
 
     public List<CleaningTask> getTasks(String status, String keywords, Integer page, Integer size) {
         Integer offset = page * size;
-        return cleaningTaskMapper.findTasksByStatus(status, keywords, size, offset);
+        return cleaningTaskMapper.findTasks(status, keywords, size, offset);
+    }
+
+    public int countTasks(String status, String keywords) {
+        return cleaningTaskMapper.findTasks(status, keywords, null, null).size();
     }
 
     @Transactional
@@ -68,6 +74,7 @@ public class CleaningTaskService {
         task.setSrcDatasetName(request.getSrcDatasetName());
         task.setDestDatasetId(datasetResponse.getId());
         task.setDestDatasetName(datasetResponse.getName());
+        task.setBeforeSize(datasetResponse.getTotalSize());
         cleaningTaskMapper.insertTask(task);
 
         List<OperatorInstancePo> instancePos = request.getInstance().stream()
@@ -75,9 +82,8 @@ public class CleaningTaskService {
         operatorInstanceMapper.insertInstance(taskId, instancePos);
 
         prepareTask(task, request.getInstance());
-        scanDataset(task.getId(), request.getSrcDatasetId());
-
-        taskExecutor.submit(() -> executeTask(task));
+        scanDataset(taskId, request.getSrcDatasetId());
+        executeTask(taskId);
         return task;
     }
 
@@ -90,15 +96,14 @@ public class CleaningTaskService {
         cleaningTaskMapper.deleteTask(taskId);
     }
 
-    public void executeTask(CleaningTask task) {
-        task.setStatus(CleaningTask.StatusEnum.RUNNING);
-        cleaningTaskMapper.updateTaskStatus(task);
-        submitTask(task.getId());
+    public void executeTask(String taskId) {
+        taskScheduler.executeTask(taskId);
     }
 
     private void prepareTask(CleaningTask task, List<OperatorInstance> instances) {
         TaskProcess process = new TaskProcess();
         process.setInstanceId(task.getId());
+        process.setDatasetId(task.getDestDatasetId());
         process.setDatasetPath(FLOW_PATH + "/" + task.getId() + "/dataset.jsonl");
         process.setExportPath(DATASET_PATH + "/" + task.getDestDatasetId());
         process.setExecutorType(ExecutorType.DATA_PLATFORM.getValue());
@@ -121,7 +126,8 @@ public class CleaningTaskService {
         try (FileWriter writer = new FileWriter(file)) {
             yaml.dump(jsonMapper.treeToValue(jsonNode, Map.class), writer);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to prepare process.yaml.", e);
+            throw BusinessException.of(SystemErrorCode.FILE_SYSTEM_ERROR);
         }
     }
 
@@ -137,7 +143,7 @@ public class CleaningTaskService {
             }
             List<Map<String, Object>> files = datasetFile.getContent().stream()
                     .map(content -> Map.of("fileName", (Object) content.getFileName(),
-                            "fileSize", content.getSize() + "B",
+                            "fileSize", content.getSize(),
                             "filePath", content.getFilePath(),
                             "fileType", content.getFileType(),
                             "fileId", content.getId()))
@@ -145,10 +151,6 @@ public class CleaningTaskService {
             writeListMapToJsonlFile(files, FLOW_PATH + "/" + taskId + "/dataset.jsonl");
             pageNumber += 1;
         } while (pageNumber < datasetFile.getTotalPages());
-    }
-
-    private void submitTask(String taskId) {
-        RuntimeClient.submitTask(taskId);
     }
 
     private void writeListMapToJsonlFile(List<Map<String, Object>> mapList, String fileName) {
@@ -166,15 +168,12 @@ public class CleaningTaskService {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error serializing map to JSON: " + e.getMessage());
+            log.error("Failed to prepare dataset.jsonl.", e);
+            throw BusinessException.of(SystemErrorCode.FILE_SYSTEM_ERROR);
         }
     }
 
     public void stopTask(String taskId) {
-        RuntimeClient.stopTask(taskId);
-        CleaningTask task = new CleaningTask();
-        task.setId(taskId);
-        task.setStatus(CleaningTask.StatusEnum.STOPPED);
-        cleaningTaskMapper.updateTaskStatus(task);
+        taskScheduler.stopTask(taskId);
     }
 }

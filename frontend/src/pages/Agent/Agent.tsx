@@ -19,6 +19,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 interface Message {
   id: string;
@@ -135,7 +136,8 @@ const mockResponses = {
 };
 
 export default function AgentPage() {
-    const navigate = useNavigate();
+  return <DevelopmentInProgress />;
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -249,7 +251,7 @@ export default function AgentPage() {
   };
 
   const onBack = () => {
-    navigate('/');
+    navigate("/");
   };
 
   return (

@@ -21,6 +21,7 @@ export enum DatasetStatus {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
   PROCESSING = "PROCESSING",
+  DRAFT = "DRAFT",
 }
 
 export enum DataSource {
@@ -44,7 +45,7 @@ export interface Dataset {
   name: string;
   description: string;
   parentId?: number;
-  type: DatasetType;
+  datasetType: DatasetType;
   status: DatasetStatus;
   size?: string;
   itemCount?: number;
@@ -104,4 +105,14 @@ export interface DatasetTask {
   nextExecution?: string;
   lastExecution?: string;
   executionHistory?: { time: string; status: string }[];
+}
+
+export interface TaskItem {
+  key: string;
+  title: string;
+  percent: number;
+  reqId: number;
+  isCancel?: boolean;
+  controller: AbortController;
+  cancelFn?: () => void;
 }

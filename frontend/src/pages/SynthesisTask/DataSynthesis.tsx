@@ -5,8 +5,10 @@ import DataAnnotation from "../DataAnnotation/Annotate/components/TextAnnotation
 import { useNavigate } from "react-router";
 import InstructionTemplateTab from "./components/InstructionTemplateTab";
 import SynthesisTaskTab from "./components/SynthesisTaskTab";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 export default function DataSynthesisPage() {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("tasks");

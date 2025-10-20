@@ -24,11 +24,14 @@ import {
   deleteDatasetTagByIdUsingDelete,
 } from "../dataset.api";
 import { formatBytes } from "@/utils/unit";
+import EditDataset from "../Create/EditDataset";
 
 export default function DatasetManagementPage() {
   const navigate = useNavigate();
   const { message } = App.useApp();
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [editDatasetOpen, setEditDatasetOpen] = useState(false);
+  const [currentDataset, setCurrentDataset] = useState<Dataset | null>(null);
 
   const [statisticsData, setStatisticsData] = useState<any>({
     count: {},
@@ -41,16 +44,16 @@ export default function DatasetManagementPage() {
     const statistics = {
       size: [
         {
-          title: "总计",
-          value: data?.totalDatasets,
+          title: "文本",
+          value: data?.size?.text || "0 MB",
         },
         {
-          title: "文件数",
-          value: data?.totalFiles,
+          title: "图像",
+          value: data?.size?.image || "0 MB",
         },
         {
-          title: "大小",
-          value: formatBytes(data?.totalSize),
+          title: "音频",
+          value: data?.size?.audio || "0 MB",
         },
         {
           title: "视频",
@@ -76,6 +79,7 @@ export default function DatasetManagementPage() {
         },
       ],
     };
+    console.log(statistics);
     setStatisticsData(statistics);
   }
 
@@ -105,6 +109,7 @@ export default function DatasetManagementPage() {
       options: tags.map((tag) => ({ label: tag, value: tag })),
     },
   ];
+
   const {
     tableData,
     searchParams,
@@ -135,21 +140,26 @@ export default function DatasetManagementPage() {
       key: "edit",
       label: "编辑",
       icon: <EditOutlined />,
-      onClick: (item) => {
-        navigate(`/data/management/create/${item.id}`);
+      onClick: (item: Dataset) => {
+        console.log(item);
+        setCurrentDataset(item);
+        setEditDatasetOpen(true);
       },
     },
     {
       key: "download",
       label: "下载",
       icon: <DownloadOutlined />,
-      onClick: handleDownloadDataset,
+      onClick: (item: Dataset) => {
+        if (!item.id) return;
+        handleDownloadDataset(item);
+      },
     },
     {
       key: "delete",
       label: "删除",
       icon: <DeleteOutlined />,
-      onClick: (item) => handleDeleteDataset(item.id),
+      onClick: (item: Dataset) => handleDeleteDataset(item.id),
     },
   ];
 
@@ -193,8 +203,8 @@ export default function DatasetManagementPage() {
       key: "status",
       render: (status: any) => {
         return (
-          <Tag icon={status.icon} color={status.color}>
-            {status.label}
+          <Tag icon={status?.icon} color={status?.color}>
+            {status?.label}
           </Tag>
         );
       },
@@ -240,7 +250,7 @@ export default function DatasetManagementPage() {
         dataSource={tableData}
         pagination={pagination}
         rowKey="id"
-        scroll={{ x: "max-content", y: "calc(100vh - 34rem)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 30rem)" }}
       />
     </Card>
   );
@@ -272,23 +282,45 @@ export default function DatasetManagementPage() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 mt-4">
-        <Card>
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        {/* <Card>
+          <div className="grid grid-cols-4">
+            {statisticsData.size?.map?.((item) => (
+              <Statistic
+                title={item.title}
+                key={item.title}
+                value={`${item.value}`}
+              />
+            ))}
+          </div>
+        </Card> */}
+        <Card title="数量统计">
+          <div className="grid grid-cols-4">
+            {statisticsData.count?.map?.((item) => (
+              <Statistic
+                key={item.title}
+                title={item.title}
+                value={item.value}
+              />
+            ))}
+          </div>
+        </Card>
+        <Card title="大小统计">
           <div className="grid grid-cols-4">
             {statisticsData.size?.map?.((item) => (
               <Statistic
                 key={item.title}
                 title={item.title}
-                value={`${item.value}`}
+                value={item.value}
               />
             ))}
           </div>
         </Card>
       </div>
       <SearchControls
-        searchTerm={searchParams.keywords}
-        onSearchChange={(keywords) =>
-          setSearchParams({ ...searchParams, keywords })
+        searchTerm={searchParams.keyword}
+        onSearchChange={(keyword) =>
+          setSearchParams({ ...searchParams, keyword })
         }
         searchPlaceholder="搜索数据集名称、描述或标签..."
         filters={filterOptions}
@@ -301,6 +333,12 @@ export default function DatasetManagementPage() {
         onReload={fetchData}
       />
       {viewMode === "card" ? renderCardView() : renderListView()}
+      <EditDataset
+        open={editDatasetOpen}
+        data={currentDataset}
+        onClose={() => setEditDatasetOpen(false)}
+        onRefresh={fetchData}
+      />
     </div>
   );
 }

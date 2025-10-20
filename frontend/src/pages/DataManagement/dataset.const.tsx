@@ -10,8 +10,8 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
+  FileOutlined,
 } from "@ant-design/icons";
-import React from "react";
 import {
   FileImage,
   FileText,
@@ -32,7 +32,7 @@ export const datasetTypeMap: Record<
     label: string;
     order: number;
     description: string;
-    icon?: React.JSX.Element;
+    icon?: any;
     iconColor?: string;
     children: DatasetSubType[];
   }
@@ -41,6 +41,8 @@ export const datasetTypeMap: Record<
     value: DatasetType.TEXT,
     label: "文本",
     order: 1,
+    icon: FileText,
+    iconColor: "#3b82f6",
     children: [
       DatasetSubType.TEXT_DOCUMENT,
       DatasetSubType.TEXT_WEB,
@@ -52,6 +54,8 @@ export const datasetTypeMap: Record<
     value: DatasetType.IMAGE,
     label: "图像",
     order: 2,
+    icon: FileImage,
+    iconColor: "#3b82f6",
     children: [DatasetSubType.IMAGE_IMAGE, DatasetSubType.IMAGE_CAPTION],
     description: "用于处理和分析图像数据的数据集",
   },
@@ -59,6 +63,8 @@ export const datasetTypeMap: Record<
     value: DatasetType.AUDIO,
     label: "音频",
     order: 3,
+    icon: Music,
+    iconColor: "#3b82f6",
     children: [DatasetSubType.AUDIO_AUDIO, DatasetSubType.AUDIO_JSONL],
     description: "用于处理和分析音频数据的数据集",
   },
@@ -66,6 +72,8 @@ export const datasetTypeMap: Record<
     value: DatasetType.VIDEO,
     label: "视频",
     order: 3,
+    icon: Video,
+    iconColor: "#3b82f6",
     children: [DatasetSubType.VIDEO_VIDEO, DatasetSubType.VIDEO_JSONL],
     description: "用于处理和分析视频数据的数据集",
   },
@@ -166,6 +174,12 @@ export const datasetStatusMap = {
     color: "#4f4444ff",
     icon: <CloseCircleOutlined />,
   },
+  [DatasetStatus.DRAFT]: {
+    label: "草稿",
+    value: DatasetStatus.DRAFT,
+    color: "#a1a1a1ff",
+    icon: <FileOutlined />,
+  },
 };
 
 export const dataSourceMap: Record<string, { label: string; value: string }> = {
@@ -179,13 +193,13 @@ export const dataSourceMap: Record<string, { label: string; value: string }> = {
 export const dataSourceOptions = Object.values(dataSourceMap);
 
 export function mapDataset(dataset: Dataset) {
-  const IconComponent = datasetSubTypeMap[dataset?.type?.code]?.icon || null;
+  const IconComponent = datasetTypeMap[dataset?.datasetType]?.icon || null;
   return {
     ...dataset,
     size: formatBytes(dataset.totalSize || 0),
     createdAt: formatDateTime(dataset.createdAt) || "--",
     updatedAt: formatDateTime(dataset?.updatedAt) || "--",
-    icon: IconComponent ? <IconComponent /> : <Database />,
+    icon: IconComponent ? <IconComponent className="w-4 h-4" /> : <Database />,
     status: datasetStatusMap[dataset.status],
     statistics: [
       { label: "数据项", value: dataset.fileCount || 0 },

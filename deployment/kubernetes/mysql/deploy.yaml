@@ -9,6 +9,8 @@ spec:
   selector:
     matchLabels:
       app: mysql
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -28,6 +30,8 @@ spec:
               mountPath: /var/lib/mysql
             - name: init-sql
               mountPath: /docker-entrypoint-initdb.d
+            - name: mysql-utf8-config
+              mountPath: /etc/mysql/conf.d
       volumes:
         - name: data-volume
           hostPath:
@@ -36,6 +40,9 @@ spec:
         - name: init-sql
           configMap:
             name: init-sql
+        - name: mysql-utf8-config
+          configMap:
+            name: mysql-utf8-config
 
 ---
 apiVersion: v1

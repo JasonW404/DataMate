@@ -16,21 +16,21 @@ export default function useFetchData<T>(
 
   // 搜索参数
   const [searchParams, setSearchParams] = useState({
-    keywords: "",
+    keyword: "",
     filter: {
       type: [] as string[],
       status: [] as string[],
       tags: [] as string[],
     },
     current: 1,
-    pageSize: 10,
+    pageSize: 12,
   });
 
   // 分页配置
   const [pagination, setPagination] = useState({
     total: 0,
     showSizeChanger: true,
-    pageSizeOptions: ["10", "15", "20", "50"],
+    pageSizeOptions: ["12", "24", "48"],
     showTotal: (total: number) => `共 ${total} 条`,
     onChange: (current: number, pageSize?: number) => {
       setSearchParams((prev) => ({
@@ -55,14 +55,15 @@ export default function useFetchData<T>(
     return arr[0];
   }
 
-  async function fetchData() {
-    const { keywords, filter, current, pageSize } = searchParams;
+  async function fetchData(extraParams = {}) {
+    const { keyword, filter, current, pageSize } = searchParams;
     Loading.show();
     setLoading(true);
     try {
       const { data } = await fetchFunc({
         ...filter,
-        keywords,
+        ...extraParams,
+        keyword,
         type: getFirstOfArray(filter?.type) || undefined,
         status: getFirstOfArray(filter?.status) || undefined,
         tags: filter?.tags?.length ? filter.tags.join(",") : undefined,
@@ -92,13 +93,17 @@ export default function useFetchData<T>(
       fetchData();
     },
     [searchParams],
-    searchParams?.keywords ? 500 : 0
+    searchParams?.keyword ? 500 : 0
   );
 
   return {
     loading,
     tableData,
-    pagination,
+    pagination: {
+      ...pagination,
+      current: searchParams.current,
+      pageSize: searchParams.pageSize,
+    },
     searchParams,
     setSearchParams,
     setPagination,

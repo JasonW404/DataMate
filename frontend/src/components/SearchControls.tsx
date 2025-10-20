@@ -180,7 +180,10 @@ export function SearchControls({
           )}
 
           {showReload && (
-            <Button icon={<ReloadOutlined />} onClick={onReload}></Button>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() => onReload?.()}
+            ></Button>
           )}
         </div>
       </div>

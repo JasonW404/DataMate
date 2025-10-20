@@ -14,4 +14,14 @@ public interface OperatorMapper {
                                            @Param("operatorName") String operatorName,
                                            @Param("categories") List<Integer> categories,
                                            @Param("isStar") Boolean isStar);
+
+    Integer countOperatorsByCriteria(@Param("operatorName") String operatorName,
+                                     @Param("categories") List<Integer> categories,
+                                     @Param("isStar") Boolean isStar);
+
+    Operator findOperatorById(@Param("id") String id);
+
+    void updateOperator(Operator operator);
+
+    void insertOperator(Operator operator);
 }

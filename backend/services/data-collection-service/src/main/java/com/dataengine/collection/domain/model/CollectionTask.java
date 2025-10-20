@@ -1,8 +1,13 @@
 package com.dataengine.collection.domain.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Map;
 
 @Data
 public class CollectionTask {
@@ -22,4 +27,19 @@ public class CollectionTask {
     private LocalDateTime updatedAt;
     private String createdBy;
     private String updatedBy;
+
+    public void addPath() {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> parameter = objectMapper.readValue(
+                config,
+                new TypeReference<>() {}
+            );
+            parameter.put("destPath", "/dataset/local/" + id);
+            parameter.put("filePaths", Collections.singletonList(parameter.get("destPath")));
+            config = objectMapper.writeValueAsString(parameter);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

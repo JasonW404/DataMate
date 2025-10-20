@@ -157,17 +157,17 @@ module.exports = function (router) {
 
   // 获取数据集列表
   router.get(API.queryDatasetsUsingGet, (req, res) => {
-    const { page = 0, size = 10, keywords, type, status, tags } = req.query;
+    const { page = 0, size = 10, keyword, type, status, tags } = req.query;
     console.log("Received query params:", req.query);
 
     let filteredDatasets = datasetList;
-    if (keywords) {
-      console.log("filter keywords:", keywords);
+    if (keyword) {
+      console.log("filter keyword:", keyword);
 
       filteredDatasets = filteredDatasets.filter(
         (dataset) =>
-          dataset.name.includes(keywords) ||
-          dataset.description.includes(keywords)
+          dataset.name.includes(keyword) ||
+          dataset.description.includes(keyword)
       );
     }
     if (type) {
@@ -230,13 +230,16 @@ module.exports = function (router) {
 
   // 更新数据集
   router.put(API.updateDatasetByIdUsingPut, (req, res) => {
-    const { datasetId } = req.params;
-    const index = datasetList.findIndex((d) => d.id === datasetId);
+    const { id } = req.params;
+    let { tags } = req.body;
 
+    const index = datasetList.findIndex((d) => d.id === id);
+    tags = [...datasetList[index].tags.map((tag) => tag.name), ...tags];
     if (index !== -1) {
       datasetList[index] = {
         ...datasetList[index],
         ...req.body,
+        tags: tagList.filter((tag) => tags?.includes?.(tag.name)),
         updatedAt: new Date().toISOString(),
         updatedBy: "Admin",
       };
@@ -425,5 +428,20 @@ module.exports = function (router) {
       msg: "Tag created successfully",
       data: newTag,
     });
+  });
+
+  router.post(API.preUploadFileUsingPost, (req, res) => {
+    res.status(201).send(Mock.Random.guid());
+  });
+
+  // 上传
+  router.post(API.uploadFileChunkUsingPost, (req, res) => {
+    res.status(500).send({ message: "Simulated upload failure" });
+    // res.status(201).send({ data: "success" });
+  });
+
+  // 取消上传
+  router.put(API.cancelUploadUsingPut, (req, res) => {
+    res.status(201).send({ data: "success" });
   });
 };

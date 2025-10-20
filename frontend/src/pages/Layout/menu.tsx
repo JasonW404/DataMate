@@ -1,20 +1,6 @@
 import {
-  BarChartOutlined,
-  BoxPlotOutlined,
-  DatabaseOutlined,
-  FolderOutlined,
-  FundOutlined,
-  InteractionOutlined,
-  MergeCellsOutlined,
-  ProjectOutlined,
-  ReadOutlined,
-  TagOutlined,
-} from "@ant-design/icons";
-import {
   FolderOpen,
   Tag,
-  Settings,
-  Sparkles,
   Target,
   BookOpen,
   Shuffle,
@@ -24,61 +10,9 @@ import {
   Zap,
   Shield,
   Database,
+  Store,
+  Merge,
 } from "lucide-react";
-export const antMenuItems = [
-  {
-    key: "collection",
-    label: "数据归集",
-    icon: <DatabaseOutlined />,
-  },
-  {
-    key: "management",
-    label: "数据管理",
-    icon: <FolderOutlined />,
-  },
-  {
-    key: "cleansing",
-    label: "数据清洗",
-    icon: <ProjectOutlined />,
-  },
-  {
-    key: "annotation",
-    label: "数据标注",
-    icon: <TagOutlined />,
-  },
-  {
-    key: "synthesis",
-    label: "数据合成",
-    icon: <InteractionOutlined />,
-    children: [
-      {
-        key: "synthesis/task",
-        label: "合成任务",
-        icon: <MergeCellsOutlined />,
-      },
-      {
-        key: "synthesis/ratio-task",
-        label: "配比任务",
-        icon: <BarChartOutlined />,
-      },
-    ],
-  },
-  {
-    key: "evaluation",
-    label: "数据评估",
-    icon: <FundOutlined />,
-  },
-  {
-    key: "knowledge-generation",
-    label: "知识生成",
-    icon: <ReadOutlined />,
-  },
-  {
-    key: "operator-market",
-    label: "算子市场",
-    icon: <BoxPlotOutlined />,
-  },
-];
 
 export const menuItems = [
   {
@@ -98,7 +32,7 @@ export const menuItems = [
   {
     id: "cleansing",
     title: "数据清洗",
-    icon: Settings,
+    icon: GitBranch,
     description: "数据清洗和预处理",
     color: "bg-purple-500",
   },
@@ -119,7 +53,7 @@ export const menuItems = [
       {
         id: "synthesis/task",
         title: "合成任务",
-        icon: Sparkles,
+        icon: Merge,
       },
       {
         id: "synthesis/ratio-task",
@@ -146,7 +80,7 @@ export const menuItems = [
   {
     id: "operator-market",
     title: "算子市场",
-    icon: BookOpen,
+    icon: Store,
     description: "算子上传与管理",
     color: "bg-yellow-500",
   },

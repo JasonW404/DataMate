@@ -143,9 +143,19 @@ head:
         - /opt/runtime/data_platform/operator_runtime.py
         - --port
         - "8081"
-      env: []
+      env:
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_USER
+          value: "root"
+        - name: MYSQL_PASSWORD
+          value: "Huawei@123"
+        - name: MYSQL_DATABASE
+          value: "dataengine"
       ports:
-        - containerPort: 8080
+        - containerPort: 8081
       volumeMounts:
         - mountPath: /tmp/ray
           name: log-volume

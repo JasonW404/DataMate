@@ -6,27 +6,43 @@ import com.dataengine.collection.domain.model.TaskStatus;
 import com.dataengine.collection.domain.model.DataxTemplate;
 import com.dataengine.collection.infrastructure.persistence.mapper.CollectionTaskMapper;
 import com.dataengine.collection.infrastructure.persistence.mapper.TaskExecutionMapper;
+import com.dataengine.collection.interfaces.dto.SyncMode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CollectionTaskService {
     private final CollectionTaskMapper taskMapper;
     private final TaskExecutionMapper executionMapper;
+    private final DataxExecutionService dataxExecutionService;
 
     @Transactional
     public CollectionTask create(CollectionTask task) {
-        task.setId(UUID.randomUUID().toString());
         task.setStatus(TaskStatus.READY);
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.insert(task);
+        executeTaskNow(task);
         return task;
+    }
+
+    private void executeTaskNow(CollectionTask task) {
+        if (Objects.equals(task.getSyncMode(), SyncMode.ONCE.getValue())) {
+            TaskExecution exec = dataxExecutionService.createExecution(task);
+            int timeout = task.getTimeoutSeconds() == null ? 3600 : task.getTimeoutSeconds();
+            dataxExecutionService.runAsync(task, exec.getId(), timeout);
+            log.info("Triggered DataX execution for task {} at {}, execId={}", task.getId(), LocalDateTime.now(), exec.getId());
+        }
     }
 
     @Transactional
@@ -54,18 +70,7 @@ public class CollectionTaskService {
 
     @Transactional
     public TaskExecution startExecution(CollectionTask task) {
-        TaskExecution exec = new TaskExecution();
-        exec.setId(UUID.randomUUID().toString());
-        exec.setTaskId(task.getId());
-        exec.setTaskName(task.getName());
-        exec.setStatus(TaskStatus.RUNNING);
-        exec.setProgress(0.0);
-        exec.setStartedAt(LocalDateTime.now());
-        exec.setCreatedAt(LocalDateTime.now());
-        executionMapper.insert(exec);
-        taskMapper.updateLastExecution(task.getId(), exec.getId());
-        taskMapper.updateStatus(task.getId(), TaskStatus.RUNNING.name());
-        return exec;
+        return dataxExecutionService.createExecution(task);
     }
 
     // ---- Template related merged methods ----

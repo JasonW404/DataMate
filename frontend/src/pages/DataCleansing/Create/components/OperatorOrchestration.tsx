@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Card, Input, Tag, Select, Button } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { CleansingTemplate, OperatorI } from "../../cleansing.model";
+import { CleansingTemplate } from "../../cleansing.model";
 import { Workflow } from "lucide-react";
+import { OperatorI } from "@/pages/OperatorMarket/operator.model";
 
 interface OperatorFlowProps {
   selectedOperators: OperatorI[];
@@ -70,10 +71,10 @@ const OperatorFlow: React.FC<OperatorFlowProps> = ({
   };
 
   return (
-    <div className="w-1/2 h-screen flex-1 flex flex-col border-x border-gray-200">
+    <div className="w-1/2 h-full min-w-xs flex-1 flex flex-col border-x border-gray-200">
       {/* 工具栏 */}
       <div className="px-4 pb-2 border-b border-gray-200">
-        <div className="flex justify-between items-start">
+        <div className="flex flex-wrap gap-2 justify-between items-start">
           <span className="font-semibold text-base flex items-center gap-2">
             <Workflow className="w-5 h-5" />
             算子编排({selectedOperators.length}){" "}
@@ -109,15 +110,6 @@ const OperatorFlow: React.FC<OperatorFlowProps> = ({
         onDragLeave={handleContainerDragLeave}
         onDrop={handleDropToContainer}
       >
-        {selectedOperators.length === 0 && (
-          <div className="text-center py-16 text-gray-400 border-2 border-dashed border-gray-100 rounded-lg">
-            <Workflow className="text-5xl mb-4 opacity-50" />
-            <div className="text-lg font-medium mb-2">开始构建您的算子流程</div>
-            <div className="text-sm">
-              从左侧算子库拖拽算子到此处，或点击算子添加
-            </div>
-          </div>
-        )}
         {selectedOperators.map((operator, index) => (
           <Card
             size="small"
@@ -198,6 +190,15 @@ const OperatorFlow: React.FC<OperatorFlowProps> = ({
             </div>
           </Card>
         ))}
+        {selectedOperators.length === 0 && (
+          <div className="text-center py-16 text-gray-400 border-2 border-dashed border-gray-100 rounded-lg">
+            <Workflow className="w-full w-10 h-10 mb-4 opacity-50" />
+            <div className="text-lg font-medium mb-2">开始构建您的算子流程</div>
+            <div className="text-sm">
+              从左侧算子库拖拽算子到此处，或点击算子添加
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,10 +4,13 @@ import { PlusOutlined } from "@ant-design/icons";
 import TaskManagement from "./components/TaskManagement";
 import ExecutionLog from "./components/ExecutionLog";
 import { useNavigate } from "react-router";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 export default function DataCollection() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("task-management");
+
+  return <DevelopmentInProgress />;
 
   return (
     <div>

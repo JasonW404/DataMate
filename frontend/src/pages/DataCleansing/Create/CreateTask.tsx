@@ -1,15 +1,12 @@
 import { useState } from "react";
-import { Card, Steps, Button, message, Form } from "antd";
+import { Steps, Button, message, Form } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { createCleaningTaskUsingPost } from "../cleansing.api";
 import CreateTaskStepOne from "./components/CreateTaskStepOne";
 import { useCreateStepTwo } from "./hooks/useCreateStepTwo";
-import {
-  DatasetSubType,
-  DatasetType,
-} from "@/pages/DataManagement/dataset.model";
+import { DatasetType } from "@/pages/DataManagement/dataset.model";
 
 export default function CleansingTaskCreate() {
   const navigate = useNavigate();
@@ -20,7 +17,7 @@ export default function CleansingTaskCreate() {
     srcDatasetId: "",
     srcDatasetName: "",
     destDatasetName: "",
-    destDatasetType: DatasetSubType.TEXT_DOCUMENT,
+    destDatasetType: DatasetType.TEXT,
     type: DatasetType.TEXT,
   });
 
@@ -35,9 +32,14 @@ export default function CleansingTaskCreate() {
   const handleSave = async () => {
     const task = {
       ...taskConfig,
-      instance: selectedOperators,
+      instance: selectedOperators.map((item) => ({
+        id: item.id,
+        overrides: {
+          ...item.defaultParams,
+          ...item.overrides,
+        },
+      })),
     };
-    console.log("创建任务:", task);
     navigate("/data/cleansing");
     await createCleaningTaskUsingPost(task);
     message.success("任务已创建");
@@ -79,7 +81,7 @@ export default function CleansingTaskCreate() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -99,9 +101,9 @@ export default function CleansingTaskCreate() {
         </div>
       </div>
       {/* Step Content */}
-      <Card>
-        {renderStepContent()}
-        <div className="flex justify-end gap-3 mt-8">
+      <div className="h-full mb-4 flex flex-col overflow-auto flex-1 bg-white rounded shadow-sm">
+        <div className="flex-1 overflow-auto m-6">{renderStepContent()}</div>
+        <div className="flex justify-end p-6 gap-3 border-t border-gray-200">
           <Button onClick={() => navigate("/data/cleansing")}>取消</Button>
           {currentStep > 1 && <Button onClick={handlePrev}>上一步</Button>}
           {currentStep === 2 ? (
@@ -123,7 +125,7 @@ export default function CleansingTaskCreate() {
             </Button>
           )}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

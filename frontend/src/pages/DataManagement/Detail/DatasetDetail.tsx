@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Card, Breadcrumb, Modal, App } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { Breadcrumb, Modal, App, Tabs } from "antd";
 import {
   ReloadOutlined,
   DownloadOutlined,
@@ -7,31 +7,25 @@ import {
   FileTextOutlined,
   DatabaseOutlined,
   FileImageOutlined,
-  ClockCircleOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import DetailHeader from "@/components/DetailHeader";
-import {
-  mapDataset,
-  datasetStatusMap,
-  datasetSubTypeMap,
-} from "../dataset.const";
+import { mapDataset, datasetTypeMap } from "../dataset.const";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
 import { Link, useParams } from "react-router";
 import { useFilesOperation, useImportFile } from "../hooks";
-import { downloadFile, queryDatasetByIdUsingGet } from "../dataset.api";
+import {
+  createDatasetTagUsingPost,
+  downloadFile,
+  queryDatasetByIdUsingGet,
+  queryDatasetTagsUsingGet,
+  updateDatasetByIdUsingPut,
+} from "../dataset.api";
 import DataQuality from "./components/DataQuality";
 import DataLineageFlow from "./components/DataLineageFlow";
 import Overview from "./components/Overview";
-import { Activity, Clock, Dock, File, FileType } from "lucide-react";
-
-const navigateItems = [
-  {
-    title: <Link to="/data/management">数据管理</Link>,
-  },
-  {
-    title: "数据集详情",
-  },
-];
+import { Activity, Clock, File, FileType } from "lucide-react";
+import EditDataset from "../Create/EditDataset";
 
 const tabList = [
   {
@@ -52,13 +46,24 @@ export default function DatasetDetail() {
   const { id } = useParams(); // 获取动态路由参数
   const [activeTab, setActiveTab] = useState("overview");
   const { message } = App.useApp();
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [dataset, setDataset] = useState<Dataset>({} as Dataset);
   const { importFileRender, handleUpload } = useImportFile();
   const filesOperation = useFilesOperation(dataset);
 
   const [showUploadDialog, setShowUploadDialog] = useState(false);
-
+  const navigateItems = useMemo(
+    () => [
+      {
+        title: <Link to="/data/management">数据管理</Link>,
+      },
+      {
+        title: dataset.name || "数据集详情",
+      },
+    ],
+    [dataset]
+  );
   const fetchDataset = async () => {
     const { data } = await queryDatasetByIdUsingGet(id as unknown as number);
     setDataset(mapDataset(data));
@@ -80,28 +85,42 @@ export default function DatasetDetail() {
     message.success("文件下载成功");
   };
 
+  useEffect(() => {
+    const refreshDataset = () => {
+      fetchDataset();
+    };
+    window.addEventListener("update:dataset", handleRefresh);
+    window.addEventListener("update:dataset-status", refreshDataset);
+    return () => {
+      window.removeEventListener("update:dataset", handleRefresh);
+      window.removeEventListener("update:dataset-status", refreshDataset);
+    };
+  }, []);
+
   // 基本信息描述项
   const statistics = [
     {
-      icon: <File className="text-blue-500 w-4 h-4" />,
-      label: "",
-      value: dataset?.itemCount || 0,
+      icon: <File className="text-blue-400 w-4 h-4" />,
+      key: "file",
+      value: dataset?.fileCount || 0,
     },
     {
-      icon: <Activity className="text-purple-500 w-4 h-4" />,
-      label: "",
+      icon: <Activity className="text-blue-400 w-4 h-4" />,
+      key: "size",
       value: dataset?.size || "0 B",
     },
     {
-      icon: <FileType className="text-green-500 w-4 h-4" />,
-      label: "",
+      icon: <FileType className="text-blue-400 w-4 h-4" />,
+      key: "type",
       value:
-        datasetSubTypeMap[dataset?.type?.code as keyof typeof datasetSubTypeMap]
-          ?.label || dataset?.type?.code,
+        datasetTypeMap[dataset?.datasetType as keyof typeof datasetTypeMap]
+          ?.label ||
+        dataset?.type ||
+        "未知",
     },
     {
-      icon: <Clock className="text-orange-500 w-4 h-4" />,
-      label: "",
+      icon: <Clock className="text-blue-400 w-4 h-4" />,
+      key: "time",
       value: dataset?.createdAt,
     },
   ];
@@ -109,11 +128,14 @@ export default function DatasetDetail() {
   // 数据集操作列表
   const operations = [
     {
-      key: "refresh",
-      label: "刷新",
-      icon: <ReloadOutlined />,
-      onClick: handleRefresh,
+      key: "edit",
+      label: "编辑",
+      icon: <EditOutlined />,
+      onClick: () => {
+        setShowEditDialog(true);
+      },
     },
+
     {
       key: "upload",
       label: "上传文件",
@@ -133,28 +155,58 @@ export default function DatasetDetail() {
       ],
       onMenuClick: handleExportFormat,
     },
+    {
+      key: "refresh",
+      label: "刷新",
+      icon: <ReloadOutlined />,
+      onClick: handleRefresh,
+    },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col gap-4">
+    <div className="h-full flex flex-col gap-4">
       <Breadcrumb items={navigateItems} />
       {/* Header */}
       <DetailHeader
         data={dataset}
         statistics={statistics}
         operations={operations}
+        tagConfig={{
+          showAdd: true,
+          tags: dataset.tags || [],
+          onFetchTags: async () => {
+            const res = await queryDatasetTagsUsingGet({
+              page: 0,
+              pageSize: 1000,
+            });
+            return res.data || [];
+          },
+          onCreateAndTag: async (tagName) => {
+            const res = await createDatasetTagUsingPost({ name: tagName });
+            if (res.data) {
+              handleRefresh();
+            }
+          },
+          onAddTag: async (tag) => {
+            const res = await updateDatasetByIdUsingPut(dataset.id, {
+              tags: [tag],
+            });
+            if (res.data) {
+              handleRefresh();
+            }
+          },
+        }}
       />
-      <Card
-        tabList={tabList}
-        activeTabKey={activeTab}
-        onTabChange={setActiveTab}
-      >
-        {activeTab === "overview" && (
-          <Overview dataset={dataset} filesOperation={filesOperation} />
-        )}
-        {activeTab === "lineage" && <DataLineageFlow dataset={dataset} />}
-        {activeTab === "quality" && <DataQuality />}
-      </Card>
+      <div className="h-full flex flex-col flex-1 overflow-auto p-6 pt-2 bg-white rounded-md shadow">
+        <Tabs activeKey={activeTab} items={tabList} onChange={setActiveTab} />
+        <div className="h-full overflow-auto">
+          {activeTab === "overview" && (
+            <Overview dataset={dataset} filesOperation={filesOperation} />
+          )}
+          {activeTab === "lineage" && <DataLineageFlow dataset={dataset} />}
+          {activeTab === "quality" && <DataQuality />}
+        </div>
+      </div>
 
       {/* Upload Dialog */}
       <Modal
@@ -162,13 +214,19 @@ export default function DatasetDetail() {
         open={showUploadDialog}
         onCancel={() => setShowUploadDialog(false)}
         onOk={async () => {
-          await handleUpload(message, dataset);
+          await handleUpload(dataset);
           setShowUploadDialog(false);
           filesOperation.fetchFiles();
         }}
       >
         {importFileRender()}
       </Modal>
+      <EditDataset
+        data={dataset}
+        open={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        onRefresh={handleRefresh}
+      />
     </div>
   );
 }

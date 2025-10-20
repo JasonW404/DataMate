@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useState } from "react";
 import { Card, Breadcrumb } from "antd";
@@ -7,22 +7,52 @@ import {
   ShareAltOutlined,
   StarOutlined,
 } from "@ant-design/icons";
-import { Download, Settings, Clock, User, Package, Zap } from "lucide-react";
+import { Download, Clock, User } from "lucide-react";
 import DetailHeader from "@/components/DetailHeader";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import Overview from "./components/Overview";
 import Install from "./components/Install";
 import Documentation from "./components/Documentation";
 import Examples from "./components/Examples";
 import ChangeLog from "./components/ChangeLog";
 import Reviews from "./components/Reviews";
+import { queryOperatorByIdUsingGet } from "../operator.api";
+import { OperatorI } from "../operator.model";
+import { mapOperator } from "../operator.const";
 
 export default function OperatorPluginDetail() {
+  const { id } = useParams(); // 获取动态路由参数
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorited, setIsFavorited] = useState(false);
+  const [operator, setOperator] = useState<OperatorI | null>(null);
+
+  const fetchOperator = async () => {
+    try {
+      const { data } = await queryOperatorByIdUsingGet(id as unknown as number);
+      setOperator(mapOperator(data));
+    } catch (error) {
+      setOperator("error");
+    }
+  };
+
+  useEffect(() => {
+    fetchOperator();
+  }, [id]);
+
+  if (!operator) {
+    return <div>Loading...</div>;
+  }
+
+  if (operator === "error") {
+    return (
+      <div className="text-red-500">
+        Failed to load operator details. Please try again later.
+      </div>
+    );
+  }
 
   // 模拟算子数据
-  const operator = {
+  const mockOperator = {
     id: 1,
     name: "图像预处理算子",
     version: "1.2.0",
@@ -216,73 +246,21 @@ result = processor.process(image)`,
     ],
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      active: {
-        label: "活跃",
-        color:
-          "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200",
-        icon: Zap,
-      },
-      beta: {
-        label: "测试版",
-        color:
-          "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200",
-        icon: Settings,
-      },
-      deprecated: {
-        label: "已弃用",
-        color:
-          "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200",
-        icon: Settings,
-      },
-    };
-    return (
-      statusConfig[status as keyof typeof statusConfig] || statusConfig.active
-    );
-  };
-
-  // 构造 DetailHeader 所需数据
-  const headerData = {
-    id: operator.id,
-    icon: (
-      <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
-        <Package className="w-8 h-8 text-blue-600" />
-      </div>
-    ),
-    name: operator.name,
-    description: operator.description,
-    status: {
-      label: getStatusBadge(operator.status).label,
-      icon: React.createElement(getStatusBadge(operator.status).icon, {
-        className: "w-3 h-3",
-      }),
-      color:
-        operator.status === "active"
-          ? "green"
-          : operator.status === "beta"
-          ? "blue"
-          : "gray",
-    },
-    createdAt: operator.createdAt,
-    lastUpdated: operator.lastModified,
-  };
-
   const statistics = [
     {
       icon: <Download className="w-4 h-4" />,
       label: "",
-      value: operator.downloads.toLocaleString(),
+      value: operator?.downloads?.toLocaleString(),
     },
     {
       icon: <User className="w-4 h-4" />,
       label: "",
-      value: operator.author,
+      value: operator?.author,
     },
     {
       icon: <Clock className="w-4 h-4" />,
       label: "",
-      value: operator.lastModified,
+      value: operator?.lastModified,
     },
   ];
 
@@ -327,12 +305,12 @@ result = processor.process(image)`,
             href: "/data/operator-market",
           },
           {
-            title: operator.name,
+            title: operator?.name,
           },
         ]}
       />
       <DetailHeader
-        data={headerData}
+        data={operator}
         statistics={statistics}
         operations={operations}
       />

@@ -3,6 +3,8 @@
 import json
 import time
 import os
+import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
 
@@ -25,49 +27,60 @@ class TaskInfoPersistence:
 
     def persistence_task_info(self, sample: Dict[str, Any]):
         instance_id = str(sample.get("instance_id"))
-        meta_file_name = str(sample.get("sourceFileName"))
-        meta_file_type = str(sample.get("sourceFileType"))
-        meta_file_id = int(sample.get("sourceFileId"))
-        meta_file_size = str(sample.get("sourceFileSize"))
-        file_id = int(sample.get("fileId"))
+        src_file_name = str(sample.get("sourceFileName"))
+        src_file_type = str(sample.get("sourceFileType"))
+        src_file_id = str(sample.get("sourceFileId"))
+        src_file_size = int(sample.get("sourceFileSize"))
+        file_id = str(uuid.uuid4())
         file_size = str(sample.get("fileSize"))
         file_type = str(sample.get("fileType"))
         file_name = str(sample.get("fileName"))
-        file_path = str(sample.get("filePath"))
-        status = int(sample.get("execute_status"))
-        failed_reason = sample.get("failed_reason")
-        operator_id = str(failed_reason.get("op_name")) if failed_reason else ""
-        error_code = str(failed_reason.get("error_code")) if failed_reason else ""
-        incremental = str(sample.get("incremental") if sample.get("incremental") else '')
-        child_id = sample.get("childId")
-        slice_num = sample.get('slice_num', 0)
-        insert_data = {
+
+        status = str(sample.get("execute_status"))
+        failed_reason = str(sample.get("failed_reason"))
+        result_data = {
             "instance_id": instance_id,
-            "meta_file_id": meta_file_id,
-            "meta_file_type": meta_file_type,
-            "meta_file_name": meta_file_name,
-            "meta_file_size": meta_file_size,
-            "file_id": file_id,
-            "file_size": file_size,
-            "file_type": file_type,
+            "src_file_id": src_file_id,
+            "dest_file_id": file_id,
+            "src_name": src_file_name,
+            "dest_name": file_name,
+            "src_type": src_file_type,
+            "dest_type": file_type,
+            "src_size": src_file_size,
+            "dest_size": file_size,
+            "status": status,
+            "result": failed_reason
+        }
+        self.insert_result(result_data, str(self.sql_dict.get("insert_clean_result_sql")))
+
+        dataset_id = str(sample.get("dataset_id"))
+        file_path = str(sample.get("filePath"))
+        create_time = datetime.now()
+        last_access_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+        file_data = {
+            "id": file_id,
+            "dataset_id": dataset_id,
             "file_name": file_name,
             "file_path": file_path,
-            "status": status,
-            "operator_id": operator_id,
-            "error_code": error_code,
-            "incremental": incremental,
-            "child_id": child_id,
-            "slice_num": slice_num,
+            "file_type": file_type,
+            "file_size": file_size,
+            "status": "COMPLETED",
+            "upload_time": create_time,
+            "last_access_time": last_access_time,
+            "created_at": create_time,
+            "updated_at": create_time
         }
-        self.insert_clean_result(insert_data)
+        self.insert_result(file_data, str(self.sql_dict.get("insert_dataset_file_sql")))
 
-    def insert_clean_result(self, insert_data):
+    @staticmethod
+    def insert_result(data, sql):
         retries = 0
         max_retries = 20
         retry_delay = 1
         while retries <= max_retries:
             try:
-                self.execute_sql_insert(insert_data)
+                with SQLManager.create_connect() as conn:
+                    conn.execute(text(sql), data)
                 return
             except Exception as e:
                 if "database is locked" in str(e) or "locking protocol" in str(e):
@@ -78,13 +91,38 @@ class TaskInfoPersistence:
                     raise RuntimeError(82000, str(e)) from None
         raise Exception("Max retries exceeded")
 
-    def execute_sql_insert(self, insert_data):
-        insert_sql = str(self.sql_dict.get("insert_sql"))
-        create_tables_sql = str(self.sql_dict.get("create_tables_sql"))
+    def update_result(self, dataset_id, instance_id, status):
+        dataset_data = {
+            "dataset_id": dataset_id
+        }
+        query_dataset_sql = str(self.sql_dict.get("query_dataset_sql"))
         with SQLManager.create_connect() as conn:
-            conn.execute(text(create_tables_sql))
-            conn.execute(text(insert_sql), insert_data)
+            result = conn.execute(text(query_dataset_sql), dataset_data)
+        if result:
+            rows = result.fetchall()
+            total_size = sum(int(row[0]) for row in rows)
+            file_count = len(rows)
+        else:
+            total_size = 0
+            file_count = 0
 
+        dataset_data.update({
+            "task_id": instance_id,
+            "total_size": total_size,
+            "file_count": file_count
+        })
+
+        update_dataset_sql = str(self.sql_dict.get("update_dataset_sql"))
+        self.insert_result(dataset_data, update_dataset_sql)
+
+        task_data = {
+            "task_id": instance_id,
+            "status": status,
+            "total_size": total_size,
+            "finished_time": datetime.now()
+        }
+        update_task_sql = str(self.sql_dict.get("update_task_sql"))
+        self.insert_result(task_data, update_task_sql)
 
     def query_task_info(self, instance_ids: list[str]):
         result = {}

@@ -25,8 +25,10 @@ import { useNavigate } from "react-router";
 import type { AnnotationTask } from "../annotation.interface";
 import useFetchData from "@/hooks/useFetchData";
 import { queryAnnotationTasksUsingGet } from "../annotation.api";
+import DevelopmentInProgress from "@/components/DevelopmentInProgress";
 
 export default function DataAnnotation() {
+  return <DevelopmentInProgress />;
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"list" | "card">("list");
 
@@ -348,9 +350,9 @@ export default function DataAnnotation() {
 
       {/* Filters Toolbar */}
       <SearchControls
-        searchTerm={searchParams.keywords}
-        onSearchChange={(keywords) =>
-          setSearchParams({ ...searchParams, keywords })
+        searchTerm={searchParams.keyword}
+        onSearchChange={(keyword) =>
+          setSearchParams({ ...searchParams, keyword })
         }
         searchPlaceholder="搜索任务..."
         filters={filterOptions}
