@@ -3,6 +3,7 @@ package com.dataengine.common.infrastructure.common;
 import com.dataengine.common.infrastructure.exception.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serial;
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class Response<T> implements Serializable {
     @Serial

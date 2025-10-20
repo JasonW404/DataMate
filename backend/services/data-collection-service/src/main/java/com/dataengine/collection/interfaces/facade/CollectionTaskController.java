@@ -11,8 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -73,8 +72,19 @@ public class CollectionTaskController implements CollectionTaskApi {
         }
     }
 
-    private String mapToJsonString(Map<String, Object> map) {
+    private String mapToJsonString(Map<String, Object> map, String taskId) {
         try {
+            if (Objects.nonNull(map) && "LOCAL_COLLECTION".equals(map.get("type"))) {
+                // 本地归集相关校验和处理
+                return objectMapper.writeValueAsString(map);
+            }
+            if (Objects.nonNull(map) && "DATAX".equals(map.get("type"))) {
+                // NFS相关校验和处理
+                map.put("destPath", "/dataset/local/" + taskId);
+                map.put("filePaths", Arrays.asList(map.get("destPath")));
+                return objectMapper.writeValueAsString(map);
+            }
+
             return objectMapper.writeValueAsString(map != null ? map : Map.of());
         } catch (Exception e) {
             return "{}";
@@ -84,9 +94,10 @@ public class CollectionTaskController implements CollectionTaskApi {
     @Override
     public ResponseEntity<CollectionTaskResponse> createTask(CreateCollectionTaskRequest body) {
         CollectionTask t = new CollectionTask();
+        t.setId(UUID.randomUUID().toString());
         t.setName(body.getName());
         t.setDescription(body.getDescription());
-        t.setConfig(mapToJsonString(body.getConfig()));
+        t.setConfig(mapToJsonString(body.getConfig(), t.getId()));
         if (body.getSyncMode() != null) { t.setSyncMode(body.getSyncMode().getValue()); }
         t.setScheduleExpression(body.getScheduleExpression());
         t = taskService.create(t);
@@ -102,7 +113,7 @@ public class CollectionTaskController implements CollectionTaskApi {
         t.setId(id);
         t.setName(body.getName());
         t.setDescription(body.getDescription());
-        t.setConfig(mapToJsonString(body.getConfig()));
+        t.setConfig(mapToJsonString(body.getConfig(), t.getId()));
         if (body.getSyncMode() != null) { t.setSyncMode(body.getSyncMode().getValue()); }
         t.setScheduleExpression(body.getScheduleExpression());
         t = taskService.update(t);
