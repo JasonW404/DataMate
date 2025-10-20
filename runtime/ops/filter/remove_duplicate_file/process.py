@@ -103,7 +103,7 @@ class DuplicateFilesFilter(Filter):
             raise RuntimeError(82000, str(e)) from None
         with self.conn as connection:
             connection.execute(text(create_tables_sql))
-            result = connection.execute(query_task_uuid_sql, {"task_uuid": self.task_uuid}).fetchall()
+            result = connection.execute(text(query_task_uuid_sql), {"task_uuid": self.task_uuid}).fetchall()
             total_count = len(result)
             if self.has_similar_text(connection, file_name, text_minhash, total_count):
                 return ""
