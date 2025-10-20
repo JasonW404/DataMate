@@ -7,7 +7,6 @@ import com.alibaba.datax.common.plugin.RecordReceiver;
 import com.alibaba.datax.common.spi.Writer;
 import com.alibaba.datax.common.util.Configuration;
 
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -62,12 +61,14 @@ public class NfsWriter extends Writer {
         private Configuration jobConfig;
         private String mountPoint;
         private String destPath;
+        private List<String> files;
 
         @Override
         public void init() {
             this.jobConfig = super.getPluginJobConf();
             this.destPath = this.jobConfig.getString("destPath");
             this.mountPoint = this.jobConfig.getString("mountPoint");
+            this.files = this.jobConfig.getList("files", Collections.emptyList(), String.class);
         }
 
         @Override
@@ -77,6 +78,9 @@ public class NfsWriter extends Writer {
                 while ((record = lineReceiver.getFromReader()) != null) {
                     String fileName = record.getColumn(0).asString();
                     if (StringUtils.isBlank(fileName)) {
+                        continue;
+                    }
+                    if (!files.isEmpty() && !files.contains(fileName)) {
                         continue;
                     }
 

@@ -3,12 +3,14 @@ package com.dataengine.cleaning.application.httpclient;
 import com.dataengine.cleaning.domain.model.CreateDatasetRequest;
 import com.dataengine.cleaning.domain.model.DatasetResponse;
 import com.dataengine.cleaning.domain.model.PagedDatasetFileResponse;
+import com.dataengine.common.infrastructure.exception.BusinessException;
+import com.dataengine.common.infrastructure.exception.ErrorCodeImpl;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-
+import org.springframework.data.domain.PageRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,6 +19,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class DatasetClient {
@@ -39,12 +43,12 @@ public class DatasetClient {
         createDatasetRequest.setName(name);
         createDatasetRequest.setDatasetType(type);
 
-
         String jsonPayload;
         try {
             jsonPayload = OBJECT_MAPPER.writeValueAsString(createDatasetRequest);
         } catch (IOException e) {
-            throw new RuntimeException("Error serializing object to JSON: " + e.getMessage());
+            log.error("Error occurred while converting the object.", e);
+            throw BusinessException.of(SystemErrorCode.UNKNOWN_ERROR);
         }
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -54,45 +58,50 @@ public class DatasetClient {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
-        try {
-            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            int statusCode = response.statusCode();
-            String responseBody = response.body();
-
-            if (statusCode < 200 || statusCode >= 300) {
-                log.error("Request failed with status code: {}", statusCode);
-                throw new RuntimeException();
-            }
-            JsonNode jsonNode = OBJECT_MAPPER.readTree(responseBody);
-            return OBJECT_MAPPER.treeToValue(jsonNode.get("data"), DatasetResponse.class);
-        } catch (IOException | InterruptedException e) {
-            log.error("Error occurred while making the request: {}", e.getMessage());
-            throw new RuntimeException();
-        }
+        return sendAndReturn(request, DatasetResponse.class);
     }
 
-    public static PagedDatasetFileResponse getDatasetFile(String datasetId, Pageable page) {
+    public static PagedDatasetFileResponse getDatasetFile(String datasetId, PageRequest page) {
+        String url = buildQueryParams(MessageFormat.format(GET_DATASET_FILE_URL, datasetId),
+                Map.of("page", page.getPageNumber(), "size", page.getPageSize()));
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(MessageFormat.format(GET_DATASET_FILE_URL, datasetId)))
+                .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(30))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
 
+        return sendAndReturn(request, PagedDatasetFileResponse.class);
+    }
+
+    private static <T> T sendAndReturn(HttpRequest request, Class<T> clazz) {
         try {
             HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
             int statusCode = response.statusCode();
             String responseBody = response.body();
+            JsonNode jsonNode = OBJECT_MAPPER.readTree(responseBody);
 
             if (statusCode < 200 || statusCode >= 300) {
-                log.error("Request failed with status code: {}", statusCode);
-                throw new RuntimeException();
+                String code = jsonNode.get("code").asText();
+                String message = jsonNode.get("message").asText();
+                throw BusinessException.of(ErrorCodeImpl.of(code, message));
             }
-            JsonNode jsonNode = OBJECT_MAPPER.readTree(responseBody);
-            return OBJECT_MAPPER.treeToValue(jsonNode.get("data"), PagedDatasetFileResponse.class);
+            return OBJECT_MAPPER.treeToValue(jsonNode.get("data"), clazz);
         } catch (IOException | InterruptedException e) {
-            log.error("Error occurred while making the request: {}", e.getMessage());
-            throw new RuntimeException();
+            log.error("Error occurred while making the request.", e);
+            throw BusinessException.of(SystemErrorCode.UNKNOWN_ERROR);
         }
+    }
+
+    private static String buildQueryParams(String baseUrl, Map<String, Object> params) {
+        if (params == null || params.isEmpty()) {
+            return baseUrl;
+        }
+
+        String queryString = params.entrySet().stream()
+                .map(entry -> entry.getKey() + entry.getValue().toString())
+                .collect(Collectors.joining("&"));
+
+        return baseUrl + (baseUrl.contains("?") ? "&" : "?") + queryString;
     }
 }

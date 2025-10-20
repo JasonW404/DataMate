@@ -2,7 +2,7 @@ package com.dataengine.cleaning.application.service;
 
 
 import com.dataengine.cleaning.application.httpclient.DatasetClient;
-import com.dataengine.cleaning.application.httpclient.RuntimeClient;
+import com.dataengine.cleaning.application.scheduler.CleaningTaskScheduler;
 import com.dataengine.cleaning.domain.converter.OperatorInstanceConverter;
 import com.dataengine.cleaning.domain.model.DatasetResponse;
 import com.dataengine.cleaning.domain.model.ExecutorType;
@@ -14,11 +14,14 @@ import com.dataengine.cleaning.infrastructure.persistence.mapper.OperatorInstanc
 import com.dataengine.cleaning.interfaces.dto.CleaningTask;
 import com.dataengine.cleaning.interfaces.dto.CreateCleaningTaskRequest;
 import com.dataengine.cleaning.interfaces.dto.OperatorInstance;
+import com.dataengine.common.infrastructure.exception.BusinessException;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +32,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CleaningTaskService {
@@ -43,7 +44,7 @@ public class CleaningTaskService {
 
     private final OperatorInstanceMapper operatorInstanceMapper;
 
-    private final ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
+    private final CleaningTaskScheduler taskScheduler;
 
     private final String DATASET_PATH = "/dataset";
 
@@ -96,7 +97,7 @@ public class CleaningTaskService {
     }
 
     public void executeTask(String taskId) {
-        taskExecutor.submit(() -> submitTask(taskId));
+        taskScheduler.executeTask(taskId);
     }
 
     private void prepareTask(CleaningTask task, List<OperatorInstance> instances) {
@@ -125,7 +126,8 @@ public class CleaningTaskService {
         try (FileWriter writer = new FileWriter(file)) {
             yaml.dump(jsonMapper.treeToValue(jsonNode, Map.class), writer);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to prepare process.yaml.", e);
+            throw BusinessException.of(SystemErrorCode.FILE_SYSTEM_ERROR);
         }
     }
 
@@ -151,15 +153,6 @@ public class CleaningTaskService {
         } while (pageNumber < datasetFile.getTotalPages());
     }
 
-    private void submitTask(String taskId) {
-        CleaningTask task = new CleaningTask();
-        task.setId(taskId);
-        task.setStatus(CleaningTask.StatusEnum.RUNNING);
-        task.setStartedAt(LocalDateTime.now());
-        cleaningTaskMapper.updateTask(task);
-        RuntimeClient.submitTask(taskId);
-    }
-
     private void writeListMapToJsonlFile(List<Map<String, Object>> mapList, String fileName) {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -175,15 +168,12 @@ public class CleaningTaskService {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error serializing map to JSON: " + e.getMessage());
+            log.error("Failed to prepare dataset.jsonl.", e);
+            throw BusinessException.of(SystemErrorCode.FILE_SYSTEM_ERROR);
         }
     }
 
     public void stopTask(String taskId) {
-        RuntimeClient.stopTask(taskId);
-        CleaningTask task = new CleaningTask();
-        task.setId(taskId);
-        task.setStatus(CleaningTask.StatusEnum.STOPPED);
-        cleaningTaskMapper.updateTask(task);
+        taskScheduler.stopTask(taskId);
     }
 }

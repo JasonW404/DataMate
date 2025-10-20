@@ -3,6 +3,8 @@ package com.dataengine.cleaning.domain.converter;
 
 import com.dataengine.cleaning.domain.model.OperatorInstancePo;
 import com.dataengine.cleaning.interfaces.dto.OperatorInstance;
+import com.dataengine.common.infrastructure.exception.BusinessException;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
@@ -10,7 +12,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
 import java.util.Map;
 
 @Mapper
@@ -26,8 +27,7 @@ public interface OperatorInstanceConverter {
          try {
              return objectMapper.writeValueAsString(objects);
          } catch (JsonProcessingException e) {
-             throw new RuntimeException(e);
+             throw BusinessException.of(SystemErrorCode.UNKNOWN_ERROR);
          }
-
     }
 }

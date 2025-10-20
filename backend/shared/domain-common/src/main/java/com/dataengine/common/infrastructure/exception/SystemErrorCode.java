@@ -31,7 +31,12 @@ public enum SystemErrorCode implements ErrorCode {
     /**
      * 权限不足
      */
-    INSUFFICIENT_PERMISSIONS("sys.0005", "权限不足");
+    INSUFFICIENT_PERMISSIONS("sys.0005", "权限不足"),
+
+    /**
+     * 文件系统错误
+     */
+    FILE_SYSTEM_ERROR("sys.0006", "文件系统错误");
 
     private final String code;
     private final String message;
