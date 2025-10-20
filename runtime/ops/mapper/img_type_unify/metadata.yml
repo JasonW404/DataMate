@@ -17,19 +17,14 @@ outputs: 'image'
 settings:
   imgType:
     name: 图片编码格式
-    name_en: Image Encoding Format
     type: select
     defaultVal: jpg
     options:
       - label: jpg
-        label_en: jpg
         value: jpg
       - label: png
-        label_en: png
         value: png
       - label: jpeg
-        label_en: jpeg
         value: jpeg
       - label: bmp
-        label_en: bmp
         value: bmp
