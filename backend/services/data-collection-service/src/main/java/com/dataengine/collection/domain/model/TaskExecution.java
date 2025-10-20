@@ -3,6 +3,7 @@ package com.dataengine.collection.domain.model;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class TaskExecution {
@@ -25,4 +26,14 @@ public class TaskExecution {
     private String config;
     private String result;
     private LocalDateTime createdAt;
+
+    public static TaskExecution initTaskExecution() {
+        TaskExecution exec = new TaskExecution();
+        exec.setId(UUID.randomUUID().toString());
+        exec.setStatus(TaskStatus.RUNNING);
+        exec.setProgress(0.0);
+        exec.setStartedAt(LocalDateTime.now());
+        exec.setCreatedAt(LocalDateTime.now());
+        return exec;
+    }
 }
