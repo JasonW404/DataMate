@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -29,13 +32,17 @@ public class CollectionTaskService {
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskMapper.insert(task);
+        executeTaskNow(task);
+        return task;
+    }
+
+    private void executeTaskNow(CollectionTask task) {
         if (Objects.equals(task.getSyncMode(), SyncMode.ONCE.getValue())) {
             TaskExecution exec = dataxExecutionService.createExecution(task);
             int timeout = task.getTimeoutSeconds() == null ? 3600 : task.getTimeoutSeconds();
             dataxExecutionService.runAsync(task, exec.getId(), timeout);
             log.info("Triggered DataX execution for task {} at {}, execId={}", task.getId(), LocalDateTime.now(), exec.getId());
         }
-        return task;
     }
 
     @Transactional
@@ -63,18 +70,7 @@ public class CollectionTaskService {
 
     @Transactional
     public TaskExecution startExecution(CollectionTask task) {
-        TaskExecution exec = new TaskExecution();
-        exec.setId(UUID.randomUUID().toString());
-        exec.setTaskId(task.getId());
-        exec.setTaskName(task.getName());
-        exec.setStatus(TaskStatus.RUNNING);
-        exec.setProgress(0.0);
-        exec.setStartedAt(LocalDateTime.now());
-        exec.setCreatedAt(LocalDateTime.now());
-        executionMapper.insert(exec);
-        taskMapper.updateLastExecution(task.getId(), exec.getId());
-        taskMapper.updateStatus(task.getId(), TaskStatus.RUNNING.name());
-        return exec;
+        return dataxExecutionService.createExecution(task);
     }
 
     // ---- Template related merged methods ----

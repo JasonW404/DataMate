@@ -1,4 +1,4 @@
-package com.dataengine.collection.interfaces.facade;
+package com.dataengine.collection.interfaces.rest;
 
 import com.dataengine.collection.application.service.CollectionTaskService;
 import com.dataengine.collection.application.service.TaskExecutionService;
@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @RestController
