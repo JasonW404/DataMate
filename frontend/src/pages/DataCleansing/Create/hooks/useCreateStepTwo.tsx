@@ -44,6 +44,7 @@ export function useCreateStepTwo() {
         categoryOptions={categoryOptions}
         selectedOperators={selectedOperators}
         operatorList={operators}
+        setSelectedOperators={setSelectedOperators}
         toggleOperator={toggleOperator}
         handleDragStart={handleDragStart}
       />

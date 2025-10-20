@@ -71,10 +71,10 @@ export default function EditDataset({
   return (
     <Drawer
       title={`编辑数据集${data?.name}`}
-      closable={{ "aria-label": "Close Button" }}
       onClose={onClose}
       open={open}
       width={600}
+      maskClosable={false}
       footer={
         <div className="flex gap-2 justify-end p-6">
           <Button onClick={onClose}>取消</Button>

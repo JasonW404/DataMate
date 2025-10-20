@@ -51,6 +51,18 @@ export const formatTime = (dateString: string): string => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
+export function formatExecutionDuration(
+  startTime: string,
+  endTime: string
+): string {
+  if (!startTime || !endTime) return "--";
+
+  const start = new Date(startTime).getTime();
+  const end = new Date(endTime).getTime();
+  const durationInSeconds = Math.floor((end - start) / 1000);
+  return formatDuration(durationInSeconds);
+}
+
 export const formatDuration = (seconds: number): string => {
   if (seconds < 60) {
     return `${seconds} 秒`;
@@ -262,10 +274,9 @@ export const flattenArray = <T>(array: T[][]): T[] => {
 };
 
 export const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    // 这里可以添加提示消息
-  };
-
+  navigator.clipboard.writeText(text);
+  // 这里可以添加提示消息
+};
 
 // 示例用法
 // console.log(formatBytes(1024)); // "1 KB"

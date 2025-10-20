@@ -4,7 +4,11 @@ import {
   TaskStatus,
   TemplateType,
 } from "@/pages/DataCleansing/cleansing.model";
-import { formatDateTime } from "@/utils/unit";
+import {
+  formatBytes,
+  formatDateTime,
+  formatExecutionDuration,
+} from "@/utils/unit";
 import {
   ClockCircleOutlined,
   PlayCircleOutlined,
@@ -82,15 +86,39 @@ export const TaskStatusMap = {
 };
 
 export const mapTask = (task: CleansingTask) => {
+  const duration = formatExecutionDuration(task.startedAt, task.finishedAt);
+  const before = formatBytes(task.beforeSize);
+  const after = formatBytes(task.afterSize);
+  const status = TaskStatusMap[task.status];
+  const finishedAt = formatDateTime(task.finishedAt);
+  const startedAt = formatDateTime(task.startedAt);
+  const createdAt = formatDateTime(task.createdAt);
   return {
     ...task,
-    createdAt: formatDateTime(task.createdAt),
-    startedAt: formatDateTime(task.startedAt),
-    endedAt: formatDateTime(task.endedAt),
+    createdAt,
+    startedAt,
+    finishedAt,
     icon: <DatabaseOutlined style={{ color: "#1677ff" }} />,
     iconColor: "bg-blue-100",
-    status: TaskStatusMap[task.status],
-    statistics: [{ label: "进度", value: `${task.progress}%` }],
+    status,
+    duration,
+    before,
+    after,
+    statistics: [
+      { label: "进度", value: `${task.progress || 0}%` },
+      {
+        label: "执行耗时",
+        value: duration,
+      },
+      {
+        label: "处理前数据大小",
+        value: task.beforeSize ? formatBytes(task.beforeSize) : "--",
+      },
+      {
+        label: "处理后数据大小",
+        value: task.afterSize ? formatBytes(task.afterSize) : "--",
+      },
+    ],
     lastModified: formatDateTime(task.createdAt),
   };
 };

@@ -1,5 +1,13 @@
 import React from "react";
-import { Input, Select, Radio, Checkbox, Form, InputNumber, Slider } from "antd";
+import {
+  Input,
+  Select,
+  Radio,
+  Checkbox,
+  Form,
+  InputNumber,
+  Slider,
+} from "antd";
 import { OperatorI } from "@/pages/OperatorMarket/operator.model";
 
 interface ParamConfigProps {
@@ -28,6 +36,7 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
             value={value}
             onChange={(e) => updateValue(e.target.value)}
             placeholder={`请输入${param.label}`}
+            className="w-full"
           />
         </Form.Item>
       );
@@ -92,6 +101,7 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
               min={param.min || 0}
               max={param.max || 100}
               step={param.step || 1}
+              className="flex-1"
             />
             <InputNumber
               min={param.min || 0}
@@ -122,6 +132,7 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
             min={param.min || 0}
             max={param.max || 100}
             step={param.step || 1}
+            className="w-full"
           />
         </Form.Item>
       );

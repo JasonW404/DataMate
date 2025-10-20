@@ -1,15 +1,12 @@
 import { useState } from "react";
-import { Card, Steps, Button, message, Form } from "antd";
+import { Steps, Button, message, Form } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { createCleaningTaskUsingPost } from "../cleansing.api";
 import CreateTaskStepOne from "./components/CreateTaskStepOne";
 import { useCreateStepTwo } from "./hooks/useCreateStepTwo";
-import {
-  DatasetSubType,
-  DatasetType,
-} from "@/pages/DataManagement/dataset.model";
+import { DatasetType } from "@/pages/DataManagement/dataset.model";
 
 export default function CleansingTaskCreate() {
   const navigate = useNavigate();
@@ -43,7 +40,6 @@ export default function CleansingTaskCreate() {
         },
       })),
     };
-    console.log("创建任务:", task);
     navigate("/data/cleansing");
     await createCleaningTaskUsingPost(task);
     message.success("任务已创建");
