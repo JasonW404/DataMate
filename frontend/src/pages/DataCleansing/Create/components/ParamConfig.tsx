@@ -23,7 +23,7 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
   param,
   onParamChange,
 }) => {
-  const [value, setValue] = React.useState(param.value || param.default);
+  const [value, setValue] = React.useState(param.value || param.defaultVal);
   const updateValue = (newValue: any) => {
     setValue(newValue);
     return onParamChange && onParamChange(operator.id, paramKey, newValue);
