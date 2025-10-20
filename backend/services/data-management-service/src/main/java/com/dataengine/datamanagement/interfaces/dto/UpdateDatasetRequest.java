@@ -1,5 +1,6 @@
 package com.dataengine.datamanagement.interfaces.dto;
 
+import com.dataengine.datamanagement.common.enums.DatasetStatusType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,5 +19,5 @@ public class UpdateDatasetRequest {
     /** 标签列表 */
     private List<String> tags;
     /** 数据集状态 */
-    private String status;
+    private DatasetStatusType status;
 }

@@ -163,9 +163,8 @@ class ImgSimilarImagesCleaner(Filter):
 
         with self.conn as connection:
             """从数据库中获取文件特征、比较相似度，插入新的文件特征"""
-            with self.conn as connection:
-                connection.execute(text(create_tables_sql))
-            result = connection.execute(query_task_uuid_sql, {"task_uuid": self.task_uuid}).fetchall()
+            connection.execute(text(create_tables_sql))
+            result = connection.execute(text(query_task_uuid_sql), {"task_uuid": self.task_uuid}).fetchall()
             total_count = len(result)
             if self.has_similar_images(connection, des_matrix, file_name, p_hash, total_count):
                     return np.array([])

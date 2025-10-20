@@ -13,6 +13,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 /**
  * 数据集文件转换器
  */
@@ -49,4 +51,6 @@ public interface DatasetConverter {
      * 将数据集转换为响应
      */
     TagResponse convertToResponse(Tag dataset);
+
+    List<DatasetResponse> convertToResponse(List<Dataset> datasets);
 }

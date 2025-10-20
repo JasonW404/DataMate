@@ -1,5 +1,8 @@
 package com.dataengine.datamanagement.interfaces.dto;
 
+import com.dataengine.datamanagement.common.enums.DatasetType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +19,13 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateDatasetRequest {
     /** 数据集名称 */
+    @NotBlank(message = "数据集名称不能为空")
     private String name;
     /** 数据集描述 */
     private String description;
     /** 数据集类型 */
-    private String datasetType;
+    @NotNull(message = "数据集类型不能为空")
+    private DatasetType datasetType;
     /** 标签列表 */
     private List<String> tags;
     /** 数据源 */
