@@ -17,4 +17,12 @@
         RIGHT JOIN t_operator_category toc ON tocr.category_id = toc.id
   </select>
 
+  <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO t_operator_category_relation (operator_id, category_id)
+        VALUES
+        <foreach collection="categories" item="categoryId" separator=",">
+            (#{operatorId}, #{categoryId})
+        </foreach>
+    </insert>
+
 </mapper>

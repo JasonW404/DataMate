@@ -4,6 +4,8 @@ package com.dataengine.operator.interfaces.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * UpdateOperatorRequest
  */
@@ -17,8 +19,14 @@ public class UpdateOperatorRequest {
 
   private String version;
 
-  private String category;
+  private String inputs;
 
-  private String documentation;
+  private String outputs;
+
+  private List<Integer> categories;
+
+  private String runtime;
+
+  private String settings;
 }
 

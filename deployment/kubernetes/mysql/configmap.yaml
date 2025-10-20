@@ -10,6 +10,7 @@ data:
     # 设置默认排序规则
     collation-server = utf8mb4_unicode_ci
     # 或者使用 utf8_general_ci (性能稍好，但排序规则稍宽松)
+    default-time-zone = 'Asia/Shanghai'
 
     [client]
     # 设置客户端连接默认字符集

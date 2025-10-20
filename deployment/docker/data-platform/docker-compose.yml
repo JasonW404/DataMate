@@ -40,6 +40,7 @@ services:
     volumes:
       - mysql_volume:/var/lib/mysql
       - ../../../scripts/db:/docker-entrypoint-initdb.d
+      - ./utf8.cnf:/etc/mysql/conf.d/utf8.cnf
       - log_volume:/var/log/data-platform
     networks: [ edatamate ]
 
