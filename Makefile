@@ -127,6 +127,7 @@ mysql-k8s-install:
 .PHONY: mysql-k8s-uninstall
 mysql-k8s-uninstall:
 	kubectl delete configmap init-sql
+	kubectl delete -f deployment/kubernetes/mysql/configmap.yaml
 	kubectl delete -f deployment/kubernetes/mysql/deploy.yaml
 
 .PHONY: backend-k8s-install

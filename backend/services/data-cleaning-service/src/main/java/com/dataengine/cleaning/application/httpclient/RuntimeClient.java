@@ -1,5 +1,7 @@
 package com.dataengine.cleaning.application.httpclient;
 
+import com.dataengine.common.infrastructure.exception.BusinessException;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -21,30 +23,16 @@ public class RuntimeClient {
     private static final HttpClient CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
     public static void submitTask(String taskId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(MessageFormat.format(CREATE_TASK_URL, taskId)))
-                .timeout(Duration.ofSeconds(30))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.noBody())
-                .build();
-
-        try {
-            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-            int statusCode = response.statusCode();
-
-            if (statusCode < 200 || statusCode >= 300) {
-                log.error("Request failed with status code: {}", statusCode);
-                throw new RuntimeException();
-            }
-        } catch (IOException | InterruptedException e) {
-            log.error("Error occurred while making the request: {}", e.getMessage());
-            throw new RuntimeException();
-        }
+        send(MessageFormat.format(CREATE_TASK_URL, taskId));
     }
 
     public static void stopTask(String taskId) {
+        send(MessageFormat.format(STOP_TASK_URL, taskId));
+    }
+
+    private static void send(String url) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(MessageFormat.format(STOP_TASK_URL, taskId)))
+                .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(30))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.noBody())
@@ -56,11 +44,11 @@ public class RuntimeClient {
 
             if (statusCode < 200 || statusCode >= 300) {
                 log.error("Request failed with status code: {}", statusCode);
-                throw new RuntimeException();
+                throw BusinessException.of(SystemErrorCode.SYSTEM_BUSY);
             }
         } catch (IOException | InterruptedException e) {
-            log.error("Error occurred while making the request: {}", e.getMessage());
-            throw new RuntimeException();
+            log.error("Error occurred while making the request.", e);
+            throw BusinessException.of(SystemErrorCode.UNKNOWN_ERROR);
         }
     }
 }

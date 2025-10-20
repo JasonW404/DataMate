@@ -128,4 +128,4 @@ if __name__ == '__main__':
     except Exception as e:
         executor.update_db("FAILED")
         raise e
-    executor.update_db("SUCCESS")
+    executor.update_db("COMPLETED")
