@@ -56,7 +56,6 @@ export default function BasicInformation({
   }, []);
   return (
     <>
-      <h2 className="font-medium text-gray-900 text-base mb-2">基本信息</h2>
       <Form.Item
         label="名称"
         name="name"

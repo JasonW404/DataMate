@@ -6,37 +6,17 @@ import { Link, useNavigate } from "react-router";
 import { createDatasetUsingPost } from "../dataset.api";
 import { DatasetType, DataSource } from "../dataset.model";
 import BasicInformation from "./components/BasicInformation";
-import ImportConfiguration from "./components/ImportConfiguration";
-import { useImportFile } from "../hooks";
 
 export default function DatasetCreate() {
   const navigate = useNavigate();
   const { message } = App.useApp();
   const [form] = Form.useForm();
-  const { importFileRender, handleUpload } = useImportFile();
 
   const [newDataset, setNewDataset] = useState({
     name: "",
     description: "",
     datasetType: DatasetType.TEXT,
     tags: [],
-    config: {
-      source: DataSource.UPLOAD,
-      target: DataSource.UPLOAD,
-      nasHost: "",
-      sharePath: "",
-      username: "",
-      password: "",
-      endpoint: "",
-      bucket: "",
-      accessKey: "",
-      secretKey: "",
-      databaseType: "",
-      databaseName: "",
-      tableName: "",
-      dbType: "",
-      connectionString: "",
-    },
   });
 
   const handleSubmit = async () => {
@@ -46,13 +26,8 @@ export default function DatasetCreate() {
       ...formValues,
       files: undefined,
     };
-    let dataset;
     try {
-      const { data } = await createDatasetUsingPost(params);
-      dataset = data;
-      if (formValues?.config?.source === DataSource.UPLOAD) {
-        handleUpload(dataset);
-      }
+      await createDatasetUsingPost(params);
       message.success(`数据集创建成功`);
       navigate("/data/management");
     } catch (error) {
@@ -90,12 +65,6 @@ export default function DatasetCreate() {
             layout="vertical"
           >
             <BasicInformation data={newDataset} setData={setNewDataset} />
-
-            {/* Import Configuration */}
-            <ImportConfiguration
-              data={newDataset}
-              importFileRender={importFileRender}
-            />
           </Form>
         </div>
         <div className="flex gap-2 justify-end p-6 border-t border-gray-200">

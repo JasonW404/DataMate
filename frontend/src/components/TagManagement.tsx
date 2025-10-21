@@ -5,7 +5,7 @@ import { Edit, Save, TagIcon, X, Trash } from "lucide-react";
 import { TagItem } from "@/pages/DataManagement/dataset.model";
 
 function Tag({
-  isEditable,
+  isEditable = false,
   tag,
   editingTag,
   editingTagValue,
@@ -27,7 +27,7 @@ function Tag({
             onChange={(e) => setEditingTagValue(e.target.value)}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                handleEditTag(tag.name, editingTagValue);
+                handleEditTag(tag, editingTagValue);
               }
               if (e.key === "Escape") {
                 setEditingTag(null);
@@ -98,7 +98,7 @@ const TagManager: React.FC = ({
   onUpdate,
 }: {
   onFetch: () => Promise<any>;
-  onCreate: (tag: TagItem) => Promise<{ ok: boolean }>;
+  onCreate: (tag: Pick<TagItem, "name">) => Promise<{ ok: boolean }>;
   onDelete: (tagId: number) => Promise<{ ok: boolean }>;
   onUpdate: (oldTagId: number, newTag: string) => Promise<{ ok: boolean }>;
 }) => {
@@ -125,17 +125,11 @@ const TagManager: React.FC = ({
   // 添加标签
   const addTag = async (tag: string) => {
     try {
-      const response = await onCreate?.({
+      await onCreate?.({
         name: tag,
-        color: "#111111",
-        description: "23",
       });
-      if (response.ok) {
-        fetchTags();
-        message.success("标签添加成功");
-      } else {
-        message.error("添加标签失败");
-      }
+      fetchTags();
+      message.success("标签添加成功");
     } catch (error) {
       message.error("添加标签失败");
     }
@@ -144,27 +138,19 @@ const TagManager: React.FC = ({
   // 删除标签
   const deleteTag = async (tag: string) => {
     try {
-      const response = await onDelete?.(tag.id);
-      if (response.ok) {
-        fetchTags();
-        message.success("标签删除成功");
-      } else {
-        message.error("删除标签失败");
-      }
+      await onDelete?.(tag.id);
+      fetchTags();
+      message.success("标签删除成功");
     } catch (error) {
       message.error("删除标签失败");
     }
   };
 
-  const updateTag = async (oldTag: string, newTag: string) => {
+  const updateTag = async (oldTag: TagItem, newTag: string) => {
     try {
-      const response = await onUpdate?.(oldTag.id, newTag);
-      if (response.ok) {
-        fetchTags();
-        message.success("标签更新成功");
-      } else {
-        message.error("更新标签失败");
-      }
+      await onUpdate?.(oldTag.id, newTag);
+      fetchTags();
+      message.success("标签更新成功");
     } catch (error) {
       message.error("更新标签失败");
     }
@@ -179,7 +165,7 @@ const TagManager: React.FC = ({
 
   const handleEditTag = (tag: string, value: string) => {
     if (value.trim()) {
-      updateTag(tag.id, value.trim());
+      updateTag(tag, value.trim());
       setEditingTag(null);
       setEditingTagValue("");
     }
@@ -197,8 +183,8 @@ const TagManager: React.FC = ({
   };
 
   useEffect(() => {
-    fetchTags();
-  }, []);
+    if (showTagManager) fetchTags();
+  }, [showTagManager]);
 
   return (
     <>

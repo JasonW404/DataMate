@@ -1,17 +1,32 @@
-import { Select, Input, Form, Radio } from "antd";
+import { Select, Input, Form, Radio, Modal, Button } from "antd";
 import { dataSourceOptions } from "../../dataset.const";
-import { DataSource } from "../../dataset.model";
+import { Dataset, DataSource } from "../../dataset.model";
 import { useEffect, useState } from "react";
 import { queryTasksUsingGet } from "@/pages/DataCollection/collection.apis";
+import { useImportFile } from "../../hooks";
 
-export default function ImportConfiguration({ data, importFileRender }) {
+export default function ImportConfiguration({
+  data,
+  open,
+  onClose,
+  onRefresh,
+}: {
+  data?: Dataset;
+  open: boolean;
+  onClose: () => void;
+  onRefresh?: () => void;
+}) {
   const [collectionOptions, setCollectionOptions] = useState([]);
+  const [importConfig, setImportConfig] = useState<any>({
+    source: DataSource.UPLOAD,
+  });
+  const { importFileRender, handleUpload } = useImportFile();
 
   // 获取归集任务列表
   const fetchCollectionTasks = async () => {
     try {
-      const data = await queryTasksUsingGet({ page: 0, size: 100 });
-      const options = data.content.map((task: any) => ({
+      const res = await queryTasksUsingGet({ page: 0, size: 100 });
+      const options = res.data.content.map((task: any) => ({
         label: task.name,
         value: task.id,
       }));
@@ -21,19 +36,45 @@ export default function ImportConfiguration({ data, importFileRender }) {
     }
   };
 
+  const handleImportData = async () => {
+    if (importConfig.source === DataSource.UPLOAD) {
+      await handleUpload(data);
+    } else {
+      // 其他导入方式的处理逻辑
+      console.log("Importing data from source:", importConfig.source);
+    }
+    onRefresh?.();
+    onClose();
+  };
+
   useEffect(() => {
     fetchCollectionTasks();
   }, []);
 
   return (
-    <>
-      <div className="space-y-4 pt-4">
-        <h2 className="font-medium text-gray-900 mt-4 text-base">
-          数据导入配置
-        </h2>
+    <Modal
+      title="导入数据"
+      open={open}
+      width={600}
+      onCancel={onClose}
+      maskClosable={false}
+      footer={
+        <>
+          <Button onClick={onClose}>取消</Button>
+          <Button type="primary" onClick={handleImportData}>
+            确定
+          </Button>
+        </>
+      }
+    >
+      <Form
+        layout="vertical"
+        initialValues={importConfig || {}}
+        onValuesChange={(_, allValues) => setImportConfig(allValues)}
+      >
         <Form.Item
           label="数据源"
-          name={["config", "source"]}
+          name="source"
           rules={[{ required: true, message: "请选择数据源" }]}
         >
           <Radio.Group
@@ -42,56 +83,38 @@ export default function ImportConfiguration({ data, importFileRender }) {
             optionType="button"
           />
         </Form.Item>
-        <Form.Item
-          label="目标位置"
-          name={["config", "target"]}
-          rules={[{ required: true, message: "请选择目标位置" }]}
-        >
-          <Select
-            className="w-full"
-            options={[
-              { label: "本地文件夹", value: DataSource.UPLOAD },
-              { label: "数据库", value: DataSource.DATABASE },
-            ]}
-            disabled
-          ></Select>
-        </Form.Item>
-        {data?.config?.source === DataSource.COLLECTION && (
-          <Form.Item
-            name={["config", "collectionId"]}
-            label="归集任务"
-            required
-          >
+        {importConfig?.source === DataSource.COLLECTION && (
+          <Form.Item name="collectionId" label="归集任务" required>
             <Select placeholder="请选择归集任务" options={collectionOptions} />
           </Form.Item>
         )}
 
         {/* nas import */}
-        {data?.config?.source === DataSource.NAS && (
+        {importConfig?.source === DataSource.NAS && (
           <div className="grid grid-cols-2 gap-3 p-4 bg-blue-50 rounded-lg">
             <Form.Item
-              name={["config", "nasPath"]}
+              name="nasPath"
               rules={[{ required: true }]}
               label="NAS地址"
             >
               <Input placeholder="192.168.1.100" />
             </Form.Item>
             <Form.Item
-              name={["config", "sharePath"]}
+              name="sharePath"
               rules={[{ required: true }]}
               label="共享路径"
             >
-              <Input placeholder="/share/data" />
+              <Input placeholder="/share/importConfig" />
             </Form.Item>
             <Form.Item
-              name={["config", "sharePath"]}
+              name="username"
               rules={[{ required: true }]}
               label="用户名"
             >
               <Input placeholder="用户名" />
             </Form.Item>
             <Form.Item
-              name={["config", "password"]}
+              name="password"
               rules={[{ required: true }]}
               label="密码"
             >
@@ -100,10 +123,10 @@ export default function ImportConfiguration({ data, importFileRender }) {
           </div>
         )}
         {/* obs import */}
-        {data?.config?.source === DataSource.OBS && (
+        {importConfig?.source === DataSource.OBS && (
           <div className="grid grid-cols-2 gap-3 p-4 bg-blue-50 rounded-lg">
             <Form.Item
-              name={["config", "endpoint"]}
+              name="endpoint"
               rules={[{ required: true }]}
               label="Endpoint"
             >
@@ -113,21 +136,21 @@ export default function ImportConfiguration({ data, importFileRender }) {
               />
             </Form.Item>
             <Form.Item
-              name={["config", "bucket"]}
+              name="bucket"
               rules={[{ required: true }]}
               label="Bucket"
             >
               <Input className="h-8 text-xs" placeholder="my-bucket" />
             </Form.Item>
             <Form.Item
-              name={["config", "accessKey"]}
+              name="accessKey"
               rules={[{ required: true }]}
               label="Access Key"
             >
               <Input className="h-8 text-xs" placeholder="Access Key" />
             </Form.Item>
             <Form.Item
-              name={["config", "secretKey"]}
+              name="secretKey"
               rules={[{ required: true }]}
               label="Secret Key"
             >
@@ -141,7 +164,7 @@ export default function ImportConfiguration({ data, importFileRender }) {
         )}
 
         {/* Local Upload Component */}
-        {data?.config?.source === DataSource.UPLOAD && (
+        {importConfig?.source === DataSource.UPLOAD && (
           <Form.Item
             label="上传文件"
             name="files"
@@ -157,12 +180,12 @@ export default function ImportConfiguration({ data, importFileRender }) {
         )}
 
         {/* Target Configuration */}
-        {data?.config?.target && data?.config?.target !== DataSource.UPLOAD && (
+        {importConfig?.target && importConfig?.target !== DataSource.UPLOAD && (
           <div className="space-y-3 p-4 bg-blue-50 rounded-lg">
-            {data?.config?.target === DataSource.DATABASE && (
+            {importConfig?.target === DataSource.DATABASE && (
               <div className="grid grid-cols-2 gap-3">
                 <Form.Item
-                  name={["config", "databaseType"]}
+                  name="databaseType"
                   rules={[{ required: true }]}
                   label="数据库类型"
                 >
@@ -176,14 +199,14 @@ export default function ImportConfiguration({ data, importFileRender }) {
                   ></Select>
                 </Form.Item>
                 <Form.Item
-                  name={["config", "tableName"]}
+                  name="tableName"
                   rules={[{ required: true }]}
                   label="表名"
                 >
                   <Input className="h-8 text-xs" placeholder="dataset_table" />
                 </Form.Item>
                 <Form.Item
-                  name={["config", "connectionString"]}
+                  name="connectionString"
                   rules={[{ required: true }]}
                   label="连接字符串"
                 >
@@ -196,7 +219,7 @@ export default function ImportConfiguration({ data, importFileRender }) {
             )}
           </div>
         )}
-      </div>
-    </>
+      </Form>
+    </Modal>
   );
 }

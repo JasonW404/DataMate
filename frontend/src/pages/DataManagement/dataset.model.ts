@@ -58,6 +58,7 @@ export interface Dataset {
   quality: number;
   isFavorited?: boolean;
   files?: DatasetFile[];
+  targetLocation?: string;
   annotations?: {
     total: number;
     completed: number;

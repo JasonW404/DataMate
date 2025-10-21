@@ -5,7 +5,7 @@ import {
 } from "../dataset.api";
 import { useEffect, useState } from "react";
 import { Dataset, DatasetType } from "../dataset.model";
-import { App, Button, Drawer, Form } from "antd";
+import { App, Button, Drawer, Form, Modal } from "antd";
 
 export default function EditDataset({
   open,
@@ -69,19 +69,19 @@ export default function EditDataset({
   };
 
   return (
-    <Drawer
+    <Modal
       title={`编辑数据集${data?.name}`}
-      onClose={onClose}
+      onCancel={onClose}
       open={open}
       width={600}
       maskClosable={false}
       footer={
-        <div className="flex gap-2 justify-end p-6">
+        <>
           <Button onClick={onClose}>取消</Button>
           <Button type="primary" onClick={handleSubmit}>
             确定
           </Button>
-        </div>
+        </>
       }
     >
       <Form
@@ -96,6 +96,6 @@ export default function EditDataset({
           hidden={["datasetType"]}
         />
       </Form>
-    </Drawer>
+    </Modal>
   );
 }

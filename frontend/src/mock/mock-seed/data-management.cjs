@@ -16,17 +16,7 @@ function datasetItem() {
   return {
     id: Mock.Random.guid().replace(/[^a-zA-Z0-9]/g, ""),
     name: Mock.Random.ctitle(5, 20),
-    type: Mock.Random.pick([
-      "TEXT_DOCUMENT",
-      "TEXT_WEB",
-      "TEXT_DIALOG",
-      "IMAGE_IMAGE",
-      "IMAGE_CAPTION",
-      "AUDIO_AUDIO",
-      "AUDIO_JSONL",
-      "VIDEO_VIDEO",
-      "VIDEO_JSONL",
-    ]),
+    type: Mock.Random.pick(["TEXT", "IMAGE", "AUDIO", "VIDEO"]),
     status: Mock.Random.pick(["ACTIVE", "INACTIVE", "PROCESSING"]),
     tags: Mock.Random.shuffle(tagList).slice(0, Mock.Random.integer(1, 3)),
     totalSize: Mock.Random.integer(1024, 1024 * 1024 * 1024), // in bytes

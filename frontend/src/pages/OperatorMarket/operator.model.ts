@@ -35,6 +35,6 @@ export interface CategoryI {
 export interface CategoryTreeI {
   id: string;
   name: string;
-  count: string;
+  count: number;
   categories: CategoryI[];
 }
