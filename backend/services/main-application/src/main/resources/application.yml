@@ -1,7 +1,7 @@
 # 数据引擎平台 - 主应用配置
 spring:
   application:
-    name: data-engine-platform
+    name: data-meta-platform
 
   # 暂时排除Spring Security自动配置（开发阶段使用）
   autoconfigure:
@@ -12,7 +12,7 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:3306/dataengine?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql:3306/datameta?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:Huawei@123}
     hikari:
@@ -110,10 +110,10 @@ management:
 
 
 # 平台配置
-dataengine:
+datameta:
   # JWT配置
   jwt:
-    secret: ${JWT_SECRET:dataEngineSecretKey2024ForJWTTokenGeneration}
+    secret: ${JWT_SECRET:dataMetaSecretKey2024ForJWTTokenGeneration}
     expiration: ${JWT_EXPIRATION:86400} # 24小时，单位秒
     header: Authorization
     prefix: "Bearer "
@@ -127,7 +127,7 @@ dataengine:
       endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
       access-key: ${MINIO_ACCESS_KEY:minioadmin}
       secret-key: ${MINIO_SECRET_KEY:minioadmin}
-      bucket-name: ${MINIO_BUCKET:data-engine}
+      bucket-name: ${MINIO_BUCKET:data-meta}
 
   # Ray执行器配置
   ray:

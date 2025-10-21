@@ -30,7 +30,7 @@ RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debia
     apt-get clean && \
     rm -rf /var/lib/apy/lists/*
 
-COPY --from=builder /opt/backend/services/main-application/target/data-engine.jar /opt/backend/data-engine.jar
+COPY --from=builder /opt/backend/services/main-application/target/data-meta.jar /opt/backend/data-meta.jar
 COPY --from=datax-builder /DataX/target/datax/datax /opt/datax
 
 COPY editions/community/config/application.yml /opt/backend/application.yml
@@ -41,4 +41,4 @@ RUN chmod +x /opt/backend/start.sh
 
 ENTRYPOINT ["/opt/backend/start.sh"]
 
-CMD ["java", "-jar", "/opt/backend/data-engine.jar"]
+CMD ["java", "-jar", "/opt/backend/data-meta.jar"]

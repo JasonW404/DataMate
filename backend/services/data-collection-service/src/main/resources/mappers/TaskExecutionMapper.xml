@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dataengine.collection.infrastructure.persistence.mapper.TaskExecutionMapper">
+<mapper namespace="com.datameta.collection.infrastructure.persistence.mapper.TaskExecutionMapper">
 
     <!-- Result Map -->
-    <resultMap id="TaskExecutionResultMap" type="com.dataengine.collection.domain.model.TaskExecution">
+    <resultMap id="TaskExecutionResultMap" type="com.datameta.collection.domain.model.TaskExecution">
         <id property="id" column="id"/>
         <result property="taskId" column="task_id"/>
         <result property="taskName" column="task_name"/>
@@ -35,7 +35,7 @@
     </sql>
 
     <!-- Insert -->
-    <insert id="insert" parameterType="com.dataengine.collection.domain.model.TaskExecution">
+    <insert id="insert" parameterType="com.datameta.collection.domain.model.TaskExecution">
         INSERT INTO t_dc_task_executions (
             id, task_id, task_name, status, progress, records_total, records_processed,
             records_success, records_failed, throughput, data_size_bytes, started_at,
@@ -48,7 +48,7 @@
     </insert>
 
     <!-- Update -->
-    <update id="update" parameterType="com.dataengine.collection.domain.model.TaskExecution">
+    <update id="update" parameterType="com.datameta.collection.domain.model.TaskExecution">
         UPDATE t_dc_task_executions 
         SET status = #{status},
             progress = #{progress},

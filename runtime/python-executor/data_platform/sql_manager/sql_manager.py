@@ -25,7 +25,7 @@ class SQLManager:
             password=os.getenv("MYSQL_PASSWORD", "Huawei@123"),
             host=os.getenv("MYSQL_HOST", "mysql"),
             port=os.getenv("MYSQL_PORT", 3306),
-            database=os.getenv("MYSQL_DATABASE", "dataengine"),
+            database=os.getenv("MYSQL_DATABASE", "datameta"),
             query={"charset": "utf8mb4"},
         )
 

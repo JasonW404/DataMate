@@ -1,4 +1,4 @@
-# Data-Engine 一站式数据工作平台架构设计
+# DataMeta 一站式数据工作平台架构设计
 
 ## 整体目录结构
 
@@ -6,7 +6,7 @@
 基于"六大核心模块 + DDD分层 + 双版本（开源/商业）"的完整目录组织：
 
 ```
-data-engine-platform/
+data-meta-platform/
 ├── docs/                               # 📖 文档中心
 │   ├── architecture/                   # 架构与设计文档
 │   │   ├── 一站式数据工作平台特性设计.md
@@ -26,7 +26,7 @@ data-engine-platform/
 │
 ├── backend/                            # 🔧 后端服务架构
 │   ├── api-gateway/                   # API网关微服务 (独立部署)
-│   │   ├── src/main/java/com/dataengine/gateway/
+│   │   ├── src/main/java/com/datameta/gateway/
 │   │   │   ├── auth/                  # 认证授权模块
 │   │   │   ├── routing/               # 路由转发模块
 │   │   │   ├── filter/                # 过滤器链
@@ -46,7 +46,7 @@ data-engine-platform/
 |   │   │   └── execution-engine.yaml
 │   ├── services/                      # 业务服务目录
 │   │   ├── main-application/          # 主应用微服务 (聚合器)
-│   │   │   ├── src/main/java/com/dataengine/
+│   │   │   ├── src/main/java/com/datameta/
 │   │   │   └── pom.xml               # 依赖所有业务服务JAR
 │   │   │
 │   │   ├── data-management-service/   # 数据管理服务 (JAR包)
@@ -94,7 +94,7 @@ data-engine-platform/
 │
 ├── deployment/                         # 🐳 部署与环境
 │   ├── docker/                        # 通用Dockerfile与Compose模版
-│   │   └── data-platform
+│   │   └── data-meta
 │   │       └── docker-compose.yml
 │   ├── kubernetes/                    # 通用K8s清单
 │   │   └── backend
@@ -334,8 +334,8 @@ API规范管理
 API代码生成工作流
 1. 读取OpenAPI YAML规范文件
 2. 使用openapi-generator-maven-plugin生成:
-   - 接口定义 (com.dataengine.*.interfaces.api)
-   - DTO类 (com.dataengine.*.interfaces.dto)
+   - 接口定义 (com.datameta.*.interfaces.api)
+   - DTO类 (com.datameta.*.interfaces.dto)
    - 客户端SDK (可选)
 3. 输出到各服务的target/generated-sources/
 4. 集成到Maven编译流程
@@ -593,30 +593,31 @@ CI/CD流水线
 每个JAR包服务都配置了openapi-generator-maven-plugin：
 
 ```xml
+
 <plugin>
-    <groupId>org.openapitools</groupId>
-    <artifactId>openapi-generator-maven-plugin</artifactId>
-    <version>6.6.0</version>
-    <executions>
-        <execution>
-            <goals>
-                <goal>generate</goal>
-            </goals>
-            <configuration>
-                <inputSpec>${project.basedir}/../../../openapi/specs/${service-name}.yaml</inputSpec>
-                <generatorName>spring</generatorName>
-                <output>${project.build.directory}/generated-sources/openapi</output>
-                <apiPackage>com.dataengine.${package}.interfaces.api</apiPackage>
-                <modelPackage>com.dataengine.${package}.interfaces.dto</modelPackage>
-                <configOptions>
-                    <interfaceOnly>true</interfaceOnly>
-                    <useTags>true</useTags>
-                    <useSpringBoot3>true</useSpringBoot3>
-                    <documentationProvider>springdoc</documentationProvider>
-                </configOptions>
-            </configuration>
-        </execution>
-    </executions>
+   <groupId>org.openapitools</groupId>
+   <artifactId>openapi-generator-maven-plugin</artifactId>
+   <version>6.6.0</version>
+   <executions>
+      <execution>
+         <goals>
+            <goal>generate</goal>
+         </goals>
+         <configuration>
+            <inputSpec>${project.basedir}/../../../openapi/specs/${service-name}.yaml</inputSpec>
+            <generatorName>spring</generatorName>
+            <output>${project.build.directory}/generated-sources/openapi</output>
+            <apiPackage>com.datameta.${package}.interfaces.api</apiPackage>
+            <modelPackage>com.datameta.${package}.interfaces.dto</modelPackage>
+            <configOptions>
+               <interfaceOnly>true</interfaceOnly>
+               <useTags>true</useTags>
+               <useSpringBoot3>true</useSpringBoot3>
+               <documentationProvider>springdoc</documentationProvider>
+            </configOptions>
+         </configuration>
+      </execution>
+   </executions>
 </plugin>
 ```
 
@@ -634,8 +635,8 @@ CI/CD流水线
 @SpringBootApplication
 @EnableFeignClients
 @ComponentScan(basePackages = {
-    "com.dataengine.annotation",
-    "com.dataengine.shared"
+    "com.datameta.annotation",
+    "com.datameta.shared"
 })
 public class DataAnnotationServiceConfiguration {
     // Service configuration class for JAR packaging
@@ -648,17 +649,17 @@ Main Application通过依赖和ComponentScan聚合所有JAR包服务：
 ```java
 @SpringBootApplication
 @ComponentScan(basePackages = {
-    "com.dataengine.datamanagement",
-    "com.dataengine.collection",
-    "com.dataengine.operator",
-    "com.dataengine.cleaning",
-    "com.dataengine.synthesis",
-    "com.dataengine.annotation",
-    "com.dataengine.evaluation",
-    "com.dataengine.pipeline",
-    "com.dataengine.execution",
-    "com.dataengine.rag",
-    "com.dataengine.shared"
+    "com.datameta.datamanagement",
+    "com.datameta.collection",
+    "com.datameta.operator",
+    "com.datameta.cleaning",
+    "com.datameta.synthesis",
+    "com.datameta.annotation",
+    "com.datameta.evaluation",
+    "com.datameta.pipeline",
+    "com.datameta.execution",
+    "com.datameta.rag",
+    "com.datameta.shared"
 })
 public class MainApplication {
     public static void main(String[] args) {
