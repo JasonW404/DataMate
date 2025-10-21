@@ -112,7 +112,7 @@ const TagManager: React.FC = ({
   onFetch: () => Promise<any>;
   onCreate: (tag: Pick<TagItem, "name">) => Promise<{ ok: boolean }>;
   onDelete: (tagId: number) => Promise<{ ok: boolean }>;
-  onUpdate: (oldTagId: number, newTag: string) => Promise<{ ok: boolean }>;
+  onUpdate: (tag: TagItem) => Promise<{ ok: boolean }>;
 }) => {
   const [showTagManager, setShowTagManager] = useState(false);
   const { message } = App.useApp();
@@ -161,7 +161,7 @@ const TagManager: React.FC = ({
 
   const updateTag = async (oldTag: TagItem, newTag: string) => {
     try {
-      await onUpdate?.(oldTag.id, { ...oldTag, name: newTag });
+      await onUpdate?.({ ...oldTag, name: newTag });
       fetchTags();
       message.success("标签更新成功");
     } catch (error) {
