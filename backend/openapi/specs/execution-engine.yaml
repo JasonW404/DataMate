@@ -4,8 +4,7 @@ info:
   description: 执行引擎服务API - 与Ray/DataX/Python执行器对接
   version: 1.0.0
   contact:
-    name: Data Engine Platform Team
-    email: dev@dataengine.com
+    name: Data Meta Platform Team
 
 servers:
   - url: http://localhost:8088

@@ -26,11 +26,11 @@ spec:
         - containerPort: 8000
         volumeMounts:
         - name: tmp
-          mountPath: /tmp/data-platform
+          mountPath: /tmp/data-meta
       volumes:
       - name: tmp
         hostPath:
-          path: /tmp/data-platform
+          path: /tmp/data-meta
 
 ---
 apiVersion: v1

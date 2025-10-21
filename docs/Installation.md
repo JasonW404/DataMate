@@ -10,7 +10,7 @@
 
 ```bash
 # 拉取代码
-git clone git@github.com:ModelEngine-Group/data-platform.git
+git clone git@github.com:ModelEngine-Group/data-meta.git
 ```
 
 ## 镜像构建

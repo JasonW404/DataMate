@@ -6,15 +6,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.dataengine</groupId>
-        <artifactId>data-engine-platform</artifactId>
+        <groupId>com.datameta</groupId>
+        <artifactId>data-meta-platform</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>main-application</artifactId>
     <packaging>jar</packaging>
-    <name>Data Engine Platform - Main Application</name>
+    <name>Data Meta Platform - Main Application</name>
     <description>主启动应用，集成所有服务模</description>
 
     <dependencies>
@@ -35,12 +35,12 @@
 
       <!-- 共享库依赖 -->
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>domain-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>security-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -53,59 +53,59 @@
 
         <!-- 核心服务依赖 -->
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>data-management-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>data-collection-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>operator-market-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>data-cleaning-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>data-synthesis-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>data-annotation-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>data-evaluation-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>pipeline-orchestration-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>execution-engine-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- RAG服务依赖 -->
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>rag-indexer-service</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>rag-query-service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -151,8 +151,8 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <finalName>data-engine</finalName>
-                    <mainClass>com.dataengine.main.DataEnginePlatformApplication</mainClass>
+                    <finalName>data-meta</finalName>
+                    <mainClass>com.datameta.main.DataMetaPlatformApplication</mainClass>
                 </configuration>
                 <executions>
                   <execution>

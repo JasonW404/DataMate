@@ -4,8 +4,7 @@ info:
   description: 数据评估服务API - 质量、适配性、价值评估
   version: 1.0.0
   contact:
-    name: Data Engine Platform Team
-    email: dev@dataengine.com
+    name: Data Meta Platform Team
 
 servers:
   - url: http://localhost:8086

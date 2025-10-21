@@ -5,6 +5,7 @@
 # 在各个服务的pom.xml中添加以下插件配置：
 
 ```xml
+
 <plugin>
     <groupId>org.openapitools</groupId>
     <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -18,8 +19,8 @@
                 <inputSpec>${project.basedir}/../../openapi/specs/${project.artifactId}.yaml</inputSpec>
                 <generatorName>spring</generatorName>
                 <output>${project.build.directory}/generated-sources/openapi</output>
-                <apiPackage>com.dataengine.${project.name}.interfaces.api</apiPackage>
-                <modelPackage>com.dataengine.${project.name}.interfaces.dto</modelPackage>
+                <apiPackage>com.datameta.${project.name}.interfaces.api</apiPackage>
+                <modelPackage>com.datameta.${project.name}.interfaces.dto</modelPackage>
                 <configOptions>
                     <interfaceOnly>true</interfaceOnly>
                     <useTags>true</useTags>
@@ -50,8 +51,8 @@ openApiGenerate {
     generatorName = "spring"
     inputSpec = "$rootDir/openapi/specs/${project.name}.yaml"
     outputDir = "$buildDir/generated-sources/openapi"
-    apiPackage = "com.dataengine.${project.name}.interfaces.api"
-    modelPackage = "com.dataengine.${project.name}.interfaces.dto"
+    apiPackage = "com.datameta.${project.name}.interfaces.api"
+    modelPackage = "com.datameta.${project.name}.interfaces.dto"
     configOptions = [
         interfaceOnly: "true",
         useTags: "true",
@@ -79,7 +80,7 @@ openapi-generator-cli generate \
   -i openapi/specs/data-annotation-service.yaml \
   -g typescript-axios \
   -o frontend/packages/api-client/src/generated/annotation \
-  --additional-properties=supportsES6=true,npmName=@dataengine/annotation-api,npmVersion=1.0.0
+  --additional-properties=supportsES6=true,npmName=@datameta/annotation-api,npmVersion=1.0.0
 ```
 
 ## Usage in Services

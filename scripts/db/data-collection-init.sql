@@ -1,7 +1,7 @@
 -- 数据归集服务数据库初始化脚本
--- 适用于dataengine数据库
+-- 适用于datameta数据库
 
-USE dataengine;
+USE datameta;
 
 -- =====================================
 -- DDL语句 - 数据库表结构定义
