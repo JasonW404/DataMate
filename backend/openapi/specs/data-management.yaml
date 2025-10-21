@@ -613,7 +613,7 @@ components:
         fileType:
           type: string
           description: 文件类型
-        size:
+        fileSize:
           type: integer
           format: int64
           description: 文件大小（字节）
@@ -627,7 +627,7 @@ components:
         filePath:
           type: string
           description: 文件路径
-        uploadedAt:
+        uploadTime:
           type: string
           format: date-time
           description: 上传时间

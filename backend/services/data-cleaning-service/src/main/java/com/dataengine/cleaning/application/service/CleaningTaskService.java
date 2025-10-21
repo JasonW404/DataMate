@@ -9,6 +9,7 @@ import com.dataengine.cleaning.domain.model.ExecutorType;
 import com.dataengine.cleaning.domain.model.OperatorInstancePo;
 import com.dataengine.cleaning.domain.model.PagedDatasetFileResponse;
 import com.dataengine.cleaning.domain.model.TaskProcess;
+import com.dataengine.cleaning.infrastructure.persistence.mapper.CleaningResultMapper;
 import com.dataengine.cleaning.infrastructure.persistence.mapper.CleaningTaskMapper;
 import com.dataengine.cleaning.infrastructure.persistence.mapper.OperatorInstanceMapper;
 import com.dataengine.cleaning.interfaces.dto.CleaningTask;
@@ -43,6 +44,8 @@ public class CleaningTaskService {
     private final CleaningTaskMapper cleaningTaskMapper;
 
     private final OperatorInstanceMapper operatorInstanceMapper;
+
+    private final CleaningResultMapper cleaningResultMapper;
 
     private final CleaningTaskScheduler taskScheduler;
 
@@ -94,6 +97,8 @@ public class CleaningTaskService {
     @Transactional
     public void deleteTask(String taskId) {
         cleaningTaskMapper.deleteTask(taskId);
+        operatorInstanceMapper.deleteByInstanceId(taskId);
+        cleaningResultMapper.deleteByInstanceId(taskId);
     }
 
     public void executeTask(String taskId) {
@@ -143,7 +148,7 @@ public class CleaningTaskService {
             }
             List<Map<String, Object>> files = datasetFile.getContent().stream()
                     .map(content -> Map.of("fileName", (Object) content.getFileName(),
-                            "fileSize", content.getSize(),
+                            "fileSize", content.getFileSize(),
                             "filePath", content.getFilePath(),
                             "fileType", content.getFileType(),
                             "fileId", content.getId()))

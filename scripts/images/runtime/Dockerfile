@@ -5,16 +5,20 @@ COPY runtime/ops /opt/runtime/data_platform/ops
 
 ENV PYTHONPATH=/opt/runtime/data_platform/
 
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources \
+RUN sed -i 's/deb.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list.d/debian.sources \
     && apt update \
-    && apt install -y libgl1 libglib2.0-0 vim \
+    && apt install -y libgl1 libglib2.0-0 vim poppler-utils tesseract-ocr tesseract-ocr-chi-sim libmagic1t64 \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/runtime
 
+ENV HF_HUB_DISABLE_XET=1
+
 RUN pip install -e . -i https://mirrors.huaweicloud.com/repository/pypi/simple \
     && pip install -r /opt/runtime/data_platform/ops/requirements.txt -i https://mirrors.huaweicloud.com/repository/pypi/simple \
-    && pip cache purge
+    && pip cache purge \
+    && python -c "from unstructured.nlp.tokenize import download_nltk_packages; download_nltk_packages()" \
+    && python -c "from unstructured_inference.models.base import get_model; get_model()"
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime

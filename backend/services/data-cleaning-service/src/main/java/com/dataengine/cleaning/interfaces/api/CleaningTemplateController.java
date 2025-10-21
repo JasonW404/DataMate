@@ -35,12 +35,13 @@ public class CleaningTemplateController {
             @RequestParam(value = "keywords", required = false) String keyword) {
         List<CleaningTemplate> templates = cleaningTemplateService.getTemplates(keyword);
         if (page == null || size == null) {
-            return ResponseEntity.ok(Response.ok(PagedResponse.of(templates)));
+            return ResponseEntity.ok(Response.ok(PagedResponse.of(templates.stream()
+                    .sorted(Comparator.comparing(CleaningTemplate::getCreatedAt).reversed()).toList())));
         }
         int count = templates.size();
         int totalPages = (count + size + 1) / size;
         List<CleaningTemplate> limitTemplates = templates.stream()
-                .sorted(Comparator.comparing(CleaningTemplate::getCreatedAt))
+                .sorted(Comparator.comparing(CleaningTemplate::getCreatedAt).reversed())
                 .skip((long) page * size)
                 .limit(size).toList();
         return ResponseEntity.ok(Response.ok(PagedResponse.of(limitTemplates, page, count, totalPages)));

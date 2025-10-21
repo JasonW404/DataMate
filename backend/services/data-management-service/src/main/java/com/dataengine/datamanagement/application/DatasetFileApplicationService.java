@@ -224,6 +224,7 @@ public class DatasetFileApplicationService {
      *
      * @param uploadFileRequest 上传请求
      */
+    @Transactional
     public void chunkUpload(String datasetId, UploadFileRequest uploadFileRequest) {
         FileUploadResult uploadResult = fileService.chunkUpload(DatasetConverter.INSTANCE.toChunkUploadRequest(uploadFileRequest));
         saveFileInfoToDb(uploadResult, uploadFileRequest, datasetId);
@@ -237,6 +238,7 @@ public class DatasetFileApplicationService {
             // 文件切片上传没有完成
             return;
         }
+        Dataset dataset = datasetRepository.getById(datasetId);
         File savedFile = fileUploadResult.getSavedFile();
         LocalDateTime currentTime = LocalDateTime.now();
         DatasetFile datasetFile = DatasetFile.builder()
@@ -251,5 +253,7 @@ public class DatasetFileApplicationService {
             .build();
 
         datasetFileRepository.save(datasetFile);
+        dataset.addFile(datasetFile);
+        datasetRepository.updateById(dataset);
     }
 }

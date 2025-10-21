@@ -4,9 +4,13 @@
     <insert id="insertInstance">
         INSERT INTO t_operator_instance(instance_id, operator_id, op_index, settings_override)
         VALUES
-        <foreach collection="instances" item="instance" separator="," index="index">
-            (#{instance_id}, #{instance.id}, #{index} + 1, #{instance.overrides})
+        <foreach collection="instances" item="operator" separator="," index="index">
+            (#{instanceId}, #{operator.id}, #{index} + 1, #{operator.overrides})
         </foreach>
     </insert>
 
+    <delete id="deleteByInstanceId">
+        DELETE FROM t_operator_instance
+        WHERE instance_id = #{instanceId};
+    </delete>
 </mapper>

@@ -90,5 +90,6 @@ public class CleaningTemplateService {
     @Transactional
     public void deleteTemplate(String templateId) {
         cleaningTemplateMapper.deleteTemplate(templateId);
+        operatorInstanceMapper.deleteByInstanceId(templateId);
     }
 }
