@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "antd";
-import { FilterOutlined } from "@ant-design/icons";
-import { Plus, Boxes, Filter } from "lucide-react";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
+import { Boxes } from "lucide-react";
 import { SearchControls } from "@/components/SearchControls";
 import CardView from "@/components/CardView";
 import { useNavigate } from "react-router";
@@ -78,11 +78,6 @@ export default function OperatorMarketPage() {
 
   const operations = [
     {
-      key: "view",
-      label: "查看详情",
-      onClick: handleViewOperator,
-    },
-    {
       key: "edit",
       label: "更新算子",
       onClick: handleUpdateOperator,
@@ -115,16 +110,18 @@ export default function OperatorMarketPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex justify-between mb-2">
+      <div className="flex justify-between mb-4">
         <h1 className="text-xl font-bold text-gray-900">算子市场</h1>
-        <div className="flex items-center">
-          <div className="flex gap-2">
-            {/* <TagManagement /> */}
-            <Button type="primary" onClick={handleUploadOperator}>
-              上传算子
-            </Button>
-          </div>
-        </div>
+        {/* <div className="flex gap-2">
+          <TagManagement />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleUploadOperator}
+          >
+            上传算子
+          </Button>
+        </div> */}
       </div>
       {/* Main Content */}
       <div className="flex flex-1 overflow-auto h-full bg-white rounded-lg">
@@ -180,12 +177,7 @@ export default function OperatorMarketPage() {
           ) : (
             <>
               {viewMode === "card" ? (
-                <CardView
-                  data={tableData}
-                  operations={operations}
-                  onView={handleViewOperator}
-                  pagination={pagination}
-                />
+                <CardView data={tableData} pagination={pagination} />
               ) : (
                 <ListView operators={tableData} pagination={pagination} />
               )}

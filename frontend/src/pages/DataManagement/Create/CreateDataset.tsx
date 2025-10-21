@@ -68,7 +68,7 @@ export default function DatasetCreate() {
           </Form>
         </div>
         <div className="flex gap-2 justify-end p-6 border-t border-gray-200">
-          <Button onClick={() => navigate("/dataset-management")}>取消</Button>
+          <Button onClick={() => navigate("/data/management")}>取消</Button>
           <Button type="primary" onClick={handleSubmit}>
             确定
           </Button>

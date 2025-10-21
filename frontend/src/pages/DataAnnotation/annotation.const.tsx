@@ -1,9 +1,13 @@
-import { AnnotationTaskStatus } from "./annotation.interface";
-import React from "react";
+import { StickyNote } from "lucide-react";
+import { AnnotationTask, AnnotationTaskStatus } from "./annotation.model";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
+  CustomerServiceOutlined,
+  FileTextOutlined,
+  PictureOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
 
 export const AnnotationTaskStatusMap = {
@@ -26,3 +30,27 @@ export const AnnotationTaskStatusMap = {
     icon: <CloseCircleOutlined />,
   },
 };
+
+export function mapAnnotationTask(task: AnnotationTask) {
+  return {
+    ...task,
+    id: task.mapping_id,
+    projId: task.labelling_project_id,
+    name: task.labelling_project_name,
+    createdAt: task.created_at,
+    updatedAt: task.last_updated_at,
+    icon: <StickyNote />,
+    iconColor: "bg-blue-100",
+    status: {
+      label:
+        task.status === "completed"
+          ? "已完成"
+          : task.status === "in_progress"
+          ? "进行中"
+          : task.status === "skipped"
+          ? "已跳过"
+          : "待开始",
+      color: "bg-blue-100",
+    },
+  };
+}

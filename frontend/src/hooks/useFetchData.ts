@@ -81,6 +81,7 @@ export default function useFetchData<T>(
       setTableData(result);
       console.log(data, result.map(mapDataFunc));
     } catch (error) {
+      console.log(error)
       message.error("数据获取失败，请稍后重试");
     } finally {
       Loading.hide();

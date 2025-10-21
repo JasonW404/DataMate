@@ -29,10 +29,7 @@ export default function TaskList() {
     {
       key: "status",
       label: "状态",
-      options: [
-        { label: "所有状态", value: "all" },
-        ...Object.values(TaskStatusMap),
-      ],
+      options: [...Object.values(TaskStatusMap)],
     },
   ];
 
@@ -78,14 +75,22 @@ export default function TaskList() {
     const pauseBtn = {
       key: "pause",
       label: "暂停",
-      icon: isRunning ? <PauseCircleOutlined /> : <PlayCircleOutlined />,
+      icon: isRunning ? (
+        <PauseCircleOutlined style={{ color: "#faad14" }} />
+      ) : (
+        <PlayCircleOutlined color="#52c41a" />
+      ),
       onClick: pauseTask, // implement pause/play logic
     };
 
     const startBtn = {
       key: "start",
       label: "启动",
-      icon: isRunning ? <PauseCircleOutlined /> : <PlayCircleOutlined />,
+      icon: isRunning ? (
+        <PauseCircleOutlined style={{ color: "#faad14" }} />
+      ) : (
+        <PlayCircleOutlined style={{ color: "#52c41a" }} />
+      ),
       onClick: startTask, // implement pause/play logic
     };
     return [
@@ -94,7 +99,7 @@ export default function TaskList() {
       {
         key: "delete",
         label: "删除",
-        icon: <DeleteOutlined />,
+        icon: <DeleteOutlined style={{ color: "#f5222d" }} />,
         onClick: deleteTask, // implement delete logic
       },
     ];
@@ -107,9 +112,6 @@ export default function TaskList() {
       key: "name",
       fixed: "left",
       width: 150,
-      render: (text: string, record: any) => (
-        <a onClick={() => handleViewTask(record)}>{text}</a>
-      ),
     },
     {
       title: "源数据集",
@@ -245,9 +247,6 @@ export default function TaskList() {
         <CardView
           data={tableData}
           operations={taskOperations}
-          onView={(item) =>
-            handleViewTask(tableData.find((t) => t.id === item.id))
-          }
           pagination={pagination}
         />
       ) : (
