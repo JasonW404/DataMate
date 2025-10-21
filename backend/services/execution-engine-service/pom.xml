@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.datameta</groupId>
-        <artifactId>data-meta-platform</artifactId>
+        <groupId>com.datamate</groupId>
+        <artifactId>data-mate-platform</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
@@ -18,7 +18,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.datameta</groupId>
+            <groupId>com.datamate</groupId>
             <artifactId>domain-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -77,8 +77,8 @@
                             <inputSpec>${project.basedir}/../../openapi/specs/execution-engine.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <output>${project.build.directory}/generated-sources/openapi</output>
-                            <apiPackage>com.datameta.execution.interfaces.api</apiPackage>
-                            <modelPackage>com.datameta.execution.interfaces.dto</modelPackage>
+                            <apiPackage>com.datamate.execution.interfaces.api</apiPackage>
+                            <modelPackage>com.datamate.execution.interfaces.dto</modelPackage>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
                                 <useTags>true</useTags>

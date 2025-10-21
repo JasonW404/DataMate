@@ -1,7 +1,7 @@
 -- 数据归集服务数据库初始化脚本
--- 适用于datameta数据库
+-- 适用于datamate数据库
 
-USE datameta;
+USE datamate;
 
 CREATE TABLE IF NOT EXISTS `t_chunk_upload_request`
 (

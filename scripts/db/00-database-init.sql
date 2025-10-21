@@ -1,1 +1,1 @@
-create database if not exists datameta;
+create database if not exists datamate;

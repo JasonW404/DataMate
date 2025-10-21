@@ -4,7 +4,7 @@ info:
   description: 数据合成服务API - 指令、COT蒸馏、多模态合成
   version: 1.0.0
   contact:
-    name: Data Meta Platform Team
+    name: Data Mate Platform Team
 
 servers:
   - url: http://localhost:8085

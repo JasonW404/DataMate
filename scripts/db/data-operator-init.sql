@@ -1,4 +1,4 @@
-USE datameta;
+USE datamate;
 
 CREATE TABLE IF NOT EXISTS t_operator
 (

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.datameta.collection.infrastructure.persistence.mapper.TaskExecutionMapper">
+<mapper namespace="com.datamate.collection.infrastructure.persistence.mapper.TaskExecutionMapper">
 
     <!-- Result Map -->
-    <resultMap id="TaskExecutionResultMap" type="com.datameta.collection.domain.model.TaskExecution">
+    <resultMap id="TaskExecutionResultMap" type="com.datamate.collection.domain.model.TaskExecution">
         <id property="id" column="id"/>
         <result property="taskId" column="task_id"/>
         <result property="taskName" column="task_name"/>
@@ -35,7 +35,7 @@
     </sql>
 
     <!-- Insert -->
-    <insert id="insert" parameterType="com.datameta.collection.domain.model.TaskExecution">
+    <insert id="insert" parameterType="com.datamate.collection.domain.model.TaskExecution">
         INSERT INTO t_dc_task_executions (
             id, task_id, task_name, status, progress, records_total, records_processed,
             records_success, records_failed, throughput, data_size_bytes, started_at,
@@ -48,8 +48,8 @@
     </insert>
 
     <!-- Update -->
-    <update id="update" parameterType="com.datameta.collection.domain.model.TaskExecution">
-        UPDATE t_dc_task_executions 
+    <update id="update" parameterType="com.datamate.collection.domain.model.TaskExecution">
+        UPDATE t_dc_task_executions
         SET status = #{status},
             progress = #{progress},
             records_total = #{recordsTotal},
@@ -142,7 +142,7 @@
 
     <!-- Update Status and Progress -->
     <update id="updateProgress">
-        UPDATE t_dc_task_executions 
+        UPDATE t_dc_task_executions
         SET status = #{status},
             progress = #{progress},
             records_processed = #{recordsProcessed},
@@ -152,7 +152,7 @@
 
     <!-- Complete Execution -->
     <update id="completeExecution">
-        UPDATE t_dc_task_executions 
+        UPDATE t_dc_task_executions
         SET status = #{status},
             progress = 100.00,
             completed_at = #{completedAt},
@@ -184,7 +184,7 @@
 
     <!-- Delete Old Executions -->
     <delete id="deleteOldExecutions">
-        DELETE FROM t_dc_task_executions 
+        DELETE FROM t_dc_task_executions
         WHERE started_at &lt; #{beforeDate}
     </delete>
 

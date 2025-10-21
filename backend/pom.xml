@@ -5,12 +5,12 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.datameta</groupId>
-    <artifactId>data-meta-platform</artifactId>
+    <groupId>com.datamate</groupId>
+    <artifactId>data-mate-platform</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>DataMeta Platform</name>
+    <name>DataMatePlatform</name>
     <description>一站式数据工作平台，面向模型微调与RAG检索</description>
 
     <properties>

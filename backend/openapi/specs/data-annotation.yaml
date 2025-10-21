@@ -4,7 +4,7 @@ info:
   description: 数据标注服务API - 智能预标注、人工平台、主动学习
   version: 1.0.0
   contact:
-    name: Data Meta Platform Team
+    name: Data Mate Platform Team
 
 servers:
   - url: http://localhost:8080

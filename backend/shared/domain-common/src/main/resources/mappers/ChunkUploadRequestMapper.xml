@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.datameta.common.infrastructure.mapper.ChunkUploadRequestMapper">
+<mapper namespace="com.datamate.common.infrastructure.mapper.ChunkUploadRequestMapper">
 
-    <resultMap id="ChunkUploadRequestResultMap" type="com.datameta.common.domain.model.ChunkUploadPreRequest">
+    <resultMap id="ChunkUploadRequestResultMap" type="com.datamate.common.domain.model.ChunkUploadPreRequest">
         <id column="id" property="id"/>
         <result column="total_file_num" property="totalFileNum"/>
         <result column="uploaded_file_num" property="uploadedFileNum"/>
@@ -36,7 +36,7 @@
         ORDER BY timeout DESC
     </select>
 
-    <insert id="insert" parameterType="com.datameta.common.domain.model.ChunkUploadPreRequest">
+    <insert id="insert" parameterType="com.datamate.common.domain.model.ChunkUploadPreRequest">
         INSERT INTO t_chunk_upload_request (
             id, total_file_num, uploaded_file_num, upload_path, timeout, service_id, check_info
         ) VALUES (
@@ -44,7 +44,7 @@
         )
     </insert>
 
-    <update id="update" parameterType="com.datameta.common.domain.model.ChunkUploadPreRequest">
+    <update id="update" parameterType="com.datamate.common.domain.model.ChunkUploadPreRequest">
         UPDATE t_chunk_upload_request
         SET total_file_num = #{totalFileNum},
             uploaded_file_num = #{uploadedFileNum},

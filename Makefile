@@ -26,7 +26,7 @@ else
 endif
 
 .PHONY: install
-install: install-data-meta
+install: install-data-mate
 
 .PHONY: uninstall-%
 uninstall-%:
@@ -47,7 +47,7 @@ else
 endif
 
 .PHONY: uninstall
-uninstall: uninstall-data-meta
+uninstall: uninstall-data-mate
 
 # build
 .PHONY: mineru-docker-build
@@ -80,27 +80,27 @@ runtime-docker-build:
 
 .PHONY: backend-docker-install
 backend-docker-install:
-	cd deployment/docker/data-meta && docker-compose up -d backend
+	cd deployment/docker/data-mate && docker-compose up -d backend
 
 .PHONY: backend-docker-uninstall
 backend-docker-uninstall:
-	cd deployment/docker/data-meta && docker-compose down backend
+	cd deployment/docker/data-mate && docker-compose down backend
 
 .PHONY: frontend-docker-install
 frontend-docker-install:
-	cd deployment/docker/data-meta && docker-compose up -d frontend
+	cd deployment/docker/data-mate && docker-compose up -d frontend
 
 .PHONY: frontend-docker-uninstall
 frontend-docker-uninstall:
-	cd deployment/docker/data-meta && docker-compose down frontend
+	cd deployment/docker/data-mate && docker-compose down frontend
 
 .PHONY: runtime-docker-install
 runtime-docker-install:
-	cd deployment/docker/data-meta && docker-compose up -d runtime
+	cd deployment/docker/data-mate && docker-compose up -d runtime
 
 .PHONY: runtime-docker-uninstall
 runtime-docker-uninstall:
-	cd deployment/docker/data-meta && docker-compose down runtime
+	cd deployment/docker/data-mate && docker-compose down runtime
 
 .PHONY: runtime-k8s-install
 runtime-k8s-install:
@@ -146,16 +146,16 @@ frontend-k8s-install:
 frontend-k8s-uninstall:
 	kubectl delete -f deployment/kubernetes/frontend/deploy.yaml
 
-.PHONY: data-meta-docker-install
-data-meta-docker-install:
-	cd deployment/docker/data-meta && docker-compose up -d
+.PHONY: data-mate-docker-install
+data-mate-docker-install:
+	cd deployment/docker/data-mate && docker-compose up -d
 
-.PHONY: data-meta-docker-uninstall
-data-meta-docker-uninstall:
-	cd deployment/docker/data-meta && docker-compose down
+.PHONY: data-mate-docker-uninstall
+data-mate-docker-uninstall:
+	cd deployment/docker/data-mate && docker-compose down
 
-.PHONY: data-meta-k8s-install
-data-meta-k8s-install: mysql-k8s-install backend-k8s-install frontend-k8s-install runtime-k8s-install
+.PHONY: data-mate-k8s-install
+data-mate-k8s-install: mysql-k8s-install backend-k8s-install frontend-k8s-install runtime-k8s-install
 
-.PHONY: data-meta-k8s-uninstall
-data-meta-k8s-uninstall: mysql-k8s-uninstall backend-k8s-uninstall frontend-k8s-uninstall runtime-k8s-uninstall
+.PHONY: data-mate-k8s-uninstall
+data-mate-k8s-uninstall: mysql-k8s-uninstall backend-k8s-uninstall frontend-k8s-uninstall runtime-k8s-uninstall

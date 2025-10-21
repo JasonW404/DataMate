@@ -1,8 +1,8 @@
--- DataMeta Platform 数据库初始化脚本
--- 适用于现有datameta数据库环境
+-- DataMate Platform 数据库初始化脚本
+-- 适用于现有datamate数据库环境
 
--- 使用现有的datameta数据库
-USE datameta;
+-- 使用现有的datamate数据库
+USE datamate;
 
 -- 删除已存在的表（如果需要重新创建）
 -- 原有表名保留，但本脚本新建以 t_dm_ 为前缀的新表，并使用 UUID 主键
@@ -139,8 +139,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 插入默认用户
 INSERT IGNORE INTO users (username, email, password_hash, full_name, role, organization) VALUES
-('admin', 'admin@datameta.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7q7U3.XUO', '系统管理员', 'ADMIN', 'DataMeta'),
-('knowledge_user', 'knowledge@datameta.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7q7U3.XUO', '知识库用户', 'USER', '三甲医院');
+('admin', 'admin@datamate.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7q7U3.XUO', '系统管理员', 'ADMIN', 'DataMate'),
+('knowledge_user', 'knowledge@datamate.com', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7q7U3.XUO', '知识库用户', 'USER', '三甲医院');
 
 -- 创建视图：数据集统计摘要（引用新表）
 CREATE OR REPLACE VIEW v_dm_dataset_summary AS

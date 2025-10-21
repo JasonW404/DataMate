@@ -1,4 +1,4 @@
-# DataMeta 一站式数据工作平台架构设计
+# DataMate 一站式数据工作平台架构设计
 
 ## 整体目录结构
 
@@ -6,7 +6,7 @@
 基于"六大核心模块 + DDD分层 + 双版本（开源/商业）"的完整目录组织：
 
 ```
-data-meta-platform/
+data-mate-platform/
 ├── docs/                               # 📖 文档中心
 │   ├── architecture/                   # 架构与设计文档
 │   │   ├── 一站式数据工作平台特性设计.md
@@ -15,7 +15,7 @@ data-meta-platform/
 │   │   ├── 部署配置方案.md
 │   │   └── 部署视图总结.md
 │   ├── api/                           # API文档 (OpenAPI/Swagger)
-│   ├── user-guide/                    # 用户/运维/开发指南  
+│   ├── user-guide/                    # 用户/运维/开发指南
 │   ├──operator-performance/                        # 算子性能报告
 │   └── ops/                           # 运维规程与应急预案
 │
@@ -26,7 +26,7 @@ data-meta-platform/
 │
 ├── backend/                            # 🔧 后端服务架构
 │   ├── api-gateway/                   # API网关微服务 (独立部署)
-│   │   ├── src/main/java/com/datameta/gateway/
+│   │   ├── src/main/java/com/datamate/gateway/
 │   │   │   ├── auth/                  # 认证授权模块
 │   │   │   ├── routing/               # 路由转发模块
 │   │   │   ├── filter/                # 过滤器链
@@ -46,7 +46,7 @@ data-meta-platform/
 |   │   │   └── execution-engine.yaml
 │   ├── services/                      # 业务服务目录
 │   │   ├── main-application/          # 主应用微服务 (聚合器)
-│   │   │   ├── src/main/java/com/datameta/
+│   │   │   ├── src/main/java/com/datamate/
 │   │   │   └── pom.xml               # 依赖所有业务服务JAR
 │   │   │
 │   │   ├── data-management-service/   # 数据管理服务 (JAR包)
@@ -84,7 +84,7 @@ data-meta-platform/
 │       │── filter/
 │       │── formatter/
 │       │   └── text_formatter
-│       │       ├── __init__.py        # 算子注册 
+│       │       ├── __init__.py        # 算子注册
 │       │       ├── process.py         # 算子实现
 │       │       └── metadata.yml       # 算子元数据
 │       │── llms/
@@ -94,7 +94,7 @@ data-meta-platform/
 │
 ├── deployment/                         # 🐳 部署与环境
 │   ├── docker/                        # 通用Dockerfile与Compose模版
-│   │   └── data-meta
+│   │   └── data-mate
 │   │       └── docker-compose.yml
 │   ├── kubernetes/                    # 通用K8s清单
 │   │   └── backend
@@ -109,9 +109,9 @@ data-meta-platform/
 │       └── config/                    # EE专属应用配置
 │
 ├── scripts/                       # 部署脚本CI/CD钩子
-│   ├── db/                       #  数据库脚本 
+│   ├── db/                       #  数据库脚本
 │   │   └── data-management-init.sql  # 数据管理初始化
-│   └── images/                       #  镜像构建脚本 
+│   └── images/                       #  镜像构建脚本
 │
 ├── README.md                           # 项目说明
 ├── RELEASENOTE.md                        # 更新日志
@@ -260,7 +260,7 @@ Python执行器 (Ray Actor/Job)
 ### DataX集成架构
 位置：`runtime/datax/`
 
-- **社区版**: 作为JAR依赖内置到执行引擎服务 
+- **社区版**: 作为JAR依赖内置到执行引擎服务
 - **企业版**: 独立部署的DataX集群，通过API调用
 - **配置**: 通过`DATAX_HOME`环境变量指定安装目录
 
@@ -334,8 +334,8 @@ API规范管理
 API代码生成工作流
 1. 读取OpenAPI YAML规范文件
 2. 使用openapi-generator-maven-plugin生成:
-   - 接口定义 (com.datameta.*.interfaces.api)
-   - DTO类 (com.datameta.*.interfaces.dto)
+   - 接口定义 (com.datamate.*.interfaces.api)
+   - DTO类 (com.datamate.*.interfaces.dto)
    - 客户端SDK (可选)
 3. 输出到各服务的target/generated-sources/
 4. 集成到Maven编译流程
@@ -607,8 +607,8 @@ CI/CD流水线
             <inputSpec>${project.basedir}/../../../openapi/specs/${service-name}.yaml</inputSpec>
             <generatorName>spring</generatorName>
             <output>${project.build.directory}/generated-sources/openapi</output>
-            <apiPackage>com.datameta.${package}.interfaces.api</apiPackage>
-            <modelPackage>com.datameta.${package}.interfaces.dto</modelPackage>
+            <apiPackage>com.datamate.${package}.interfaces.api</apiPackage>
+            <modelPackage>com.datamate.${package}.interfaces.dto</modelPackage>
             <configOptions>
                <interfaceOnly>true</interfaceOnly>
                <useTags>true</useTags>
@@ -635,8 +635,8 @@ CI/CD流水线
 @SpringBootApplication
 @EnableFeignClients
 @ComponentScan(basePackages = {
-    "com.datameta.annotation",
-    "com.datameta.shared"
+    "com.datamate.annotation",
+    "com.datamate.shared"
 })
 public class DataAnnotationServiceConfiguration {
     // Service configuration class for JAR packaging
@@ -649,17 +649,17 @@ Main Application通过依赖和ComponentScan聚合所有JAR包服务：
 ```java
 @SpringBootApplication
 @ComponentScan(basePackages = {
-    "com.datameta.datamanagement",
-    "com.datameta.collection",
-    "com.datameta.operator",
-    "com.datameta.cleaning",
-    "com.datameta.synthesis",
-    "com.datameta.annotation",
-    "com.datameta.evaluation",
-    "com.datameta.pipeline",
-    "com.datameta.execution",
-    "com.datameta.rag",
-    "com.datameta.shared"
+    "com.datamate.datamanagement",
+    "com.datamate.collection",
+    "com.datamate.operator",
+    "com.datamate.cleaning",
+    "com.datamate.synthesis",
+    "com.datamate.annotation",
+    "com.datamate.evaluation",
+    "com.datamate.pipeline",
+    "com.datamate.execution",
+    "com.datamate.rag",
+    "com.datamate.shared"
 })
 public class MainApplication {
     public static void main(String[] args) {
