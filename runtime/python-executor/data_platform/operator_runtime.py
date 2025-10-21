@@ -15,7 +15,7 @@ from data_platform.scheduler import func_scheduler
 from data_platform.wrappers import WRAPPERS
 
 # 日志配置
-LOG_DIR = "/var/log/data-platform/runtime"
+LOG_DIR = "/var/log/data-meta/runtime"
 os.makedirs(LOG_DIR, exist_ok=True)
 logger.add(
     f"{LOG_DIR}/runtime.log",

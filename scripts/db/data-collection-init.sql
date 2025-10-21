@@ -1,7 +1,7 @@
 -- 数据归集服务数据库初始化脚本
--- 适用于dataengine数据库
+-- 适用于datameta数据库
 
-USE dataengine;
+USE datameta;
 
 -- =====================================
 -- DDL语句 - 数据库表结构定义
@@ -146,68 +146,6 @@ INSERT INTO t_dc_datax_templates (id, name, source_type, target_type, template_c
         )
     )
 ), 'MySQL到MySQL数据同步模板', TRUE, 'system');
-
--- 插入归集任务模拟数据
-INSERT INTO t_dc_collection_tasks (id, name, description, config, schedule_expression, status, retry_count, timeout_seconds, created_by) VALUES
--- 用户数据同步任务
-('54cefc4d-3071-43d9-9fbf-baeb87932acd', '用户数据同步', '从生产环境同步用户表数据到数据仓库', JSON_OBJECT(
-    'source', JSON_OBJECT(
-        'type', 'mysql',
-        'host', '10.0.1.100',
-        'port', 3306,
-        'database', 'business_db',
-        'username', 'datax_user',
-        'password', '${encrypted:prod_password}',
-        'table', 'users',
-        'columns', JSON_ARRAY('id', 'username', 'email', 'created_at', 'updated_at'),
-        'whereCondition', 'status = "ACTIVE"',
-        'splitPk', 'id'
-    ),
-    'target', JSON_OBJECT(
-        'type', 'postgresql',
-        'host', '10.0.3.100',
-        'port', 5432,
-        'database', 'warehouse_db',
-        'username', 'warehouse_user',
-        'password', '${encrypted:pg_password}',
-        'table', 'dim_users',
-        'writeMode', 'insert'
-    ),
-    'settings', JSON_OBJECT(
-        'batchSize', 1000,
-        'parallelism', 3
-    )
-), '0 0 2 * * ?', 'READY', 3, 1800, 'admin'),
-
--- 订单数据增量同步
-('3039a5c8-c894-42ab-ad49-5c2c5eccda31', '订单增量同步', '增量同步订单数据到数据仓库', JSON_OBJECT(
-    'source', JSON_OBJECT(
-        'type', 'mysql',
-        'host', '10.0.1.100',
-        'port', 3306,
-        'database', 'business_db',
-        'username', 'datax_user',
-        'password', '${encrypted:prod_password}',
-        'table', 'orders',
-        'columns', JSON_ARRAY('*'),
-        'incrementalField', 'updated_at',
-        'splitPk', 'id'
-    ),
-    'target', JSON_OBJECT(
-        'type', 'postgresql',
-        'host', '10.0.3.100',
-        'port', 5432,
-        'database', 'warehouse_db',
-        'username', 'warehouse_user',
-        'password', '${encrypted:pg_password}',
-        'table', 'fact_orders',
-        'writeMode', 'insert'
-    ),
-    'settings', JSON_OBJECT(
-        'batchSize', 2000,
-        'parallelism', 2
-    )
-), '0 */30 * * * ?', 'READY', 3, 3600, 'admin');
 
 -- 插入任务执行记录模拟数据
 INSERT INTO t_dc_task_executions (id, task_id, task_name, status, progress, records_total, records_processed, records_success, records_failed, throughput, data_size_bytes, started_at, completed_at, duration_seconds, config) VALUES

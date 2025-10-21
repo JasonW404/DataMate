@@ -29,10 +29,7 @@ export default function TaskList() {
     {
       key: "status",
       label: "状态",
-      options: [
-        { label: "所有状态", value: "all" },
-        ...Object.values(TaskStatusMap),
-      ],
+      options: [...Object.values(TaskStatusMap)],
     },
   ];
 
@@ -94,7 +91,7 @@ export default function TaskList() {
       {
         key: "delete",
         label: "删除",
-        icon: <DeleteOutlined />,
+        icon: <DeleteOutlined style={{ color: "#f5222d" }} />,
         onClick: deleteTask, // implement delete logic
       },
     ];
@@ -107,9 +104,6 @@ export default function TaskList() {
       key: "name",
       fixed: "left",
       width: 150,
-      render: (text: string, record: any) => (
-        <a onClick={() => handleViewTask(record)}>{text}</a>
-      ),
     },
     {
       title: "源数据集",
@@ -227,7 +221,6 @@ export default function TaskList() {
     <>
       {/* Search and Filters */}
       <SearchControls
-        className="mb-4"
         searchTerm={searchParams.keyword}
         onSearchChange={(keyword) =>
           setSearchParams({ ...searchParams, keyword })
@@ -245,9 +238,6 @@ export default function TaskList() {
         <CardView
           data={tableData}
           operations={taskOperations}
-          onView={(item) =>
-            handleViewTask(tableData.find((t) => t.id === item.id))
-          }
           pagination={pagination}
         />
       ) : (

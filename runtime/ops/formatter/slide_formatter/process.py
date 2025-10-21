@@ -33,6 +33,6 @@ class SlideFormatter(Mapper):
             raise TypeError(f"Format not supported: {file_type}. Supported formats are: {', '.join(types_openslide)}.")
 
         file_name = sample[self.filename_key]
-        logger.info("fileName: %s, method: SlideFormatter costs %.6f s", file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: SlideFormatter costs {(time.time() - start):6f} s")
         # Not really loading the slide, instead, use path as lazy loading.
         return sample

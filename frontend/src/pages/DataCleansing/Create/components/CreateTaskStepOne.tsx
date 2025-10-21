@@ -64,10 +64,10 @@ export default function CreateTaskStepOne({
       onValuesChange={handleValuesChange}
     >
       <h2 className="font-medium text-gray-900 text-base mb-2">任务信息</h2>
-      <Form.Item label="任务名称" name="name" required>
+      <Form.Item label="名称" name="name" required>
         <Input placeholder="输入清洗任务名称" />
       </Form.Item>
-      <Form.Item label="任务描述" name="description">
+      <Form.Item label="描述" name="description">
         <TextArea placeholder="描述清洗任务的目标和要求" rows={4} />
       </Form.Item>
       <h2 className="font-medium text-gray-900 pt-6 mb-2 text-base">
@@ -75,7 +75,7 @@ export default function CreateTaskStepOne({
       </h2>
       <Form.Item label="源数据集" name="srcDatasetId" required>
         <Select
-          placeholder="请选择数据集"
+          placeholder="请选择源数据集"
           options={datasets.map((dataset) => ({
             label: (
               <div className="flex items-center justify-between gap-3 py-2">

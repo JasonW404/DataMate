@@ -1,3 +1,26 @@
+export interface ConfigI {
+  type:
+    | "input"
+    | "select"
+    | "radio"
+    | "checkbox"
+    | "range"
+    | "slider"
+    | "inputNumber"
+    | "switch"
+    | "multiple";
+  value?: number | string | boolean | string[] | number[];
+  required?: boolean;
+  description?: string;
+  key: string;
+  defaultVal: number | string | boolean | string[];
+  options?: string[] | { label: string; value: string }[];
+  min?: number;
+  max?: number;
+  step?: number;
+  properties?: ConfigI[]; // 用于嵌套配置
+}
+
 export interface OperatorI {
   id: string;
   name: string;
@@ -12,15 +35,7 @@ export interface OperatorI {
   overrides?: { [key: string]: any }; // 用户配置的参数
   defaultParams?: { [key: string]: any }; // 默认参数
   configs: {
-    [key: string]: {
-      type: "input" | "select" | "radio" | "checkbox" | "range";
-      label: string;
-      value: any;
-      options?: string[] | { label: string; value: any }[];
-      min?: number;
-      max?: number;
-      step?: number;
-    };
+    [key: string]: ConfigI;
   };
 }
 
@@ -35,6 +50,6 @@ export interface CategoryI {
 export interface CategoryTreeI {
   id: string;
   name: string;
-  count: string;
+  count: number;
   categories: CategoryI[];
 }

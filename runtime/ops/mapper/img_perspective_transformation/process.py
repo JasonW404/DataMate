@@ -8,11 +8,11 @@ Create: 2025/01/16
 """
 import time
 
-import logging as logger
 from typing import Dict, Any
 
 import cv2
 import numpy as np
+from loguru import logger
 
 from data_platform.common.utils import bytes_transform
 from data_platform.core.base_op import Mapper
@@ -34,8 +34,7 @@ class ImgPerspectiveTransformation(Mapper):
             img_data = bytes_transform.bytes_to_numpy(img_bytes)
             transform_img = self._transform_img(img_data, file_name)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(transform_img, file_type)
-        logger.info("fileName: %s, method: ImgPerspectiveTransformation costs %.6f s", file_name,
-                    time.time() - start)
+        logger.info(f"fileName: {file_name}, method: ImgPerspectiveTransformation costs {time.time() - start:6f} s")
         return sample
 
     def _transform_img(self, image, file_name):
@@ -55,8 +54,8 @@ class ImgPerspectiveTransformation(Mapper):
             boxes = self.transform_utils.get_adapt_point(boxes, ratio)
             boxes = self.transform_utils.order_points(boxes)
             warped = self.transform_utils.get_warp_image(image, boxes)
-            logger.info("fileName: %s, method: ImgPerspectiveTransformation. "
-                        "This picture is transformed by perspective.", file_name)
+            logger.info(f"fileName: {file_name}, method: ImgPerspectiveTransformation. "
+                        "This picture is transformed by perspective.")
             return warped
         return original_img
 

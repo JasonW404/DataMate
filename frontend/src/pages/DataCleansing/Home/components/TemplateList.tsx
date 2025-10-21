@@ -1,53 +1,38 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  AppstoreOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import CardView from "@/components/CardView";
-import { queryCleaningTemplatesUsingGet } from "../../cleansing.api";
-import { useNavigate } from "react-router";
+import {
+  deleteCleaningTemplateByIdUsingDelete,
+  queryCleaningTemplatesUsingGet,
+} from "../../cleansing.api";
 import useFetchData from "@/hooks/useFetchData";
 import { mapTemplate } from "../../cleansing.const";
+import { App } from "antd";
+import { CleansingTemplate } from "../../cleansing.model";
 
 export default function TemplateList() {
-  const navigate = useNavigate();
+  const { message } = App.useApp();
 
-  const { tableData, pagination } = useFetchData(
+  const { tableData, pagination, fetchData } = useFetchData(
     queryCleaningTemplatesUsingGet,
     mapTemplate
   );
 
-  const handleViewTemplate = (template: any) => {
-    navigate("/data/cleansing/template-detail/" + template.id);
-  };
-
-  const useTemplate = (template: any) => {};
-
-  const editTemplate = (template: any) => {};
-
-  const DeleteTemplate = (template: any) => {
+  const deleteTemplate = async (template: CleansingTemplate) => {
+    if (!template.id) {
+      return;
+    }
     // 实现删除逻辑
-    console.log("删除模板", template);
+    await deleteCleaningTemplateByIdUsingDelete(template.id);
+    fetchData();
+    message.success("模板删除成功");
   };
 
   const operations = [
     {
-      key: "use",
-      label: "使用模板",
-      icon: <AppstoreOutlined />,
-      onClick: useTemplate, // 可实现使用模板逻辑
-    },
-    {
-      key: "edit",
-      label: "编辑模板",
-      icon: <EditOutlined />,
-      onClick: editTemplate, // 可实现编辑逻辑
-    },
-    {
       key: "delete",
       label: "删除模板",
-      icon: <DeleteOutlined />,
-      onClick: DeleteTemplate, // 可实现删除逻辑
+      icon: <DeleteOutlined style={{ color: "#f5222d" }} />,
+      onClick: (template: CleansingTemplate) => deleteTemplate(template), // 可实现删除逻辑
     },
   ];
 
@@ -55,7 +40,6 @@ export default function TemplateList() {
     <CardView
       data={tableData}
       operations={operations}
-      onView={handleViewTemplate}
       pagination={pagination}
     />
   );

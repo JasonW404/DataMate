@@ -185,9 +185,9 @@ export const datasetStatusMap = {
 export const dataSourceMap: Record<string, { label: string; value: string }> = {
   [DataSource.UPLOAD]: { label: "本地上传", value: DataSource.UPLOAD },
   [DataSource.COLLECTION]: { label: "本地归集 ", value: DataSource.COLLECTION },
-  [DataSource.DATABASE]: { label: "数据库导入", value: DataSource.DATABASE },
-  [DataSource.NAS]: { label: "NAS导入", value: DataSource.NAS },
-  [DataSource.OBS]: { label: "OBS导入", value: DataSource.OBS },
+  // [DataSource.DATABASE]: { label: "数据库导入", value: DataSource.DATABASE },
+  // [DataSource.NAS]: { label: "NAS导入", value: DataSource.NAS },
+  // [DataSource.OBS]: { label: "OBS导入", value: DataSource.OBS },
 };
 
 export const dataSourceOptions = Object.values(dataSourceMap);
@@ -196,22 +196,15 @@ export function mapDataset(dataset: Dataset) {
   const IconComponent = datasetTypeMap[dataset?.datasetType]?.icon || null;
   return {
     ...dataset,
+    type: datasetTypeMap[dataset.datasetType]?.label || "未知",
     size: formatBytes(dataset.totalSize || 0),
     createdAt: formatDateTime(dataset.createdAt) || "--",
     updatedAt: formatDateTime(dataset?.updatedAt) || "--",
     icon: IconComponent ? <IconComponent className="w-4 h-4" /> : <Database />,
     status: datasetStatusMap[dataset.status],
     statistics: [
-      { label: "数据项", value: dataset.fileCount || 0 },
-      {
-        label: "已标注",
-        value: dataset.annotations?.completed || 0,
-      },
-      { label: "大小", value: dataset.totalSize || "0 MB" },
-      {
-        label: "存储路径",
-        value: dataset.storagePath || "未知",
-      },
+      { label: "文件数", value: dataset.fileCount || 0 },
+      { label: "大小", value: formatBytes(dataset.totalSize || 0) },
     ],
     lastModified: dataset.updatedAt,
   };

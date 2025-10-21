@@ -106,8 +106,6 @@ export function useOperatorOperations() {
     paramKey: string,
     value: any
   ) => {
-    console.log(operatorId, paramKey, value);
-
     setSelectedOperators((prev) =>
       prev.map((op) =>
         op.id === operatorId

@@ -17,9 +17,7 @@ outputs: 'image'
 settings:
   similarThreshold:
     name: 相似度
-    name_en: Similarity
     description: 相似度取值越大，图片相似度越高。
-    description_en: A larger similarity value indicates a higher image similarity.
     type: slider
     defaultVal: 0.8
     min: 0

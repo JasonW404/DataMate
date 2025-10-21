@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.dataengine</groupId>
-        <artifactId>data-engine-platform</artifactId>
+        <groupId>com.datameta</groupId>
+        <artifactId>data-meta-platform</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
@@ -85,7 +85,7 @@
 
         <!-- Shared Domain -->
         <dependency>
-            <groupId>com.dataengine</groupId>
+            <groupId>com.datameta</groupId>
             <artifactId>domain-common</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
@@ -141,8 +141,8 @@
                             <inputSpec>${project.basedir}/../../openapi/specs/data-collection.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <output>${project.build.directory}/generated-sources/openapi</output>
-                            <apiPackage>com.dataengine.collection.interfaces.api</apiPackage>
-                            <modelPackage>com.dataengine.collection.interfaces.dto</modelPackage>
+                            <apiPackage>com.datameta.collection.interfaces.api</apiPackage>
+                            <modelPackage>com.datameta.collection.interfaces.dto</modelPackage>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
                                 <useTags>true</useTags>

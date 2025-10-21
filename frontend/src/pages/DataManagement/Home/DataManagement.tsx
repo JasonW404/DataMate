@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import TagManager from "@/components/TagManagement";
 import { Link, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SearchControls } from "@/components/SearchControls";
 import CardView from "@/components/CardView";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
@@ -44,20 +44,16 @@ export default function DatasetManagementPage() {
     const statistics = {
       size: [
         {
-          title: "文本",
-          value: data?.size?.text || "0 MB",
+          title: "数据集总数",
+          value: data?.totalDatasets || 0,
         },
         {
-          title: "图像",
-          value: data?.size?.image || "0 MB",
+          title: "文件总数",
+          value: data?.totalFiles?.image || "0 MB",
         },
         {
-          title: "音频",
-          value: data?.size?.audio || "0 MB",
-        },
-        {
-          title: "视频",
-          value: data?.size?.video || "0 MB",
+          title: "总大小",
+          value: formatBytes(data?.totalSize) || 0,
         },
       ],
       count: [
@@ -79,36 +75,40 @@ export default function DatasetManagementPage() {
         },
       ],
     };
-    console.log(statistics);
     setStatisticsData(statistics);
   }
 
-  const [tags] = useState<string[]>(["标签1", "标签2", "标签3", "标签4"]);
+  const [tags, setTags] = useState<string[]>([]);
 
-  const filterOptions = [
-    {
-      key: "type",
-      label: "类型",
-      options: [
-        { label: "所有类型", value: "all" },
-        ...Object.values(datasetTypeMap),
-      ],
-    },
-    {
-      key: "status",
-      label: "状态",
-      options: [
-        { label: "所有状态", value: "all" },
-        ...Object.values(datasetStatusMap),
-      ],
-    },
-    {
-      key: "tags",
-      label: "标签",
-      mode: "multiple",
-      options: tags.map((tag) => ({ label: tag, value: tag })),
-    },
-  ];
+  useEffect(() => {
+    const fetchTags = async () => {
+      const { data } = await queryDatasetTagsUsingGet();
+      setTags(data.map((tag) => tag.name));
+    };
+    fetchTags();
+  }, []);
+
+  const filterOptions = useMemo(
+    () => [
+      {
+        key: "type",
+        label: "类型",
+        options: [...Object.values(datasetTypeMap)],
+      },
+      {
+        key: "status",
+        label: "状态",
+        options: [...Object.values(datasetStatusMap)],
+      },
+      {
+        key: "tags",
+        label: "标签",
+        mode: "multiple",
+        options: tags.map((tag) => ({ label: tag, value: tag })),
+      },
+    ],
+    [tags]
+  );
 
   const {
     tableData,
@@ -182,7 +182,6 @@ export default function DatasetManagementPage() {
       title: "类型",
       dataIndex: "type",
       key: "type",
-      render: (type: string) => datasetTypeMap[type]?.label || type,
       width: 100,
     },
     {
@@ -192,10 +191,42 @@ export default function DatasetManagementPage() {
       width: 120,
     },
     {
-      title: "数据项",
+      title: "文件数",
       dataIndex: "fileCount",
       key: "fileCount",
       width: 100,
+    },
+    {
+      title: "创建者",
+      dataIndex: "createdBy",
+      key: "createdBy",
+      width: 120,
+    },
+    {
+      title: "存储路径",
+      dataIndex: "targetLocation",
+      key: "targetLocation",
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: "创建时间",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+    },
+    {
+      title: "更新时间",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      width: 180,
+    },
+    {
+      title: "描述",
+      dataIndex: "description",
+      key: "description",
+      width: 200,
+      ellipsis: true,
     },
     {
       title: "状态",
@@ -256,12 +287,10 @@ export default function DatasetManagementPage() {
   );
 
   return (
-    <div className="space-y-2 h-full flex flex-col">
+    <div className="gap-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">数据管理</h1>
-        </div>
+        <h1 className="text-xl font-bold">数据管理</h1>
         <div className="flex gap-2">
           {/* tasks */}
           <TagManager
@@ -282,36 +311,14 @@ export default function DatasetManagementPage() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-2 gap-4 mt-4">
-        {/* <Card>
-          <div className="grid grid-cols-4">
+      <div className="grid grid-cols-1 gap-4">
+        <Card>
+          <div className="grid grid-cols-3">
             {statisticsData.size?.map?.((item) => (
               <Statistic
                 title={item.title}
                 key={item.title}
                 value={`${item.value}`}
-              />
-            ))}
-          </div>
-        </Card> */}
-        <Card title="数量统计">
-          <div className="grid grid-cols-4">
-            {statisticsData.count?.map?.((item) => (
-              <Statistic
-                key={item.title}
-                title={item.title}
-                value={item.value}
-              />
-            ))}
-          </div>
-        </Card>
-        <Card title="大小统计">
-          <div className="grid grid-cols-4">
-            {statisticsData.size?.map?.((item) => (
-              <Statistic
-                key={item.title}
-                title={item.title}
-                value={item.value}
               />
             ))}
           </div>
@@ -329,7 +336,6 @@ export default function DatasetManagementPage() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         showViewToggle
-        className="my-4"
         onReload={fetchData}
       />
       {viewMode === "card" ? renderCardView() : renderListView()}

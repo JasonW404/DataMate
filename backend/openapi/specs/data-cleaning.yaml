@@ -4,8 +4,7 @@ info:
   description: 数据清洗服务API - 策略/规则、流程编排对接
   version: 1.0.0
   contact:
-    name: Data Engine Platform Team
-    email: dev@dataengine.com
+    name: Data Meta Platform Team
 
 servers:
   - url: http://localhost:8084

@@ -7,13 +7,14 @@ import {
   Form,
   InputNumber,
   Slider,
+  Space,
 } from "antd";
-import { OperatorI } from "@/pages/OperatorMarket/operator.model";
+import { ConfigI, OperatorI } from "@/pages/OperatorMarket/operator.model";
 
 interface ParamConfigProps {
   operator: OperatorI;
   paramKey: string;
-  param: any;
+  param: ConfigI;
   onParamChange?: (operatorId: string, paramKey: string, value: any) => void;
 }
 
@@ -23,26 +24,36 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
   param,
   onParamChange,
 }) => {
+  if (!param) return null;
   const [value, setValue] = React.useState(param.value || param.defaultVal);
   const updateValue = (newValue: any) => {
     setValue(newValue);
     return onParamChange && onParamChange(operator.id, paramKey, newValue);
   };
+
   switch (param.type) {
     case "input":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
           <Input
             value={value}
             onChange={(e) => updateValue(e.target.value)}
-            placeholder={`请输入${param.label}`}
+            placeholder={`请输入${param.name}`}
             className="w-full"
           />
         </Form.Item>
       );
     case "select":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
           <Select
             value={value}
             onChange={updateValue}
@@ -51,14 +62,18 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
                 ? { label: option, value: option }
                 : option
             )}
-            placeholder={`请选择${param.label}`}
+            placeholder={`请选择${param.name}`}
             className="w-full"
           />
         </Form.Item>
       );
     case "radio":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
           <Radio.Group
             value={value}
             onChange={(e) => updateValue(e.target.value)}
@@ -76,7 +91,11 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
       );
     case "checkbox":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
           <Checkbox.Group
             value={value}
             onChange={updateValue}
@@ -86,17 +105,22 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
       );
     case "slider":
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
           <div className="flex items-center gap-1">
             <Slider
               value={value}
               onChange={updateValue}
               tooltip={{ open: true }}
               marks={{
-                [param.min || 0]: param.minLabel || `${param.min || 0}`,
-                [param.min + (param.max - param.min) / 2]:
-                  param.midLabel || `${(param.min + param.max) / 2}`,
-                [param.max || 100]: param.maxLabel || `${param.max || 100}`,
+                [param.min || 0]: `${param.min || 0}`,
+                [param.min + (param.max - param.min) / 2]: `${
+                  (param.min + param.max) / 2
+                }`,
+                [param.max || 100]: `${param.max || 100}`,
               }}
               min={param.min || 0}
               max={param.max || 100}
@@ -114,27 +138,93 @@ const ParamConfig: React.FC<ParamConfigProps> = ({
           </div>
         </Form.Item>
       );
-    case "range":
+    case "range": {
+      const min = param.min || 0;
+      const max = param.max || 100;
       return (
-        <Form.Item label={param.label} key={paramKey}>
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
           <Slider
             value={Array.isArray(value) ? value : [value, value]}
             onChange={(val) =>
               updateValue(Array.isArray(val) ? val : [val, val])
             }
             range
-            marks={{
-              [param.min || 0]: param.minLabel || `${param.min || 0}`,
-              [param.min + (param.max - param.min) / 2]:
-                param.midLabel || `${(param.min + param.max) / 2}`,
-              [param.max || 100]: param.maxLabel || `${param.max || 100}`,
-            }}
-            min={param.min || 0}
-            max={param.max || 100}
+            min={min}
+            max={max}
             step={param.step || 1}
             className="w-full"
           />
+          <Space>
+            <InputNumber
+              min={min}
+              max={max}
+              value={value[0]}
+              onChange={(val1) => updateValue([val1, value[1]])}
+              changeOnWheel
+            />
+            ~
+            <InputNumber
+              min={min}
+              max={max}
+              value={value[1]}
+              onChange={(val2) => updateValue([value[0], val2])}
+              changeOnWheel
+            />
+          </Space>
         </Form.Item>
+      );
+    }
+    case "inputNumber":
+      return (
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
+          <InputNumber
+            value={value}
+            onChange={(val) => updateValue(val)}
+            placeholder={`请输入${param.name}`}
+            className="w-full"
+            min={param.min}
+            max={param.max}
+            step={param.step || 1}
+          />
+        </Form.Item>
+      );
+
+    case "switch":
+      return (
+        <Form.Item
+          label={param.name}
+          tooltip={param.description}
+          key={paramKey}
+        >
+          <Checkbox
+            checked={value as boolean}
+            onChange={(e) => updateValue(e.target.checked)}
+          >
+            {param.name}
+          </Checkbox>
+        </Form.Item>
+      );
+    case "multiple":
+      return (
+        <div className="pl-4 border-l border-gray-300">
+          {param.properties.map((subParam) => (
+            <Config
+              key={subParam.key}
+              operator={operator}
+              paramKey={subParam.key}
+              param={subParam}
+              onParamChange={onParamChange}
+            />
+          ))}
+        </div>
       );
     default:
       return null;

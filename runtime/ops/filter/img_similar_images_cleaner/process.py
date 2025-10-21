@@ -12,7 +12,6 @@ Description:
 Create: 2025/1/7
 """
 import json
-import logging as logger
 import time
 import zlib
 from pathlib import Path
@@ -21,6 +20,7 @@ from typing import List, Dict, Any
 import cv2
 import numpy as np
 from sqlalchemy import text
+from loguru import logger
 
 from data_platform.sql_manager.sql_manager import SQLManager
 from data_platform.common.utils import get_now_time
@@ -141,8 +141,8 @@ class ImgSimilarImagesCleaner(Filter):
             orb_similarity = count / len(matches)
             return orb_similarity
         except Exception as e:
-            logger.error("dataset: %s, failed to compare the similarity between %s and %s: %s", self.task_uuid,
-                         file_name, file_name_history, e, exc_info=True)
+            logger.exception(f"taskId: ｛self.task_uuid｝, failed to compare the similarity between "
+                             f"｛file_name｝ and ｛file_name_history｝: {e}")
             return 0.0
 
     def execute_sql(self, p_hash: str, des_matrix: np.ndarray, file_name: str,
@@ -158,7 +158,7 @@ class ImgSimilarImagesCleaner(Filter):
         try:
             self.conn = db_manager.create_connect()
         except Exception as e:
-            logger.error("fileName: %s, database connection failed: %s", file_name, str(e))
+            logger.error(f"fileName: {file_name}, database connection failed: {str(e)}")
             raise RuntimeError(82000, str(e)) from None
 
         with self.conn as connection:
@@ -236,6 +236,5 @@ class ImgSimilarImagesCleaner(Filter):
         # 若相似图片，sample[self.data_key]设为空
         if not similar_images.size:
             sample[self.data_key] = b""
-        logger.info("fileName: %s, method: ImgSimilarCleaner costs %.6f s", file_name,
-                    time.time() - start)
+        logger.info(f"fileName: {file_name}, method: ImgSimilarCleaner costs {(time.time() - start):6f} s")
         return sample

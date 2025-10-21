@@ -7,13 +7,13 @@
 Description: 政治文本过滤
 Create: 2024/12/26 15:43
 """
-import logging as logger
 import time
 from pathlib import Path
 from typing import Dict, Any
 
-from data_platform.common.utils.aho_corasick import AhoCorasic
+from loguru import logger
 
+from data_platform.common.utils.aho_corasick import AhoCorasic
 from data_platform.core.base_op import Mapper
 
 
@@ -56,8 +56,8 @@ class PoliticalWordCleaner(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._political_word_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: PoliticalWordCleaner costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(
+            f"fileName: {sample[self.filename_key]}, method: PoliticalWordCleaner costs {time.time() - start:6f} s")
         return sample
 
     def _political_word_filter(self, text):

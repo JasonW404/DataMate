@@ -5,7 +5,10 @@ const DevelopmentInProgress = ({ showHome = true }) => {
     <div className="mt-40 flex flex-col items-center justify-center">
       <div className="hero-icon">🚧</div>
       <h1 className="text-2xl font-bold">功能开发中</h1>
-      <p className="mt-4">我们正在全力开发新功能，为您带来更好的体验</p>
+      <p className="mt-4">
+        为了给您带来更好的体验，我们计划<b>2025.10.30</b>
+        开放此功能
+      </p>
       {showHome && (
         <Button
           type="primary"

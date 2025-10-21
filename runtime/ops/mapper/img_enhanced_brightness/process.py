@@ -9,11 +9,11 @@ Create: 2025/01/13
 
 import time
 
-import logging as logger
 from typing import Dict, Any
 
 import numpy as np
 import cv2
+from loguru import logger
 
 from data_platform.common.utils import bytes_transform
 
@@ -55,7 +55,7 @@ class ImgBrightness(Mapper):
 
         # 图像过亮，不需要增强亮度
         if brightness_factor <= 1:
-            logger.info("fileName: %s, method: ImgBrightness not need enhancement", file_name)
+            logger.info(f"fileName: {file_name}, method: ImgBrightness not need enhancement")
             return image_data
 
         brightness_factor = max(brightness_factor, self.factor_threshold)
@@ -98,6 +98,5 @@ class ImgBrightness(Mapper):
             img_data = bytes_transform.bytes_to_numpy(img_bytes)
             img_data = self.enhance_brightness(img_data, file_name)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(img_data, file_type)
-        logger.info("fileName: %s, method: ImgBrightness costs %.6f s",
-                    file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: ImgBrightness costs {time.time() - start:6f} s")
         return sample

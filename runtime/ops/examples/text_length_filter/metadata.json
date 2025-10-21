@@ -2,7 +2,7 @@
   "name": "text_length_filter",
   "displayName": "文本长度过滤器",
   "version": "1.0.0",
-  "author": "Data-Engine Team",
+  "author": "DataMeta Team",
   "description": "根据文本长度过滤数据，支持最小和最大长度限制",
   "category": "数据清洗",
   "type": "CUSTOM",
@@ -44,6 +44,6 @@
     }
   ],
   "tags": ["文本处理", "数据过滤", "长度检查"],
-  "documentation": "https://docs.dataengine.com/operators/text-length-filter",
-  "repository": "https://github.com/dataengine/operators/tree/main/text-length-filter"
+  "documentation": "https://docs.datameta.com/operators/text-length-filter",
+  "repository": "https://github.com/datameta/operators/tree/main/text-length-filter"
 }

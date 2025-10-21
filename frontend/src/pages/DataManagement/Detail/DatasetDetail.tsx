@@ -1,19 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { Breadcrumb, Modal, App, Tabs } from "antd";
+import { Breadcrumb, App, Tabs } from "antd";
 import {
   ReloadOutlined,
   DownloadOutlined,
   UploadOutlined,
-  FileTextOutlined,
-  DatabaseOutlined,
-  FileImageOutlined,
   EditOutlined,
 } from "@ant-design/icons";
 import DetailHeader from "@/components/DetailHeader";
 import { mapDataset, datasetTypeMap } from "../dataset.const";
 import type { Dataset } from "@/pages/DataManagement/dataset.model";
 import { Link, useParams } from "react-router";
-import { useFilesOperation, useImportFile } from "../hooks";
+import { useFilesOperation } from "../hooks";
 import {
   createDatasetTagUsingPost,
   downloadFile,
@@ -26,6 +23,7 @@ import DataLineageFlow from "./components/DataLineageFlow";
 import Overview from "./components/Overview";
 import { Activity, Clock, File, FileType } from "lucide-react";
 import EditDataset from "../Create/EditDataset";
+import ImportConfiguration from "./components/ImportConfiguration";
 
 const tabList = [
   {
@@ -49,7 +47,6 @@ export default function DatasetDetail() {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [dataset, setDataset] = useState<Dataset>({} as Dataset);
-  const { importFileRender, handleUpload } = useImportFile();
   const filesOperation = useFilesOperation(dataset);
 
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -74,14 +71,14 @@ export default function DatasetDetail() {
     filesOperation.fetchFiles();
   }, []);
 
-  const handleRefresh = async () => {
+  const handleRefresh = async (showMessage = true) => {
     fetchDataset();
     filesOperation.fetchFiles();
-    message.success({ content: "数据刷新成功" });
+    if (showMessage) message.success({ content: "数据刷新成功" });
   };
 
   const handleExportFormat = async ({ type }) => {
-    await downloadFile(dataset.id, type, `${dataset.name}-${type}.txt`);
+    await downloadFile(dataset.id, type, `${dataset.name}-${type}.zip`);
     message.success("文件下载成功");
   };
 
@@ -89,10 +86,13 @@ export default function DatasetDetail() {
     const refreshDataset = () => {
       fetchDataset();
     };
-    window.addEventListener("update:dataset", handleRefresh);
-    window.addEventListener("update:dataset-status", refreshDataset);
+    const refreshData = () => {
+      handleRefresh(false);
+    };
+    window.addEventListener("update:dataset", refreshData);
+    window.addEventListener("update:dataset-status", () => refreshDataset());
     return () => {
-      window.removeEventListener("update:dataset", handleRefresh);
+      window.removeEventListener("update:dataset", refreshData);
       window.removeEventListener("update:dataset-status", refreshDataset);
     };
   }, []);
@@ -138,7 +138,7 @@ export default function DatasetDetail() {
 
     {
       key: "upload",
-      label: "上传文件",
+      label: "导入数据",
       icon: <UploadOutlined />,
       onClick: () => setShowUploadDialog(true),
     },
@@ -146,13 +146,13 @@ export default function DatasetDetail() {
       key: "export",
       label: "导出",
       icon: <DownloadOutlined />,
-      isDropdown: true,
-      items: [
-        { key: "alpaca", label: "Alpaca 格式", icon: <FileTextOutlined /> },
-        { key: "jsonl", label: "JSONL 格式", icon: <DatabaseOutlined /> },
-        { key: "csv", label: "CSV 格式", icon: <FileTextOutlined /> },
-        { key: "coco", label: "COCO 格式", icon: <FileImageOutlined /> },
-      ],
+      // isDropdown: true,
+      // items: [
+      //   { key: "alpaca", label: "Alpaca 格式", icon: <FileTextOutlined /> },
+      //   { key: "jsonl", label: "JSONL 格式", icon: <DatabaseOutlined /> },
+      //   { key: "csv", label: "CSV 格式", icon: <FileTextOutlined /> },
+      //   { key: "coco", label: "COCO 格式", icon: <FileImageOutlined /> },
+      // ],
       onMenuClick: handleExportFormat,
     },
     {
@@ -184,12 +184,15 @@ export default function DatasetDetail() {
           onCreateAndTag: async (tagName) => {
             const res = await createDatasetTagUsingPost({ name: tagName });
             if (res.data) {
+              await updateDatasetByIdUsingPut(dataset.id, {
+                tags: [...dataset.tags.map((tag) => tag.name), res.data.name],
+              });
               handleRefresh();
             }
           },
           onAddTag: async (tag) => {
             const res = await updateDatasetByIdUsingPut(dataset.id, {
-              tags: [tag],
+              tags: [...dataset.tags.map((tag) => tag.name), tag],
             });
             if (res.data) {
               handleRefresh();
@@ -207,20 +210,12 @@ export default function DatasetDetail() {
           {activeTab === "quality" && <DataQuality />}
         </div>
       </div>
-
-      {/* Upload Dialog */}
-      <Modal
-        title="上传文件"
+      <ImportConfiguration
+        data={dataset}
         open={showUploadDialog}
-        onCancel={() => setShowUploadDialog(false)}
-        onOk={async () => {
-          await handleUpload(dataset);
-          setShowUploadDialog(false);
-          filesOperation.fetchFiles();
-        }}
-      >
-        {importFileRender()}
-      </Modal>
+        onClose={() => setShowUploadDialog(false)}
+        onRefresh={handleRefresh}
+      />
       <EditDataset
         data={dataset}
         open={showEditDialog}

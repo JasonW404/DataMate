@@ -59,7 +59,7 @@ class SimpleSlicer(Slicer):
         sample["slice_num"] = patch_num
 
         file_name = sample[self.filename_key]
-        logger.info("fileName: %s, method: CoordinateSlider costs %.6f s", file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: CoordinateSlider costs {(time.time() - start):6f} s")
 
         return [sample]
 

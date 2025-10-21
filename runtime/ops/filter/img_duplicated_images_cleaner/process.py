@@ -10,7 +10,6 @@ Create: 2025/1/7
 """
 
 import json
-import logging as logger
 import time
 from pathlib import Path
 from typing import Dict, Any
@@ -18,6 +17,7 @@ from typing import Dict, Any
 import cv2
 from Crypto.Hash import MD5
 from sqlalchemy import text
+from loguru import logger
 
 from data_platform.sql_manager.sql_manager import SQLManager
 from data_platform.common.utils import get_now_time
@@ -33,7 +33,7 @@ class ImgDuplicatedImagesCleaner(Filter):
     def __init__(self, *args, **kwargs):
         # task_uuid为标识该数据集的唯一标志
         super().__init__(*args, **kwargs)
-        self.task_uuid = kwargs.get("uuid", "uuid")
+        self.task_uuid = kwargs.get("uuid", "")
         self.img_resize = 200  # 图片压缩尺寸
         # 获取数据库sql
         self.sql_dict = self.load_sql_dict()
@@ -64,10 +64,11 @@ class ImgDuplicatedImagesCleaner(Filter):
         """重复图片去重算子执行入口"""
         start = time.time()
         file_name = sample[self.filename_key]
+        self.task_uuid = sample.get("instance_id") if not self.task_uuid else self.task_uuid
         img_data = self._duplicate_images_filter(file_name, sample[self.data_key])
         sample[self.data_key] = img_data
         logger.info(
-            "fileName: %s, method: DuplicateImagesCleaner costs %.6f s", file_name, time.time() - start)
+            f"fileName: {file_name}, method: DuplicateImagesCleaner costs {(time.time() - start):6f} s")
         return sample
 
     def execute_sql(self, md5: str, file_name: str,
@@ -86,7 +87,7 @@ class ImgDuplicatedImagesCleaner(Filter):
         try:
             self.conn = db_manager.create_connect()
         except Exception as e:
-            logger.error("fileName: %s, database connection failed: %s", file_name, str(e))
+            logger.error(f"fileName: {file_name}, database connection failed: {str(e)}")
             raise RuntimeError(82000, str(e)) from None
 
         with self.conn as connection:
@@ -97,8 +98,8 @@ class ImgDuplicatedImagesCleaner(Filter):
             if not result:
                 connection.execute(text(insert_sql, insert_sql_params))
                 return img_bytes
-            logger.info("fileName: %s, method: Duplicate ImagesCleaner. The image is duplicated and filtered ",
-                        file_name)
+            logger.info(f"taskId: {self.task_uuid} fileName: {file_name}, method: Duplicate ImagesCleaner. "
+                        f"The image is duplicated and filtered ")
         return b""
 
     def _duplicate_images_filter(self, file_name: str, img_bytes: bytes) -> bytes:

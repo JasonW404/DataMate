@@ -41,7 +41,7 @@ interface CardViewProps<T> {
         onClick?: (item: T) => void;
       }[]
     | ((item: T) => ItemType[]);
-  onView: (item: T) => void;
+  onView?: (item: T) => void;
   onFavorite?: (item: T) => void;
   isFavorite?: (item: T) => boolean;
 }
@@ -167,7 +167,6 @@ function CardView<T extends BaseCardDataType>(props: CardViewProps<T>) {
 
   const ops = (item) =>
     typeof operations === "function" ? operations(item) : operations;
-
   return (
     <div className="flex-1 flex flex-col overflow-auto">
       <div className="overflow-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -193,7 +192,9 @@ function CardView<T extends BaseCardDataType>(props: CardViewProps<T>) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3
-                        className="text-base flex-1 text-ellipsis overflow-hidden whitespace-nowrap font-semibold text-gray-900 truncate cursor-pointer hover:text-blue-600"
+                        className={`text-base flex-1 text-ellipsis overflow-hidden whitespace-nowrap font-semibold text-gray-900 truncate ${
+                          onView ? "cursor-pointer hover:text-blue-600" : ""
+                        }`}
                         onClick={() => onView?.(item)}
                       >
                         {item?.name}
@@ -255,22 +256,26 @@ function CardView<T extends BaseCardDataType>(props: CardViewProps<T>) {
                     {formatDateTime(item?.updatedAt)}
                   </div>
                 </div>
-                <Dropdown
-                  trigger={["click"]}
-                  menu={{
-                    items: ops(item),
-                    onClick: ({ key }) => {
-                      const operation = ops(item).find((op) => op.key === key);
-                      if (operation?.onClick) {
-                        operation.onClick(item);
-                      }
-                    },
-                  }}
-                >
-                  <div className="cursor-pointer">
-                    <EllipsisOutlined style={{ fontSize: 24 }} />
-                  </div>
-                </Dropdown>
+                {operations && (
+                  <Dropdown
+                    trigger={["click"]}
+                    menu={{
+                      items: ops(item),
+                      onClick: ({ key }) => {
+                        const operation = ops(item).find(
+                          (op) => op.key === key
+                        );
+                        if (operation?.onClick) {
+                          operation.onClick(item);
+                        }
+                      },
+                    }}
+                  >
+                    <div className="cursor-pointer">
+                      <EllipsisOutlined style={{ fontSize: 24 }} />
+                    </div>
+                  </Dropdown>
+                )}
               </div>
             </div>
           </div>

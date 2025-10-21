@@ -7,10 +7,11 @@
 Description: 电话号码匿名化
 Create: 2024/12/26 15:43
 """
-import logging as logger
 import re
 import time
 from typing import Dict, Any
+
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -39,8 +40,8 @@ class AnonymizedPhoneNumber(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._phone_number_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: PhoneNumberCleaner costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(
+            f"fileName: {sample[self.filename_key]}, method: PhoneNumberCleaner costs {time.time() - start:6f} s")
         return sample
 
     def _phone_number_filter(self, input_data: str):

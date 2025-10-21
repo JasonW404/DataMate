@@ -2,7 +2,6 @@ import { Button, Checkbox, Tooltip } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 import React from "react";
 import { CategoryI, CategoryTreeI } from "../../operator.model";
-import { Filter } from "lucide-react";
 
 interface FilterOption {
   key: string;
@@ -14,6 +13,7 @@ interface FilterOption {
 
 interface FilterSectionProps {
   title: string;
+  total: number;
   options: FilterOption[];
   selectedValues: string[];
   onSelectionChange: (values: string[]) => void;
@@ -22,6 +22,7 @@ interface FilterSectionProps {
 }
 
 const FilterSection: React.FC<FilterSectionProps> = ({
+  total,
   title,
   options,
   selectedValues,
@@ -70,7 +71,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             <div className="flex items-center gap-1 flex-1 ml-1">
               <span className="text-gray-600 font-medium">全选</span>
             </div>
-            <span className="text-gray-400">({options.length})</span>
+            <span className="text-gray-400">({total})</span>
           </label>
         )}
 
@@ -121,6 +122,8 @@ const Filters: React.FC<FiltersProps> = ({
     setSelectedFilters(newFilters);
   };
 
+  console.log(categoriesTree);
+
   const hasActiveFilters = Object.values(selectedFilters).some(
     (filters) => Array.isArray(filters) && filters.length > 0
   );
@@ -155,6 +158,7 @@ const Filters: React.FC<FiltersProps> = ({
       {categoriesTree.map((category: CategoryTreeI) => (
         <FilterSection
           key={category.id}
+          total={category.count}
           title={category.name}
           options={category.categories.map((cat: CategoryI) => ({
             key: cat.id.toString(),

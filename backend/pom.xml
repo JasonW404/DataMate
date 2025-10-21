@@ -5,12 +5,12 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.dataengine</groupId>
-    <artifactId>data-engine-platform</artifactId>
+    <groupId>com.datameta</groupId>
+    <artifactId>data-meta-platform</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Data-Engine Platform</name>
+    <name>DataMeta Platform</name>
     <description>一站式数据工作平台，面向模型微调与RAG检索</description>
 
     <properties>
@@ -18,8 +18,8 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-      <spring-boot.version>3.5.6</spring-boot.version>
-      <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <spring-boot.version>3.5.6</spring-boot.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
         <mysql.version>8.0.33</mysql.version>
         <postgresql.version>42.6.0</postgresql.version>
         <redis.version>3.2.0</redis.version>
@@ -30,7 +30,7 @@
         <jakarta-validation.version>3.0.2</jakarta-validation.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-      <mybatis-plus.version>3.5.14</mybatis-plus.version>
+        <mybatis-plus.version>3.5.14</mybatis-plus.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok.version>1.18.32</lombok.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -107,8 +107,10 @@
             <!-- MyBatis version alignment -->
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <artifactId>mybatis-plus-bom</artifactId>
                 <version>${mybatis-plus.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -166,6 +168,10 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>${mybatis-plus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
 
         <!-- Log4j2 API -->

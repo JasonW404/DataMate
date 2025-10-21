@@ -6,7 +6,6 @@
 Description:
 Create: 2025/01/18
 """
-import logging as logger
 import random
 import string
 import time
@@ -18,6 +17,7 @@ import docx.table
 import numpy as np
 import pandas as pd
 from docx import Document
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -66,10 +66,7 @@ class TextToWord(Mapper):
         sample[self.data_key] = self._txt_to_docx(sample[self.text_key])  # 将文字转换为word字符串流
         sample[self.text_key] = ""
         sample["target_type"] = "docx"
-        logger.info("fileName: %s, method: TextToWord costs %.6f s",
-                    sample[self.filename_key],
-                    time.time() - start
-                    )
+        logger.info(f"fileName: {sample[self.filename_key]}, method: TextToWord costs {time.time() - start:6f} s")
         return sample
 
     def read_html_with_merge_cell(self, html_table: bs4.BeautifulSoup) -> pd.DataFrame:
@@ -204,7 +201,7 @@ class TextToWord(Mapper):
         try:
             merge_destiny_x, merge_destiny_y = self.diagonal_merge[position]  # 获取此位置指向的目标合并单元格坐标
         except KeyError as e:
-            logger.error("Current dictionary is NOT supported: %s", e, exc_info=True)
+            logger.exception(f"Current dictionary is NOT supported: {e}")
 
         for i in range(position[0], merge_destiny_x + 1):
             for j in range(position[1], merge_destiny_y + 1):
@@ -223,7 +220,7 @@ class TextToWord(Mapper):
                 table.cell(position[0], position[1]).merge(table.cell(merge_destiny_x, merge_destiny_y))
                 self._to_clean_paragraphs(table, position)  # 去除多余的换行符
             except docx.exceptions.InvalidSpanError as e:
-                logger.error("Current table cell format is NOT supported: %s", e, exc_info=True)
+                logger.exception(f"Current table cell format is NOT supported: {e}")
 
     def _get_doc_table(self, dataframe: Union[pd.DataFrame, List], doc: Document, is_merge: bool) -> None:
         """
@@ -294,7 +291,7 @@ class TextToWord(Mapper):
                     cells[finish].merge(cells[start])  # 将冗余单元格合入相对最近的单元格
                     self._to_clean_paragraphs(table, (row, finish))  # 去除多余换行符
                 except docx.exceptions.InvalidSpanError as e:
-                    logger.error("Current table cell format is NOT supported: %s", e, exc_info=True)
+                    logger.exception(f"Current table cell format is NOT supported: {e}")
 
                 # 双指针重置
                 start, finish = None, None
@@ -325,9 +322,9 @@ class TextToWord(Mapper):
                 else:  # 一行文字如果是纯文字形式，则是不含表格的文本
                     paragraph.add_run(line)
             except docx.exceptions.InvalidSpanError as e:
-                logger.error("Current table cell format is NOT supported: %s", e, exc_info=True)
+                logger.exception(f"Current table cell format is NOT supported: {e}")
             except Exception as e:
-                logger.error("Current table shape is Not supported %s", e, exc_info=True)
+                logger.exception(f"Current table shape is Not supported {e}")
         stream = BytesIO()
         doc.save(stream)
         return stream.getvalue()

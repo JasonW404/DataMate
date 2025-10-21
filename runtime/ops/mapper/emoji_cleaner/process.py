@@ -6,10 +6,10 @@ Description: 文档表情去除
 Create: 2023/12/7 15:43
 """
 import time
-import logging as logger
 from typing import Dict, Any
 
 import emoji
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -25,6 +25,5 @@ class EmojiCleaner(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._emoji_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: EmojiCleaner costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, method: EmojiCleaner costs {time.time() - start:6f} s")
         return sample

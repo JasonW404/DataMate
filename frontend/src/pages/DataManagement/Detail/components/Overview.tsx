@@ -12,7 +12,6 @@ export default function Overview({ dataset, filesOperation }) {
     previewFileName,
     previewContent,
     setPreviewVisible,
-    handleShowFile,
     handleDeleteFile,
     handleDownloadFile,
     handleBatchDeleteFiles,
@@ -69,6 +68,11 @@ export default function Overview({ dataset, filesOperation }) {
       children: dataset.createdBy || "未知",
     },
     {
+      key: "targetLocation",
+      label: "存储路径",
+      children: dataset.targetLocation || "未知",
+    },
+    {
       key: "createdAt",
       label: "创建时间",
       children: dataset.createdAt,
@@ -97,23 +101,18 @@ export default function Overview({ dataset, filesOperation }) {
       dataIndex: "fileName",
       key: "fileName",
       fixed: "left",
-      render: (text, file) => (
-        <Button type="link" onClick={handleShowFile(file)}>
-          {text}
-        </Button>
-      ),
     },
     {
       title: "大小",
-      dataIndex: "size",
-      key: "size",
+      dataIndex: "fileSize",
+      key: "fileSize",
       width: 150,
       render: (text) => formatBytes(text),
     },
     {
       title: "上传时间",
-      dataIndex: "uploadedAt",
-      key: "uploadedAt",
+      dataIndex: "uploadTime",
+      key: "uploadTime",
       width: 200,
       render: (text) => formatDateTime(text),
     },

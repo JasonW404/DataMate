@@ -6,13 +6,13 @@
 Description:
 Create: 2024/1/30 9:26
 """
-import logging as logger
 import math
 import time
 from typing import Dict, Any
 
 import cv2
 import numpy as np
+from loguru import logger
 
 from data_platform.common.utils import bytes_transform
 from data_platform.core.base_op import Mapper
@@ -65,8 +65,8 @@ class ImgDirectionCorrect(Mapper):
         _, cls_res, _ = model.infer([image])
         rotate_angle = int(cls_res[0][0])
         pro = float(cls_res[0][1])
-        logger.info("fileName: %s, model %s detect result is %s with confidence %s", file_name, model.model_name,
-                    rotate_angle, pro)
+        logger.info(
+            f"fileName: ｛file_name｝, model ｛model.model_name｝ detect result is {rotate_angle} with confidence ｛pro｝")
         if rotate_angle == 90 and pro > 0.89:
             return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         if rotate_angle == 180 and pro > 0.89:
@@ -106,16 +106,14 @@ class ImgDirectionCorrect(Mapper):
             data = bytes_transform.bytes_to_numpy(img_bytes)
             correct_data = self._img_direction_correct(data, file_name, self.vertical_model, self.standard_model)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(correct_data, file_type)
-            logger.info("fileName: %s, method: ImgDirectionCorrect costs %.6f s", file_name,
-                        time.time() - start)
+            logger.info(f"fileName: ｛file_name｝, method: ImgDirectionCorrect costs {time.time() - start:6f} s")
         return sample
 
     def _img_direction_correct(self, img, file_name, vertical_model, standard_model):
         height, width = img.shape[:2]
         if max(height, width) > self.limit_size:
             logger.info(
-                "fileName: %s, method: ImgDirectionCorrect cannot process pixels number larger than 30000",
-                file_name)
+                f"fileName: {file_name}, method: ImgDirectionCorrect cannot process pixels number larger than 30000")
             return img
         detect_angle_img = self._resize(img)
         # 检测旋转角
