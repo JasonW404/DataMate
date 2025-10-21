@@ -10,7 +10,7 @@
                 AND name LIKE CONCAT('%', #{keywords}, '%')
             </if>
         </where>
-        ORDER BY created_at
+        ORDER BY created_at DESC
     </select>
 
     <select id="findAllOperators" resultType="com.dataengine.cleaning.interfaces.dto.OperatorResponse">
