@@ -1,11 +1,18 @@
 MAKEFLAGS += --no-print-directory
 
+VERSION ?= latest
+NAMESPACE ?= datamate
+
 .PHONY: build-%
 build-%:
 	$(MAKE) $*-docker-build
 
 .PHONY: build
 build: backend-docker-build frontend-docker-build runtime-docker-build
+
+.PHONY: create-namespace
+create-namespace:
+	@kubectl get namespace $(NAMESPACE) > /dev/null 2>&1 || kubectl create namespace $(NAMESPACE)
 
 .PHONY: install-%
 install-%:
@@ -52,31 +59,27 @@ uninstall: uninstall-data-mate
 # build
 .PHONY: mineru-docker-build
 mineru-docker-build:
-	sh scripts/images/mineru/build.sh
+	docker build -t mineru:$(VERSION) . -f scripts/images/mineru/Dockerfile
 
 .PHONY: datax-docker-build
 datax-docker-build:
-	sh scripts/images/datax/build.sh
-
-.PHONY: data-juicer-docker-build
-data-juicer-docker-build:
-	sh scripts/images/data-juicer/build.sh
+	docker build -t datax:$(VERSION) . -f scripts/images/datax/Dockerfile
 
 .PHONY: unstructured-docker-build
 unstructured-docker-build:
-	sh scripts/images/unstructured/build.sh
+	docker build -t unstructured:$(VERSION) . -f scripts/images/unstructured/Dockerfile
 
 .PHONY: backend-docker-build
 backend-docker-build:
-	sh scripts/images/backend/build.sh
+	docker build -t backend:$(VERSION) . -f scripts/images/backend/Dockerfile
 
 .PHONY: frontend-docker-build
 frontend-docker-build:
-	sh scripts/images/frontend/build.sh
+	docker build -t frontend:$(VERSION) . -f scripts/images/frontend/Dockerfile
 
 .PHONY: runtime-docker-build
 runtime-docker-build:
-	sh scripts/images/runtime/build.sh
+	docker build -t runtime:$(VERSION) . -f scripts/images/runtime/Dockerfile
 
 .PHONY: backend-docker-install
 backend-docker-install:
@@ -103,59 +106,59 @@ runtime-docker-uninstall:
 	cd deployment/docker/data-mate && docker-compose down runtime
 
 .PHONY: runtime-k8s-install
-runtime-k8s-install:
-	helm upgrade kuberay-operator deployment/helm/ray/kuberay-operator --install
-	helm upgrade raycluster deployment/helm/ray/ray-cluster/ --install
-	kubectl apply -f deployment/helm/ray/service.yaml
+runtime-k8s-install: create-namespace
+	helm upgrade kuberay-operator deployment/helm/ray/kuberay-operator --install -n $(NAMESPACE)
+	helm upgrade raycluster deployment/helm/ray/ray-cluster/ --install -n $(NAMESPACE)
+	kubectl apply -f deployment/helm/ray/service.yaml -n $(NAMESPACE)
 
 .PHONY: runtime-k8s-uninstall
 runtime-k8s-uninstall:
-	helm uninstall raycluster
-	helm uninstall kuberay-operator
-	kubectl delete -f deployment/helm/ray/service.yaml
+	helm uninstall raycluster -n $(NAMESPACE)
+	helm uninstall kuberay-operator -n $(NAMESPACE)
+	kubectl delete -f deployment/helm/ray/service.yaml -n $(NAMESPACE)
 
 .PHONY: unstructured-k8s-install
-unstructured-k8s-install:
-	kubectl apply -f deployment/kubernetes/unstructured/deploy.yaml
+unstructured-k8s-install: create-namespace
+	kubectl apply -f deployment/kubernetes/unstructured/deploy.yaml -n $(NAMESPACE)
 
 .PHONY: mysql-k8s-install
-mysql-k8s-install:
-	kubectl create configmap init-sql --from-file=scripts/db/ --dry-run=client -o yaml | kubectl apply -f -
-	kubectl apply -f deployment/kubernetes/mysql/configmap.yaml
-	kubectl apply -f deployment/kubernetes/mysql/deploy.yaml
+mysql-k8s-install: create-namespace
+	kubectl create configmap init-sql --from-file=scripts/db/ --dry-run=client -o yaml | kubectl apply -f - -n $(NAMESPACE)
+	kubectl apply -f deployment/kubernetes/mysql/configmap.yaml -n $(NAMESPACE)
+	kubectl apply -f deployment/kubernetes/mysql/deploy.yaml -n $(NAMESPACE)
 
 .PHONY: mysql-k8s-uninstall
 mysql-k8s-uninstall:
-	kubectl delete configmap init-sql
-	kubectl delete -f deployment/kubernetes/mysql/configmap.yaml
-	kubectl delete -f deployment/kubernetes/mysql/deploy.yaml
+	kubectl delete configmap init-sql -n $(NAMESPACE)
+	kubectl delete -f deployment/kubernetes/mysql/configmap.yaml -n $(NAMESPACE)
+	kubectl delete -f deployment/kubernetes/mysql/deploy.yaml -n $(NAMESPACE)
 
 .PHONY: backend-k8s-install
-backend-k8s-install:
-	kubectl apply -f deployment/kubernetes/backend/deploy.yaml
+backend-k8s-install: create-namespace
+	kubectl apply -f deployment/kubernetes/backend/deploy.yaml -n $(NAMESPACE)
 
 .PHONY: backend-k8s-uninstall
 backend-k8s-uninstall:
-	kubectl delete -f deployment/kubernetes/backend/deploy.yaml
+	kubectl delete -f deployment/kubernetes/backend/deploy.yaml -n $(NAMESPACE)
 
 .PHONY: frontend-k8s-install
-frontend-k8s-install:
-	kubectl apply -f deployment/kubernetes/frontend/deploy.yaml
+frontend-k8s-install: create-namespace
+	kubectl apply -f deployment/kubernetes/frontend/deploy.yaml -n $(NAMESPACE)
 
 .PHONY: frontend-k8s-uninstall
 frontend-k8s-uninstall:
-	kubectl delete -f deployment/kubernetes/frontend/deploy.yaml
+	kubectl delete -f deployment/kubernetes/frontend/deploy.yaml -n $(NAMESPACE)
 
 .PHONY: data-mate-docker-install
 data-mate-docker-install:
-	cd deployment/docker/data-mate && docker-compose up -d
+	cd deployment/docker/datamate && docker-compose up -d
 
 .PHONY: data-mate-docker-uninstall
 data-mate-docker-uninstall:
-	cd deployment/docker/data-mate && docker-compose down
+	cd deployment/docker/datamate && docker-compose down
 
 .PHONY: data-mate-k8s-install
-data-mate-k8s-install: mysql-k8s-install backend-k8s-install frontend-k8s-install runtime-k8s-install
+data-mate-k8s-install: create-namespace mysql-k8s-install backend-k8s-install frontend-k8s-install runtime-k8s-install
 
 .PHONY: data-mate-k8s-uninstall
 data-mate-k8s-uninstall: mysql-k8s-uninstall backend-k8s-uninstall frontend-k8s-uninstall runtime-k8s-uninstall

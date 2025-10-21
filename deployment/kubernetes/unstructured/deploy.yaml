@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: unstructured
-        image: downloads.unstructured.io/unstructured-io/unstructured:app
+        image: unstructured
         imagePullPolicy: IfNotPresent
         command:
           - python
