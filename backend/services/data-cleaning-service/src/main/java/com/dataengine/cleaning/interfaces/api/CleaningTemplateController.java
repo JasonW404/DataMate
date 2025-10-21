@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -32,14 +33,17 @@ public class CleaningTemplateController {
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "size", required = false) Integer size,
             @RequestParam(value = "keywords", required = false) String keyword) {
-        List<CleaningTemplate> templates = cleaningTemplateService.getTemplates(keyword, page, size);
-        if (page != null && size != null) {
-            int count  = cleaningTemplateService.countTemplates(keyword);
-            int totalPages = (count + size + 1) / size;
-            return ResponseEntity.ok(Response.ok(PagedResponse.of(templates, page, count, totalPages)));
-        } else {
+        List<CleaningTemplate> templates = cleaningTemplateService.getTemplates(keyword);
+        if (page == null || size == null) {
             return ResponseEntity.ok(Response.ok(PagedResponse.of(templates)));
         }
+        int count = templates.size();
+        int totalPages = (count + size + 1) / size;
+        List<CleaningTemplate> limitTemplates = templates.stream()
+                .sorted(Comparator.comparing(CleaningTemplate::getCreatedAt))
+                .skip((long) page * size)
+                .limit(size).toList();
+        return ResponseEntity.ok(Response.ok(PagedResponse.of(limitTemplates, page, count, totalPages)));
     }
 
     @PostMapping

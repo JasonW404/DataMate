@@ -9,7 +9,6 @@ Create: 2025/01/07
 """
 
 import json
-import logging as logger
 import re
 import time
 from pathlib import Path
@@ -18,6 +17,7 @@ from typing import List, Dict, Any
 import numpy as np
 from datasketch import MinHash
 from sqlalchemy import text
+from loguru import logger
 
 from data_platform.sql_manager.sql_manager import SQLManager
 from data_platform.common.utils import get_now_time
@@ -37,7 +37,7 @@ class DuplicateFilesFilter(Filter):
         # 默认相似度阈值为0.5
         self.duplicate_th = kwargs.get("fileDuplicateThreshold", 0.5)
         # task_uuid为标识该数据集的唯一标志
-        self.task_uuid = kwargs.get("uuid", "uuid")
+        self.task_uuid = kwargs.get("uuid", "")
         # 数据库连接
         self.conn = None
         # 数据库事务
@@ -99,7 +99,7 @@ class DuplicateFilesFilter(Filter):
         try:
             self.conn = db_manager.create_connect()
         except Exception as e:
-            logger.error("fileName: %s, database connection failed: %s", file_name, str(e))
+            logger.error(f"fileName: {file_name}, database connection failed: {str(e)}")
             raise RuntimeError(82000, str(e)) from None
         with self.conn as connection:
             connection.execute(text(create_tables_sql))
@@ -109,9 +109,9 @@ class DuplicateFilesFilter(Filter):
                 return ""
             insert_data = {
                 "task_uuid": self.task_uuid,
-               "file_feature": minhash_values_string,
-               "file_name": file_name.encode("utf-8").hex(),
-               "timestamp": timestamp
+                "file_feature": minhash_values_string,
+                "file_name": file_name.encode("utf-8").hex(),
+                "timestamp": timestamp
             }
             connection.execute(text(insert_sql), insert_data)
         return input_text
@@ -145,14 +145,16 @@ class DuplicateFilesFilter(Filter):
             file_name_decoded = bytes_data.decode('utf-8')
 
             if similarity >= self.duplicate_th:
-                logger.info("dataset: %s, fileName: %s is similar to %s, and the similarity is %.4f",
-                            self.task_uuid, file_name, file_name_decoded, similarity)
+                logger.info(f"taskId: {self.task_uuid}, fileName: {file_name} is similar to {file_name_decoded}, "
+                            f"and the similarity is {similarity:4f}")
                 return True
         return False
 
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         file_name = sample[self.filename_key]
+        self.task_uuid = sample.get("instance_id") if not self.task_uuid else self.task_uuid
         sample[self.text_key] = self.deduplicate_files(sample, file_name)
-        logger.info("fileName: %s, method: DuplicateFilesFilter costs %.6f s", file_name, time.time() - start)
+        logger.info(f"taskId: {self.task_uuid} fileName: {file_name}, "
+                    f"method: DuplicateFilesFilter costs {(time.time() - start):6f} s")
         return sample

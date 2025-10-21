@@ -6,7 +6,7 @@
 # Description:
 # Create: 2024/1/30 15:24
 # """
-import logging as logger
+from loguru import logger
 import os
 import subprocess
 import time
@@ -29,7 +29,7 @@ class WordFormatter(Mapper):
         file_type = sample[self.filetype_key]
         txt_content = self.word2html(file_path, file_type)
         sample[self.text_key] = txt_content
-        logger.info("fileName: %s, method: WordFormatter costs %.6f s", file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: WordFormatter costs {(time.time() - start):6f} s")
         return sample
 
     @staticmethod
@@ -46,16 +46,16 @@ class WordFormatter(Mapper):
                  html_file_path, file_type], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             stdout, stderr = process.communicate(timeout=24 * 60 * 60)
             if process.returncode == 0:
-                logger.info("Convert %s successfully to DOCX", file_path)
+                logger.info(f"Convert {file_path} successfully to DOCX")
             else:
                 logger.info(f"Convert {file_path} failed, error: {stderr.strip().decode('utf-8')}.")
                 raise RuntimeError()
         except subprocess.CalledProcessError as e:
-            logger.error("Convert failed: %s, return code: %s", e, e.returncode)
+            logger.error(f"Convert failed: ｛e｝, return code: ｛e.returncode｝")
         except FileNotFoundError:
             logger.error("LibreOffice command not found, please make sure it is available in PATH")
         except Exception as e:
-            logger.error("An unexpected error occurred, convert failed: %s", e)
+            logger.error(f"An unexpected error occurred, convert failed: ｛e｝", )
 
         try:
             with open(html_file_path, 'r', encoding='utf-8') as file:
@@ -63,8 +63,8 @@ class WordFormatter(Mapper):
             os.remove(html_file_path)
             logger.info("Tmp docx file removed")
         except FileNotFoundError:
-            logger.error("Tmp file %s does not exist", html_file_path)
+            logger.error(f"Tmp file ｛html_file_path｝ does not exist")
         except PermissionError:
-            logger.error("You are not allowed to delete tmp file %s", html_file_path)
-        logger.info("Convert %s to html success", html_file_path)
+            logger.error(f"You are not allowed to delete tmp file {html_file_path}")
+        logger.info(f"Convert {html_file_path} to html success")
         return txt_content

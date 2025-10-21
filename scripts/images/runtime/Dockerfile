@@ -16,3 +16,5 @@ WORKDIR /opt/runtime
 RUN pip install -e . -i https://mirrors.huaweicloud.com/repository/pypi/simple \
     && pip install -r /opt/runtime/data_platform/ops/requirements.txt -i https://mirrors.huaweicloud.com/repository/pypi/simple \
     && pip cache purge
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime

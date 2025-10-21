@@ -42,7 +42,7 @@ CREATE TABLE t_dc_collection_tasks (
     id VARCHAR(36) PRIMARY KEY COMMENT '任务ID（UUID）',
     name VARCHAR(255) NOT NULL COMMENT '任务名称',
     description TEXT COMMENT '任务描述',
-    sync_mode VARCHAR(20) DEFAULT 'FULL' COMMENT '同步模式：FULL/INCREMENTAL',
+    sync_mode VARCHAR(20) DEFAULT 'ONCE' COMMENT '同步模式：ONCE/SCHEDULED',
     config TEXT  NOT NULL COMMENT '归集配置（DataX配置），包含源端和目标端配置信息',
     schedule_expression VARCHAR(255) COMMENT 'Cron调度表达式',
     status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '任务状态：DRAFT/READY/RUNNING/SUCCESS/FAILED/STOPPED',

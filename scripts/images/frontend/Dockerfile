@@ -12,4 +12,6 @@ FROM nginx:1.29 AS runner
 COPY --from=builder /app/dist /opt/frontend
 COPY scripts/images/frontend/edm.conf /etc/nginx/conf.d/default.conf
 
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
 CMD ["nginx", "-g", "daemon off;"]

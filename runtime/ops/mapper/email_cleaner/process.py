@@ -7,7 +7,7 @@
 Description: 邮件地址匿名化
 Create: 2025/01/15
 """
-import logging as logger
+from loguru import logger
 import re
 import time
 from typing import Dict, Any
@@ -28,9 +28,7 @@ class EmailNumberCleaner(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._email_number_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: EmailCleaner costs %.6f s" % (
-            sample[self.filename_key], time.time() - start
-        ))
+        logger.info(f"fileName: {sample[self.filename_key]}, method: EmailCleaner costs {time.time() - start:6f} s")
         return sample
 
     def _email_number_filter(self, input_data: str):
@@ -47,5 +45,5 @@ class EmailNumberCleaner(Mapper):
                         "<email>", mixed_data, count=1)
                 except EmailNotValidError as err:
                     # 日志打印该电子邮件地址无效（不显示具体电子邮件地址）
-                    logger.info("email is abnormal email form: %s", err)
+                    logger.error(f"email is abnormal email form: {err}")
         return mixed_data[1:-1]

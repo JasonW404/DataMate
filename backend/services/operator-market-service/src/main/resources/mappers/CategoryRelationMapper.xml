@@ -9,12 +9,16 @@
            LEFT JOIN t_operator_category tc ON tcr.category_id = tc.id
   </select>
 
-  <select id="findFullOuterJoinNative" resultType="com.dataengine.operator.domain.modal.RelationCategoryDTO">
-    SELECT toc.id, tocr.operator_id, toc.name, toc.parent_id FROM t_operator_category_relation tocr
-        LEFT JOIN t_operator_category toc ON tocr.category_id = toc.id
-    UNION
-    SELECT toc.id, tocr.operator_id, toc.name, toc.parent_id FROM t_operator_category_relation tocr
-        RIGHT JOIN t_operator_category toc ON tocr.category_id = toc.id
+  <select id="findAllRelation" resultType="com.dataengine.operator.domain.modal.CategoryRelation">
+    SELECT category_id, operator_id FROM t_operator_category_relation
   </select>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO t_operator_category_relation (operator_id, category_id)
+        VALUES
+        <foreach collection="categories" item="categoryId" separator=",">
+            (#{operatorId}, #{categoryId})
+        </foreach>
+    </insert>
 
 </mapper>

@@ -7,12 +7,12 @@
 Description: 文档局部内容去重
 Create: 2025/01/07
 """
-
-import logging as logger
 import re
 import time
 from collections import Counter
 from typing import Dict, Any
+
+from loguru import logger
 
 from data_platform.core.base_op import Filter
 
@@ -49,8 +49,8 @@ def duplicate_sentences_filter(input_data: str, file_name: str, duplicate_th: in
                 paragraph_counts[paragraph_strip] = -1
 
     except Exception as err:
-        logger.error("fileName: %s, method: RemoveDuplicateSentencess. An error occurred when using "
-                     "filtering duplicate sentences. The error is: %s", file_name, err, exc_info=True)
+        logger.exception(f"fileName: ｛file_name｝, method: RemoveDuplicateSentencess. An error occurred when using "
+                         f"filtering duplicate sentences. The error is: ｛err｝")
         return input_data
 
     # 将去重后的段落重新组合成文本
@@ -66,6 +66,5 @@ class DuplicateSentencesFilter(Filter):
         file_name = sample[self.filename_key]
         start = time.time()
         sample[self.text_key] = duplicate_sentences_filter(sample[self.text_key], file_name, duplicate_th)
-        logger.info("fileName: %s, RemoveDuplicateSentencess costs %.6f s", file_name,
-                    time.time() - start)
+        logger.info(f"fileName: {file_name}, RemoveDuplicateSentencess costs {time.time() - start:6f} s")
         return sample

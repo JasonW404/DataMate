@@ -7,10 +7,11 @@
 Description: 文档目录去除
 Create: 2025/01/13
 """
-import logging as logger
 import re
 import time
 from typing import Dict, Any
+
+from loguru import logger
 
 from data_platform.core.base_op import Mapper
 
@@ -32,8 +33,7 @@ class ContentCleaner(Mapper):
     def execute(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         start = time.time()
         sample[self.text_key] = self._content_filter(sample[self.text_key])
-        logger.info("fileName: %s, method: ContentCleaner costs %.6f s", sample[self.filename_key],
-                    time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, method: ContentCleaner costs {time.time() - start:6f} s")
         return sample
 
     def _content_filter(self, input_data: str):

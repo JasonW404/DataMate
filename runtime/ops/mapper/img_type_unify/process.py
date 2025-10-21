@@ -9,7 +9,7 @@ Create: 2025/01/16
 import re
 import time
 
-import logging as logger
+from loguru import logger
 
 from data_platform.common.utils import bytes_transform
 from data_platform.core.base_op import Mapper
@@ -39,5 +39,5 @@ class ImgTypeUnify(Mapper):
             sample[self.filetype_key] = self._setting_type
             sample[self.filename_key] = re.sub(self._setting_type + "$", self._setting_type, file_name)
             sample[self.filepath_key] = re.sub(self._setting_type + "$", self._setting_type, file_path)
-            logger.info("fileName: %s, method: ImgTypeUnify costs %.6f s", file_name, time.time() - start)
+            logger.info(f"fileName: {file_name}, method: ImgTypeUnify costs {time.time() - start:6f} s")
         return sample

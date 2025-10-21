@@ -9,7 +9,7 @@ Create: 2025/01/16
 import time
 from typing import List, Dict, Any
 
-import logging as logger
+from loguru import logger
 import cv2
 
 from data_platform.common.utils import bytes_transform
@@ -38,5 +38,5 @@ class ImgResize(Mapper):
             data = bytes_transform.bytes_to_numpy(img_bytes)
             resized_img = self._img_resize(data, self._target_size)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(resized_img, file_type)
-            logger.info("fileName: %s, method: ImgResize costs %.6f s", file_name, time.time() - start)
+            logger.info(f"fileName: {file_name}, method: ImgResize costs {time.time() - start:6f} s")
         return sample

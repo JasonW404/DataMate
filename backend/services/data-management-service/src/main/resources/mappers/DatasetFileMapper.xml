@@ -79,13 +79,6 @@
         ORDER BY upload_time DESC
     </select>
 
-    <insert id="insert" parameterType="com.dataengine.datamanagement.domain.model.dataset.DatasetFile">
-        INSERT INTO t_dm_dataset_files (id, dataset_id, file_name, file_path, file_size, upload_time, last_access_time,
-                                        status
-        ) VALUES (#{id}, #{datasetId}, #{fileName}, #{filePath}, #{fileSize}, #{uploadTime}, #{lastAccessTime},
-                  #{status}
-        )
-    </insert>
 
     <update id="update" parameterType="com.dataengine.datamanagement.domain.model.dataset.DatasetFile">
         UPDATE t_dm_dataset_files

@@ -8,11 +8,11 @@ Create: 2025/01/17
 """
 import time
 
-import logging as logger
 from typing import Dict, Any
 
 import cv2
 import numpy as np
+from loguru import logger
 
 from data_platform.common.utils import bytes_transform
 from data_platform.core.base_op import Mapper
@@ -39,7 +39,7 @@ class ImgDenoise(Mapper):
             data = bytes_transform.bytes_to_numpy(img_bytes)
             denoise_images = self._denoise_images_filter(data, file_name)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(denoise_images, file_type)
-        logger.info("fileName: %s, method: ImgDenoise costs %.6f s", file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: ImgDenoise costs {time.time() - start:6f} s")
         return sample
 
     def _denoise_images_filter(self, ori_img, file_name):
@@ -56,7 +56,7 @@ class ImgDenoise(Mapper):
         snr = 10 * np.log10(signal / noise)
         # 对于小于阈值的图片，进行降噪处理
         if snr < self._denoise_threshold:
-            logger.info("The image denoise is %s, which exceeds the threshold of %s. %s is filtered out.", snr,
-                        self._denoise_threshold, file_name)
+            logger.info(f"The image denoise is {self._denoise_threshold}, "
+                        f"which exceeds the threshold of {snr}. {file_name} is filtered out.")
             return clean_data
         return ori_img

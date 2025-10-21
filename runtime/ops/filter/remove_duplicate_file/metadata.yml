@@ -17,9 +17,7 @@ outputs: 'text'
 settings:
   fileDuplicateThreshold:
     name: 文档相似度
-    name_en: File Similarity
     description: 基于MinHash算法和Jaccard相似度，计算当前文档与数据集中其它文档相似性，超过设定值，该文档被去除。
-    description_en: Based on MinHash and Jaccard index, the system calculates the similarity between the current file and other files in the dataset, and filters out the file if its similarity exceeds the value you set.
     type: slider
     defaultVal: 0.5
     min: 0

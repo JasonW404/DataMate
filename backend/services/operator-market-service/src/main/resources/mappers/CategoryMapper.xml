@@ -6,4 +6,3 @@
         SELECT * FROM t_operator_category
     </select>
 </mapper>
-

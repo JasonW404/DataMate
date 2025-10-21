@@ -6,12 +6,12 @@
 # Description:
 # Create: 2025/01/06
 # """
-import logging as logger
 import time
 from typing import Dict, Any
 
 import cv2
 import numpy as np
+from loguru import logger
 
 from data_platform.common.utils import bytes_to_numpy
 from data_platform.common.utils import numpy_to_bytes
@@ -89,7 +89,7 @@ class ImgWatermarkRemove(Mapper):
             data = bytes_to_numpy(img_bytes)
             correct_data = self._watermark_remove(data, file_name, self.ocr_model)
             sample[self.data_key] = numpy_to_bytes(correct_data, file_type)
-        logger.info("fileName: %s, method: ImgWatermarkRemove costs %.6f s", file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: ImgWatermarkRemove costs {time.time() - start:6f} s")
         return sample
 
     def delete_watermark(self, result_list, kw_list, data):
@@ -152,11 +152,11 @@ class ImgWatermarkRemove(Mapper):
         try:
             result = ocr_model.ocr(data, cls=True)
         except RuntimeError as e:
-            logger.error("fileName: %s, method: ocr predict error %s", file_name, e)
+            logger.error(f"fileName: {file_name}, method: ocr predict error {e}")
             return data
         if result and result[0]:
-            logger.info("fileName: %s, method: ocrModel detect watermark info %s", file_name, str(result))
+            logger.info(f"fileName: {file_name}, method: ocrModel detect watermark info {str(result)}")
             return self.delete_watermark(result[0], kw_list, data)
         else:
-            logger.info("fileName: %s, method: ImgWatermarkRemove not need remove target ocr", file_name)
+            logger.info(f"fileName: {file_name}, method: ImgWatermarkRemove not need remove target ocr")
             return data

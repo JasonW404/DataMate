@@ -9,11 +9,11 @@ Create: 2023/11/7 9:26
 """
 import re
 import time
-import logging as logger
 
 from collections import Counter
 from pathlib import Path
 from typing import Dict, Any
+from loguru import logger
 
 import jieba
 from data_platform.core.base_op import Filter
@@ -37,8 +37,8 @@ class FileWithHighRepeatPhraseRateFilter(Filter):
         start = time.time()
         sample[self.text_key] = self._file_with_high_repeat_phrase_rate_filter(sample[self.text_key],
                                                                                sample[self.filename_key])
-        logger.info("fileName: %s, method: FileWithHighRepeatPhraseRateFilter costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, "
+                    f"method: FileWithHighRepeatPhraseRateFilter costs {(time.time() - start):6f} s")
         return sample
 
     def _tokenize_by_jieba(self, text: str):
@@ -70,6 +70,6 @@ class FileWithHighRepeatPhraseRateFilter(Filter):
         if repeat_phrase_rate >= self._min_threshold:
             # 只要有一个词重复率高于阈值，就会过滤文档
             output_data = ""
-            logger.info("The repeat phrase rate of the input data is %s. Threshold is %s. "
-                        "The document %s is filtered.", repeat_phrase_rate, self._min_threshold, file_name)
+            logger.info(f"The repeat phrase rate of the input data is {repeat_phrase_rate}. "
+                        f"Threshold is {self._min_threshold}. The document {file_name} is filtered.")
         return output_data

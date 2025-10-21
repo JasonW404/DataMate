@@ -12,7 +12,6 @@ import com.dataengine.cleaning.interfaces.dto.OperatorResponse;
 import com.dataengine.cleaning.interfaces.dto.UpdateCleaningTemplateRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,16 +29,11 @@ public class CleaningTemplateService {
 
     private final OperatorInstanceMapper operatorInstanceMapper;
 
-    public List<CleaningTemplate> getTemplates(String keywords, Integer page, Integer size) {
+    public List<CleaningTemplate> getTemplates(String keywords) {
         List<OperatorResponse> allOperators = cleaningTemplateMapper.findAllOperators();
         Map<String, OperatorResponse> operatorsMap = allOperators.stream()
                 .collect(Collectors.toMap(OperatorResponse::getId, Function.identity()));
-
-        Integer offset = null;
-        if (page != null && size != null) {
-            offset = page * size;
-        }
-        List<TemplateWithInstance> allTemplates = cleaningTemplateMapper.findAllTemplates(keywords, size, offset);
+        List<TemplateWithInstance> allTemplates = cleaningTemplateMapper.findAllTemplates(keywords);
         Map<String, List<TemplateWithInstance>> templatesMap = allTemplates.stream()
                 .collect(Collectors.groupingBy(TemplateWithInstance::getId));
         return templatesMap.entrySet().stream().map(twi -> {
@@ -61,10 +55,6 @@ public class CleaningTemplateService {
             template.setUpdatedAt(value.get(0).getUpdatedAt());
             return template;
         }).toList();
-    }
-
-    public int countTemplates(String keywords) {
-        return cleaningTemplateMapper.findAllTemplates(keywords, null, null).size();
     }
 
     @Transactional

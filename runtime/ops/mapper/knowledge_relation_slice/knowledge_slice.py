@@ -15,7 +15,7 @@ class TextSegmentationOperator:
         try:
             self.text_splitter = TextSplitter(-1, chunk_size, chunk_overlap)
         except Exception as err:
-            logger.error("init text splitter failed, error is： %s", err, exc_info=True)
+            logger.exception(f"init text splitter failed, error is： {err}")
             raise err
 
     def process(self, input_data: str) -> List[str]:

@@ -9,10 +9,10 @@ Create: 2023/12/7 15:43
 """
 import sys
 import time
-import logging as logger
-
 from pathlib import Path
 from typing import Dict, Any
+
+from loguru import logger
 
 from data_platform.core.base_op import Filter
 from data_platform.common.utils.aho_corasick import build_trie, add_fail_pointer
@@ -94,8 +94,8 @@ class FileWithManySensitiveWordsFilter(Filter):
         start = time.time()
         sample[self.text_key] = self._file_with_many_sensitive_words_filter(sample[self.text_key],
                                                                             sample[self.filename_key])
-        logger.info("fileName: %s, method: FileWithManySensitiveWordsFilter costs %.6f s",
-                    sample[self.filename_key], time.time() - start)
+        logger.info(f"fileName: {sample[self.filename_key]}, "
+                    f"method: FileWithManySensitiveWordsFilter costs {(time.time() - start):6f} s")
         return sample
 
     def _file_with_many_sensitive_words_filter(self, input_data: str, file_name):
@@ -110,10 +110,9 @@ class FileWithManySensitiveWordsFilter(Filter):
         # 敏感词率 = 敏感词字数 / 总字数，符号不纳入统计
         sensitive_rate = self.ac_automaton.search_and_count(input_data, self.special_symbols) / total_count
         if sensitive_rate >= self._file_sensitive_words_rate:
-            logger.info(
-                "This document contains too many sensitive words. The proportion of sensitive words is %s. "
-                "Threshold is %s. The document %s is filtered.", sensitive_rate, self._file_sensitive_words_rate,
-                file_name)
+            logger.info(f"This document contains too many sensitive words. "
+                        f"The proportion of sensitive words is {sensitive_rate}. "
+                        f"Threshold is {self._file_sensitive_words_rate}. The document {file_name} is filtered.")
             return ""
         else:
             return input_data

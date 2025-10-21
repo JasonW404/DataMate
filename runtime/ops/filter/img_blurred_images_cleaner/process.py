@@ -8,11 +8,11 @@ Create: 2025/01/17
 """
 import time
 
-import logging as logger
 from typing import Dict, Any
 
 import cv2
 import numpy as np
+from loguru import logger
 
 
 from data_platform.common.utils import bytes_transform
@@ -36,7 +36,7 @@ class ImgBlurredImagesCleaner(Filter):
             data = bytes_transform.bytes_to_numpy(img_bytes)
             blurred_images = self._blurred_images_filter(data, file_name)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(blurred_images, file_type)
-        logger.info("fileName: %s, method: ImagesBlurredCleaner costs %.6f s", file_name, time.time() - start)
+        logger.info(f"fileName: ｛file_name｝, method: ImagesBlurredCleaner costs {(time.time() - start):6f} s")
         return sample
 
     def _blurred_images_filter(self, image, file_name):
@@ -46,7 +46,7 @@ class ImgBlurredImagesCleaner(Filter):
         gray = cv2.cvtColor(img_resize, cv2.COLOR_BGR2GRAY)
         score = cv2.Laplacian(gray, cv2.CV_64F).var()
         if score <= self._blurred_threshold:
-            logger.info("The image blur is %s, which exceeds the threshold of %s. %s is filtered out.", score,
-                        self._blurred_threshold, file_name)
+            logger.info(f"The image blur is {self._blurred_threshold}, "
+                        f"which exceeds the threshold of ｛score｝. ｛file_name｝ is filtered out.")
             return np.array([])
         return image

@@ -4,6 +4,8 @@ package com.dataengine.operator.interfaces.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * CreateOperatorRequest
  */
@@ -11,6 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateOperatorRequest {
+  private String id;
 
   private String name;
 
@@ -18,8 +21,16 @@ public class CreateOperatorRequest {
 
   private String version;
 
-  private String category;
+  private String inputs;
 
-  private String documentation;
+  private String outputs;
+
+  private List<Integer> categories;
+
+  private String runtime;
+
+  private String settings;
+
+  private String fileName;
 }
 

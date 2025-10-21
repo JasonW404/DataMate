@@ -7,13 +7,12 @@
 Description:
 Create: 2024/1/22 20:49
 """
-import logging as logger
 import time
 from typing import Dict, Any
 
 import cv2
 import numpy as np
-
+from loguru import logger
 
 from data_platform.common.utils import bytes_transform
 from data_platform.core.base_op import Filter
@@ -80,8 +79,9 @@ class ImgAdvertisementImagesCleaner(Filter):
         except UnicodeDecodeError as ex:
             res = ex.object.decode('ISO-8859-1').split(" ")[0]
         except Exception as err:
-            logger.error("fileName: %s, method: ImgAdvertisementImagesCleaner. An error occurred when using "
-                         "the WeChat model to detect the QR code. The error is: %s", file_name, err, exc_info=True)
+            logger.exception(f"fileName: {file_name}, method: ImgAdvertisementImagesCleaner. "
+                             f"An error occurred when using the WeChat model to detect the QR code. "
+                             f"The error is: {err}")
         if res:
             return True
         return False
@@ -114,8 +114,8 @@ class ImgAdvertisementImagesCleaner(Filter):
             data = bytes_transform.bytes_to_numpy(img_bytes)
             image = self._detect_advertisement_img(data, file_name, self.model)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(image, file_type)
-            logger.info("fileName: %s, method: ImgAdvertisementImagesCleaner costs %.6f s", file_name,
-                        time.time() - start)
+            logger.info(f"fileName: {file_name}, "
+                        f"method: ImgAdvertisementImagesCleaner costs {(time.time() - start):6f} s")
         return sample
 
     def _detect_advertisement_img(self, img, file_name, model):
@@ -123,7 +123,7 @@ class ImgAdvertisementImagesCleaner(Filter):
         img_resize = self.resize_img(img)
         if self._detect_qr_code_using_wechat_model(img_resize, file_name, model) \
                 or self._detect_qr_code_using_anchor_point(img_resize):
-            logger.info("fileName: %s, method: ImgAdvertisementImagesCleaner. "
-                        "The image contains advertisement. The image is filtered out.", file_name)
+            logger.info(f"fileName: {file_name}, method: ImgAdvertisementImagesCleaner. "
+                        "The image contains advertisement. The image is filtered out.")
             return np.array([])
         return img

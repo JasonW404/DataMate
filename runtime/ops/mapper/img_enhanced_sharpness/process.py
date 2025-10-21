@@ -10,11 +10,11 @@ Create: 2025/01/13
 
 import time
 
-import logging as logger
 from typing import Dict, Any
 
 import cv2
 import numpy as np
+from loguru import logger
 
 from data_platform.common.utils import bytes_transform
 from data_platform.core.base_op import Mapper
@@ -50,7 +50,7 @@ class ImgSharpness(Mapper):
 
         # 图片锐度较高，不需要增强锐度
         if sharpness_factor <= 1:
-            logger.info("fileName: %s, method: ImgSharpness not need enhancement", file_name)
+            logger.info(f"fileName: {file_name}, method: ImgSharpness not need enhancement")
             return image_data
 
         filtered_img = cv2.filter2D(image_data, -1, self.kernel)
@@ -67,6 +67,5 @@ class ImgSharpness(Mapper):
             img_data = bytes_transform.bytes_to_numpy(img_bytes)
             img_data = self.enhance_sharpness(img_data, file_name)
             sample[self.data_key] = bytes_transform.numpy_to_bytes(img_data, file_type)
-        logger.info("fileName: %s, method: ImgSharpness costs %.6f s",
-                    file_name, time.time() - start)
+        logger.info(f"fileName: {file_name}, method: ImgSharpness costs {time.time() - start:6f} s")
         return sample

@@ -2,6 +2,7 @@ package com.dataengine.datamanagement.domain.model.dataset;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.dataengine.common.domain.model.base.BaseEntity;
 import com.dataengine.datamanagement.common.enums.DatasetStatusType;
 import com.dataengine.datamanagement.common.enums.DatasetType;
@@ -10,9 +11,7 @@ import lombok.Setter;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 数据集实体（与数据库表 t_dm_datasets 对齐）
@@ -66,6 +65,11 @@ public class Dataset extends BaseEntity<String> {
      */
     private Integer retentionDays = 0;
     /**
+     * 标签列表, JSON格式
+     */
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private Collection<Tag> tags = new HashSet<>();
+    /**
      * 额外元数据，JSON格式
      */
     private String metadata;
@@ -86,9 +90,6 @@ public class Dataset extends BaseEntity<String> {
      */
     private Long version = 0L;
 
-    // 聚合内的便捷集合（非持久化关联，由应用服务填充）
-    @TableField(exist = false)
-    private List<Tag> tags = new ArrayList<>();
     @TableField(exist = false)
     private List<DatasetFile> files = new ArrayList<>();
 
@@ -113,10 +114,6 @@ public class Dataset extends BaseEntity<String> {
         this.id = UUID.randomUUID().toString();
         this.path = datasetBasePath + File.separator + this.id;
         this.status = DatasetStatusType.DRAFT;
-        this.createdBy = "system";
-        this.updatedBy = "system";
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void updateBasicInfo(String name, String description, String category) {
