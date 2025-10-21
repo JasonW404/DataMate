@@ -4,6 +4,7 @@ import { Dataset, DataSource } from "../../dataset.model";
 import { useEffect, useState } from "react";
 import { queryTasksUsingGet } from "@/pages/DataCollection/collection.apis";
 import { useImportFile } from "../../hooks";
+import { updateDatasetByIdUsingPut } from "../../dataset.api";
 
 export default function ImportConfiguration({
   data,
@@ -16,6 +17,7 @@ export default function ImportConfiguration({
   onClose: () => void;
   onRefresh?: () => void;
 }) {
+  const [form] = Form.useForm();
   const [collectionOptions, setCollectionOptions] = useState([]);
   const [importConfig, setImportConfig] = useState<any>({
     source: DataSource.UPLOAD,
@@ -36,20 +38,27 @@ export default function ImportConfiguration({
     }
   };
 
+  const resetState = () => {
+    form.resetFields();
+    setImportConfig({ source: DataSource.UPLOAD });
+  };
+
   const handleImportData = async () => {
     if (importConfig.source === DataSource.UPLOAD) {
       await handleUpload(data);
-    } else {
-      // 其他导入方式的处理逻辑
-      console.log("Importing data from source:", importConfig.source);
+    } else if (importConfig.source === DataSource.COLLECTION) {
+      await updateDatasetByIdUsingPut(data?.id!, {
+        ...importConfig,
+      });
     }
+    resetState();
     onRefresh?.();
     onClose();
   };
 
   useEffect(() => {
-    fetchCollectionTasks();
-  }, []);
+    if (open) fetchCollectionTasks();
+  }, [open]);
 
   return (
     <Modal
@@ -68,6 +77,7 @@ export default function ImportConfiguration({
       }
     >
       <Form
+        form={form}
         layout="vertical"
         initialValues={importConfig || {}}
         onValuesChange={(_, allValues) => setImportConfig(allValues)}
@@ -84,7 +94,7 @@ export default function ImportConfiguration({
           />
         </Form.Item>
         {importConfig?.source === DataSource.COLLECTION && (
-          <Form.Item name="collectionId" label="归集任务" required>
+          <Form.Item name="dataSource" label="归集任务" required>
             <Select placeholder="请选择归集任务" options={collectionOptions} />
           </Form.Item>
         )}

@@ -4,7 +4,19 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Edit, Save, TagIcon, X, Trash } from "lucide-react";
 import { TagItem } from "@/pages/DataManagement/dataset.model";
 
-function Tag({
+interface CustomTagProps {
+  isEditable?: boolean;
+  tag: { id: number; name: string };
+  editingTag?: string | null;
+  editingTagValue?: string;
+  setEditingTag?: React.Dispatch<React.SetStateAction<string | null>>;
+  setEditingTagValue?: React.Dispatch<React.SetStateAction<string>>;
+  handleEditTag?: (tag: { id: number; name: string }, value: string) => void;
+  handleCancelEdit?: (tag: { id: number; name: string }) => void;
+  handleDeleteTag?: (tag: { id: number; name: string }) => void;
+}
+
+function CustomTag({
   isEditable = false,
   tag,
   editingTag,
@@ -14,7 +26,7 @@ function Tag({
   handleEditTag,
   handleCancelEdit,
   handleDeleteTag,
-}) {
+}: CustomTagProps) {
   return (
     <div
       key={tag.id}
@@ -24,14 +36,14 @@ function Tag({
         <div className="flex gap-2 flex-1">
           <Input
             value={editingTagValue}
-            onChange={(e) => setEditingTagValue(e.target.value)}
+            onChange={(e) => setEditingTagValue?.(e.target.value)}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                handleEditTag(tag, editingTagValue);
+                handleEditTag?.(tag, editingTagValue);
               }
               if (e.key === "Escape") {
-                setEditingTag(null);
-                setEditingTagValue("");
+                setEditingTag?.(null);
+                setEditingTagValue?.("");
               }
             }}
             className="h-6 text-sm"
@@ -47,7 +59,7 @@ function Tag({
             danger
             type="text"
             size="small"
-            onClick={() => handleCancelEdit(tag)}
+            onClick={() => handleCancelEdit?.(tag)}
             icon={<X className="w-3 h-3" />}
           />
         </div>
@@ -60,8 +72,8 @@ function Tag({
                 size="small"
                 type="text"
                 onClick={() => {
-                  setEditingTag(tag);
-                  setEditingTagValue(tag.name);
+                  setEditingTag?.(tag);
+                  setEditingTagValue?.(tag.name);
                 }}
                 icon={<Edit className="w-3 h-3" />}
               />
@@ -69,7 +81,7 @@ function Tag({
                 danger
                 type="text"
                 size="small"
-                onClick={() => handleDeleteTag(tag)}
+                onClick={() => handleDeleteTag?.(tag)}
                 icon={<Trash className="w-3 h-3" />}
               />
             </div>
@@ -114,6 +126,7 @@ const TagManager: React.FC = ({
 
   // 获取标签列表
   const fetchTags = async () => {
+    if (!onFetch) return;
     try {
       const { data } = await onFetch?.();
       setTags(data || []);
@@ -136,7 +149,7 @@ const TagManager: React.FC = ({
   };
 
   // 删除标签
-  const deleteTag = async (tag: string) => {
+  const deleteTag = async (tag: TagItem) => {
     try {
       await onDelete?.(tag.id);
       fetchTags();
@@ -148,7 +161,7 @@ const TagManager: React.FC = ({
 
   const updateTag = async (oldTag: TagItem, newTag: string) => {
     try {
-      await onUpdate?.(oldTag.id, newTag);
+      await onUpdate?.(oldTag.id, { ...oldTag, name: newTag });
       fetchTags();
       message.success("标签更新成功");
     } catch (error) {
@@ -163,7 +176,7 @@ const TagManager: React.FC = ({
     }
   };
 
-  const handleEditTag = (tag: string, value: string) => {
+  const handleEditTag = (tag: TagItem, value: string) => {
     if (value.trim()) {
       updateTag(tag, value.trim());
       setEditingTag(null);
@@ -176,8 +189,8 @@ const TagManager: React.FC = ({
     setEditingTagValue("");
   };
 
-  const handleDeleteTag = (tag: string) => {
-    deleteTag(tag.id);
+  const handleDeleteTag = (tag: TagItem) => {
+    deleteTag(tag);
     setEditingTag(null);
     setEditingTagValue("");
   };
@@ -198,6 +211,7 @@ const TagManager: React.FC = ({
         open={showTagManager}
         onClose={() => setShowTagManager(false)}
         title="标签管理"
+        width={500}
       >
         <div className="space-y-4">
           {/* Add New Tag */}
@@ -228,25 +242,13 @@ const TagManager: React.FC = ({
           <h2 className="font-large font-bold w-full">预置标签</h2>
           <div className="grid grid-cols-2 gap-2">
             {preparedTags.length > 0 &&
-              preparedTags.map((tag) => (
-                <Tag
-                  key={tag.id}
-                  tag={tag}
-                  editingTag={editingTag}
-                  editingTagValue={editingTagValue}
-                  setEditingTag={setEditingTag}
-                  setEditingTagValue={setEditingTagValue}
-                  handleEditTag={handleEditTag}
-                  handleCancelEdit={handleCancelEdit}
-                  handleDeleteTag={handleDeleteTag}
-                />
-              ))}
+              preparedTags.map((tag) => <CustomTag key={tag.id} tag={tag} />)}
           </div>
 
           <h2 className="font-large font-bold w-full">自定义标签</h2>
           <div className="grid grid-cols-2 gap-2 mt-4">
             {tags.map((tag) => (
-              <Tag
+              <CustomTag
                 isEditable
                 key={tag.id}
                 tag={tag}

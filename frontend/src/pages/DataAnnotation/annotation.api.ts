@@ -2,23 +2,22 @@ import { get, post, put, del, download } from "@/utils/request";
 
 // 标注任务管理相关接口
 export function queryAnnotationTasksUsingGet(params?: any) {
-  return get("/api/v1/annotation/tasks", params);
+  return get("/api/project/mappings/list", params);
 }
 
 export function createAnnotationTaskUsingPost(data: any) {
-  return post("/api/v1/annotation/tasks", data);
+  return post("/api/project/create", data);
+}
+
+export function syncAnnotationTaskUsingPost(data: any) {
+  return post(`/api/project/sync`, data);
 }
 
 export function queryAnnotationTaskByIdUsingGet(taskId: string | number) {
   return get(`/api/v1/annotation/tasks/${taskId}`);
 }
-
-export function updateAnnotationTaskByIdUsingPut(taskId: string | number, data: any) {
-  return put(`/api/v1/annotation/tasks/${taskId}`, data);
-}
-
-export function deleteAnnotationTaskByIdUsingDelete(taskId: string | number) {
-  return del(`/api/v1/annotation/tasks/${taskId}`);
+export function deleteAnnotationTaskByIdUsingDelete(params?: any) {
+  return del(`/api/project/mappings`, params);
 }
 
 // 智能预标注相关接口
@@ -27,7 +26,10 @@ export function preAnnotateUsingPost(data: any) {
 }
 
 // 标注数据管理接口
-export function queryAnnotationDataUsingGet(taskId: string | number, params?: any) {
+export function queryAnnotationDataUsingGet(
+  taskId: string | number,
+  params?: any
+) {
   return get(`/api/v1/annotation/tasks/${taskId}/data`, params);
 }
 
@@ -35,11 +37,21 @@ export function submitAnnotationUsingPost(taskId: string | number, data: any) {
   return post(`/api/v1/annotation/tasks/${taskId}/annotations`, data);
 }
 
-export function updateAnnotationUsingPut(taskId: string | number, annotationId: string | number, data: any) {
-  return put(`/api/v1/annotation/tasks/${taskId}/annotations/${annotationId}`, data);
+export function updateAnnotationUsingPut(
+  taskId: string | number,
+  annotationId: string | number,
+  data: any
+) {
+  return put(
+    `/api/v1/annotation/tasks/${taskId}/annotations/${annotationId}`,
+    data
+  );
 }
 
-export function deleteAnnotationUsingDelete(taskId: string | number, annotationId: string | number) {
+export function deleteAnnotationUsingDelete(
+  taskId: string | number,
+  annotationId: string | number
+) {
   return del(`/api/v1/annotation/tasks/${taskId}/annotations/${annotationId}`);
 }
 
@@ -78,33 +90,61 @@ export function createAnnotationTemplateUsingPost(data: any) {
   return post("/api/v1/annotation/templates", data);
 }
 
-export function queryAnnotationTemplateByIdUsingGet(templateId: string | number) {
+export function queryAnnotationTemplateByIdUsingGet(
+  templateId: string | number
+) {
   return get(`/api/v1/annotation/templates/${templateId}`);
 }
 
-export function updateAnnotationTemplateByIdUsingPut(templateId: string | number, data: any) {
+export function updateAnnotationTemplateByIdUsingPut(
+  templateId: string | number,
+  data: any
+) {
   return put(`/api/v1/annotation/templates/${templateId}`, data);
 }
 
-export function deleteAnnotationTemplateByIdUsingDelete(templateId: string | number) {
+export function deleteAnnotationTemplateByIdUsingDelete(
+  templateId: string | number
+) {
   return del(`/api/v1/annotation/templates/${templateId}`);
 }
 
 // 主动学习相关接口
-export function queryActiveLearningCandidatesUsingGet(taskId: string | number, params?: any) {
-  return get(`/api/v1/annotation/tasks/${taskId}/active-learning/candidates`, params);
+export function queryActiveLearningCandidatesUsingGet(
+  taskId: string | number,
+  params?: any
+) {
+  return get(
+    `/api/v1/annotation/tasks/${taskId}/active-learning/candidates`,
+    params
+  );
 }
 
-export function submitActiveLearningFeedbackUsingPost(taskId: string | number, data: any) {
-  return post(`/api/v1/annotation/tasks/${taskId}/active-learning/feedback`, data);
+export function submitActiveLearningFeedbackUsingPost(
+  taskId: string | number,
+  data: any
+) {
+  return post(
+    `/api/v1/annotation/tasks/${taskId}/active-learning/feedback`,
+    data
+  );
 }
 
-export function updateActiveLearningModelUsingPost(taskId: string | number, data: any) {
-  return post(`/api/v1/annotation/tasks/${taskId}/active-learning/update-model`, data);
+export function updateActiveLearningModelUsingPost(
+  taskId: string | number,
+  data: any
+) {
+  return post(
+    `/api/v1/annotation/tasks/${taskId}/active-learning/update-model`,
+    data
+  );
 }
 
 // 标注质量控制
-export function validateAnnotationsUsingPost(taskId: string | number, data: any) {
+export function validateAnnotationsUsingPost(
+  taskId: string | number,
+  data: any
+) {
   return post(`/api/v1/annotation/tasks/${taskId}/validate`, data);
 }
 
@@ -121,8 +161,15 @@ export function importAnnotationsUsingPost(taskId: string | number, data: any) {
   return post(`/api/v1/annotation/tasks/${taskId}/import`, data);
 }
 
-export function downloadAnnotationsUsingGet(taskId: string | number, filename?: string) {
-  return download(`/api/v1/annotation/tasks/${taskId}/download`, null, filename);
+export function downloadAnnotationsUsingGet(
+  taskId: string | number,
+  filename?: string
+) {
+  return download(
+    `/api/v1/annotation/tasks/${taskId}/download`,
+    null,
+    filename
+  );
 }
 
 // 标注者管理
@@ -143,7 +190,10 @@ export function getAnnotationConfigUsingGet(taskId: string | number) {
   return get(`/api/v1/annotation/tasks/${taskId}/config`);
 }
 
-export function updateAnnotationConfigUsingPut(taskId: string | number, data: any) {
+export function updateAnnotationConfigUsingPut(
+  taskId: string | number,
+  data: any
+) {
   return put(`/api/v1/annotation/tasks/${taskId}/config`, data);
 }
 
@@ -156,15 +206,25 @@ export function queryAnnotationLabelsUsingGet(taskId: string | number) {
   return get(`/api/v1/annotation/tasks/${taskId}/labels`);
 }
 
-export function createAnnotationLabelUsingPost(taskId: string | number, data: any) {
+export function createAnnotationLabelUsingPost(
+  taskId: string | number,
+  data: any
+) {
   return post(`/api/v1/annotation/tasks/${taskId}/labels`, data);
 }
 
-export function updateAnnotationLabelUsingPut(taskId: string | number, labelId: string | number, data: any) {
+export function updateAnnotationLabelUsingPut(
+  taskId: string | number,
+  labelId: string | number,
+  data: any
+) {
   return put(`/api/v1/annotation/tasks/${taskId}/labels/${labelId}`, data);
 }
 
-export function deleteAnnotationLabelUsingDelete(taskId: string | number, labelId: string | number) {
+export function deleteAnnotationLabelUsingDelete(
+  taskId: string | number,
+  labelId: string | number
+) {
   return del(`/api/v1/annotation/tasks/${taskId}/labels/${labelId}`);
 }
 
@@ -187,10 +247,16 @@ export function getAnnotationProgressUsingGet(taskId: string | number) {
 }
 
 // 标注审核
-export function submitAnnotationReviewUsingPost(taskId: string | number, data: any) {
+export function submitAnnotationReviewUsingPost(
+  taskId: string | number,
+  data: any
+) {
   return post(`/api/v1/annotation/tasks/${taskId}/review`, data);
 }
 
-export function getAnnotationReviewResultsUsingGet(taskId: string | number, params?: any) {
+export function getAnnotationReviewResultsUsingGet(
+  taskId: string | number,
+  params?: any
+) {
   return get(`/api/v1/annotation/tasks/${taskId}/reviews`, params);
 }

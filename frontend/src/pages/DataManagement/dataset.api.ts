@@ -102,8 +102,8 @@ export function updateDatasetTagByIdUsingPut(id: string | number, data: any) {
 }
 
 // 删除数据集标签
-export function deleteDatasetTagByIdUsingDelete(tag) {
-  return del(`/api/data-management/tags/${tag.id}`);
+export function deleteDatasetTagByIdUsingDelete(id: string | number) {
+  return del(`/api/data-management/tags/${id}`);
 }
 
 // 数据集质量检查

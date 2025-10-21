@@ -31,8 +31,7 @@ const MockAPI = {
   updateTagUsingPost: "/data-management/tags", // 更新数据集标签
   deleteTagUsingPost: "/data-management/tags", // 删除数据集标签
   queryDatasetStatisticsUsingGet: "/data-management/datasets/statistics", // 获取数据集统计信息
-  preUploadFileUsingPost:
-    "/data-management/datasets/:id/upload/pre-upload", // 预上传文件
+  preUploadFileUsingPost: "/data-management/datasets/:id/upload/pre-upload", // 预上传文件
   cancelUploadUsingPut: "/data-management/datasets/upload/cancel-upload/:id", // 取消上传
   uploadFileChunkUsingPost: "/data-management/datasets/:id/upload/chunk", // 上传切片
 
@@ -50,11 +49,11 @@ const MockAPI = {
   deleteCleaningTemplateByIdUsingDelete: "/cleaning/templates/:templateId", // 删除清洗模板
 
   // 数据标注接口
-  queryAnnotationTasksUsingGet: "/annotation/tasks", // 获取标注任务列表
-  createAnnotationTaskUsingPost: "/annotation/tasks/create", // 创建标注任务
+  queryAnnotationTasksUsingGet: "/project/mappings/list", // 获取标注任务列表
+  createAnnotationTaskUsingPost: "/project/create", // 创建标注任务
+  syncAnnotationTaskByIdUsingPost: "/project/sync", // 同步标注任务
+  deleteAnnotationTaskByIdUsingDelete: "/project/mappings", // 删除标注任务
   queryAnnotationTaskByIdUsingGet: "/annotation/tasks/:taskId", // 根据ID获取标注任务详情
-  updateAnnotationTaskByIdUsingPut: "/annotation/tasks/:taskId", // 更新标注任务
-  deleteAnnotationTaskByIdUsingDelete: "/annotation/tasks/:taskId", // 删除标注任务
   executeAnnotationTaskByIdUsingPost: "/annotation/tasks/:taskId/execute", // 执行标注任务
   stopAnnotationTaskByIdUsingPost: "/annotation/tasks/:taskId/stop", // 停止标注任务
   queryAnnotationDataUsingGet: "/annotation/data", // 获取标注数据列表

@@ -10,6 +10,8 @@ import java.util.List;
 @Mapper
 public interface OperatorInstanceMapper {
 
-    void insertInstance(@Param("instance_id") String instance_id,
+    void insertInstance(@Param("instanceId") String instanceId,
                         @Param("instances") List<OperatorInstancePo> instances);
+
+    void deleteByInstanceId(@Param("instanceId") String instanceId);
 }

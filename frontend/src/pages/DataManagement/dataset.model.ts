@@ -51,28 +51,9 @@ export interface Dataset {
   itemCount?: number;
   createdBy: string;
   createdAt: string;
-  updatedBy: string;
   updatedAt: string;
-  lastModified: string;
   tags: string[];
-  quality: number;
-  isFavorited?: boolean;
-  files?: DatasetFile[];
   targetLocation?: string;
-  annotations?: {
-    total: number;
-    completed: number;
-    accuracy: number;
-  };
-  lineage?: {
-    source: string;
-    processing: string[];
-    training?: {
-      model: string;
-      accuracy: number;
-      f1Score: number;
-    };
-  };
 }
 
 export interface TagItem {

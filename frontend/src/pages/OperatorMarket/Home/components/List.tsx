@@ -113,13 +113,9 @@ export function ListView({ operators, pagination }) {
         >
           <List.Item.Meta
             avatar={
-              <Avatar
-                icon={getTypeIcon(operator.type)}
-                size="large"
-                style={{
-                  backgroundColor: "oklch(0.932 0.032 255.585)",
-                }}
-              />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                {operator?.icon}
+              </div>
             }
             title={
               <div className="flex items-center gap-3">
@@ -138,12 +134,12 @@ export function ListView({ operators, pagination }) {
             description={
               <div className="space-y-2">
                 <div className="text-gray-600 ">{operator.description}</div>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                {/* <div className="flex items-center gap-4 text-xs text-gray-500">
                   <span>作者: {operator.author}</span>
                   <span>类型: {operator.type}</span>
                   <span>框架: {operator.framework}</span>
                   <span>使用次数: {operator?.usage?.toLocaleString()}</span>
-                </div>
+                </div> */}
               </div>
             }
           />

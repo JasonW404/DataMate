@@ -25,7 +25,6 @@ export default function AddTagPopover({
   const [showPopover, setShowPopover] = useState(false);
 
   const [newTag, setNewTag] = useState("");
-  const [detailNewTag, setDetailNewTag] = useState("");
   const [allTags, setAllTags] = useState<Tag[]>([]);
 
   const tagsSet = useMemo(() => new Set(tags.map((tag) => tag.id)), [tags]);
@@ -46,8 +45,6 @@ export default function AddTagPopover({
 
   const handleCreateAndAddTag = () => {
     if (newTag.trim()) {
-      console.log(newTag.trim());
-      
       onCreateAndTag?.(newTag.trim());
       setNewTag("");
     }
@@ -98,13 +95,13 @@ export default function AddTagPopover({
               <div className="flex gap-2">
                 <Input
                   placeholder="输入新标签名称..."
-                  value={detailNewTag}
-                  onChange={(e) => setDetailNewTag(e.target.value)}
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
                   className="h-8 text-sm"
                 />
                 <Button
                   onClick={() => handleCreateAndAddTag()}
-                  disabled={!detailNewTag.trim()}
+                  disabled={!newTag.trim()}
                   type="primary"
                 >
                   添加
