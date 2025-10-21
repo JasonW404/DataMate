@@ -37,8 +37,9 @@ COPY editions/community/config/application.yml /opt/backend/application.yml
 COPY editions/community/config/log4j2.xml /opt/backend/log4j2.xml
 COPY scripts/images/backend/start.sh /opt/backend/start.sh
 
-RUN chmod +x /opt/backend/start.sh
+RUN chmod +x /opt/backend/start.sh \
+    && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 ENTRYPOINT ["/opt/backend/start.sh"]
 
-CMD ["java", "-jar", "/opt/backend/data-meta.jar"]
+CMD ["java", "-Duser.timezone=Asia/Shanghai", "-jar", "/opt/backend/data-meta.jar"]

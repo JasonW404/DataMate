@@ -64,8 +64,10 @@ public class CleaningTaskService {
 
     @Transactional
     public CleaningTask createTask(CreateCleaningTaskRequest request) {
-        DatasetResponse datasetResponse = DatasetClient.createDataset(request.getDestDatasetName(),
+        DatasetResponse destDataset = DatasetClient.createDataset(request.getDestDatasetName(),
                 request.getDestDatasetType());
+
+        DatasetResponse srcDataset = DatasetClient.getDataset(request.getSrcDatasetId());
 
         CleaningTask task = new CleaningTask();
         task.setName(request.getName());
@@ -75,9 +77,9 @@ public class CleaningTaskService {
         task.setId(taskId);
         task.setSrcDatasetId(request.getSrcDatasetId());
         task.setSrcDatasetName(request.getSrcDatasetName());
-        task.setDestDatasetId(datasetResponse.getId());
-        task.setDestDatasetName(datasetResponse.getName());
-        task.setBeforeSize(datasetResponse.getTotalSize());
+        task.setDestDatasetId(destDataset.getId());
+        task.setDestDatasetName(destDataset.getName());
+        task.setBeforeSize(srcDataset.getTotalSize());
         cleaningTaskMapper.insertTask(task);
 
         List<OperatorInstancePo> instancePos = request.getInstance().stream()

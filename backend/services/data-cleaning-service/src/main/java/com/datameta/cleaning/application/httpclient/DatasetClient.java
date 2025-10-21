@@ -28,6 +28,8 @@ public class DatasetClient {
 
     private static final String CREATE_DATASET_URL = BASE_URL + "/data-management/datasets";
 
+    private static final String GET_DATASET_URL = BASE_URL + "/data-management/datasets/{0}";
+
     private static final String GET_DATASET_FILE_URL = BASE_URL + "/data-management/datasets/{0}/files";
 
     private static final HttpClient CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
@@ -56,6 +58,17 @@ public class DatasetClient {
                 .timeout(Duration.ofSeconds(30))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                .build();
+
+        return sendAndReturn(request, DatasetResponse.class);
+    }
+
+    public static DatasetResponse getDataset(String datasetId) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(MessageFormat.format(GET_DATASET_URL, datasetId)))
+                .timeout(Duration.ofSeconds(30))
+                .header("Content-Type", "application/json")
+                .GET()
                 .build();
 
         return sendAndReturn(request, DatasetResponse.class);
