@@ -4,6 +4,8 @@ import com.dataengine.common.domain.model.ChunkUploadPreRequest;
 import com.dataengine.common.domain.model.FileUploadResult;
 import com.dataengine.common.domain.service.FileService;
 import com.dataengine.common.domain.utils.AnalyzerUtils;
+import com.dataengine.common.infrastructure.exception.BusinessException;
+import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.dataengine.datamanagement.domain.contants.DatasetConstant;
 import com.dataengine.datamanagement.domain.model.dataset.Dataset;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
@@ -16,6 +18,7 @@ import com.dataengine.datamanagement.interfaces.dto.UploadFileRequest;
 import com.dataengine.datamanagement.interfaces.dto.UploadFilesPreRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,21 +28,27 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 数据集文件应用服务
@@ -75,7 +84,7 @@ public class DatasetFileApplicationService {
     /**
      * 上传文件到数据集
      */
-    public DatasetFile uploadFile(String datasetId, MultipartFile file, String description, String uploadedBy) {
+    public DatasetFile uploadFile(String datasetId, MultipartFile file) {
         Dataset dataset = datasetRepository.getById(datasetId);
         if (dataset == null) {
             throw new IllegalArgumentException("Dataset not found: " + datasetId);
@@ -179,6 +188,44 @@ public class DatasetFileApplicationService {
             }
         } catch (MalformedURLException ex) {
             throw new RuntimeException("File not found: " + file.getFileName(), ex);
+        }
+    }
+
+    /**
+     * 下载文件
+     */
+    @Transactional(readOnly = true)
+    public void downloadDatasetFileAsZip(String datasetId, HttpServletResponse response) {
+        List<DatasetFile> allByDatasetId = datasetFileRepository.findAllByDatasetId(datasetId);
+        response.setContentType("application/zip");
+        String zipName = String.format("dataset_%s.zip",
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + zipName);
+        try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
+            for (DatasetFile file : allByDatasetId) {
+                addToZipFile(file, zos);
+            }
+        } catch (IOException e) {
+            log.error("Failed to download files in batches.", e);
+            throw BusinessException.of(SystemErrorCode.FILE_SYSTEM_ERROR);
+        }
+    }
+
+    private void addToZipFile(DatasetFile file, ZipOutputStream zos) throws IOException {
+        if (file.getFilePath() == null || !Files.exists(Paths.get(file.getFilePath()))) {
+            log.warn("The file hasn't been found on filesystem, id: {}", file.getId());
+            return;
+        }
+        try (InputStream fis = Files.newInputStream(Paths.get(file.getFilePath()));
+             BufferedInputStream bis = new BufferedInputStream(fis)) {
+            ZipEntry zipEntry = new ZipEntry(file.getFileName());
+            zos.putNextEntry(zipEntry);
+            byte[] buffer = new byte[8192];
+            int length;
+            while ((length = bis.read(buffer)) >= 0) {
+                zos.write(buffer, 0, length);
+            }
+            zos.closeEntry();
         }
     }
 

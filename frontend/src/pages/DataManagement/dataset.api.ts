@@ -67,7 +67,7 @@ export function downloadFile(
   filename?: string
 ) {
   return download(
-    `/api/data-management/datasets/${id}/files/${fileId}/download`,
+    `/api/data-management/datasets/${id}/files/download`,
     null,
     filename
   );

@@ -54,7 +54,7 @@ export function useFilesOperation(dataset: Dataset) {
     await downloadFile(dataset.id, file.id, file.fileName);
     // 假设导出成功
     message.success({
-      content: `已导出 ${selectedFiles.length} 个文件`,
+      content: `已导出 1 个文件`,
     });
     setSelectedFiles([]); // 清空选中状态
   };

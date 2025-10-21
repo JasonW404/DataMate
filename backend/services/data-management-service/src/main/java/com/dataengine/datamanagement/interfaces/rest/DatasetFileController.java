@@ -10,6 +10,7 @@ import com.dataengine.datamanagement.interfaces.dto.DatasetFileResponse;
 import com.dataengine.datamanagement.interfaces.dto.PagedDatasetFileResponse;
 import com.dataengine.datamanagement.interfaces.dto.UploadFileRequest;
 import com.dataengine.datamanagement.interfaces.dto.UploadFilesPreRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 /**
@@ -70,11 +73,9 @@ public class DatasetFileController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Response<DatasetFileResponse>> uploadDatasetFile(
         @PathVariable("datasetId") String datasetId,
-        @RequestPart(value = "file", required = false) MultipartFile file,
-        @RequestParam(value = "description", required = false) String description) {
+        @RequestPart(value = "file", required = false) MultipartFile file) {
         try {
-            DatasetFile datasetFile = datasetFileApplicationService.uploadFile(
-                datasetId, file, description, "system");
+            DatasetFile datasetFile = datasetFileApplicationService.uploadFile(datasetId, file);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(DatasetConverter.INSTANCE.convertToResponse(datasetFile)));
         } catch (IllegalArgumentException e) {
@@ -111,7 +112,7 @@ public class DatasetFileController {
 
     @IgnoreResponseWrap
     @GetMapping(value = "/{fileId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<Resource> downloadDatasetFile(
+    public ResponseEntity<Resource> downloadDatasetFileById(
         @PathVariable("datasetId") String datasetId,
         @PathVariable("fileId") String fileId) {
         try {
@@ -128,6 +129,12 @@ public class DatasetFileController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @IgnoreResponseWrap
+    @GetMapping(value = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadDatasetFileAsZip(@PathVariable("datasetId") String datasetId, HttpServletResponse response) {
+        datasetFileApplicationService.downloadDatasetFileAsZip(datasetId, response);
     }
 
     /**
