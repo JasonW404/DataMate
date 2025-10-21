@@ -103,7 +103,7 @@ public class DatasetFileController {
         @PathVariable("fileId") String fileId) {
         try {
             datasetFileApplicationService.deleteDatasetFile(datasetId, fileId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
