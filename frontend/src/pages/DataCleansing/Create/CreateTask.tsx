@@ -40,7 +40,7 @@ export default function CleansingTaskCreate() {
         },
       })),
     };
-    navigate("/data/cleansing");
+    navigate("/data/cleansing?view=task");
     await createCleaningTaskUsingPost(task);
     message.success("任务已创建");
   };

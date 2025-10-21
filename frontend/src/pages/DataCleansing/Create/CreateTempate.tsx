@@ -28,7 +28,7 @@ export default function CleansingTemplateCreate() {
     };
 
     await createCleaningTemplateUsingPost(template);
-    navigate("/data/cleansing");
+    navigate("/data/cleansing?view=template");
   };
 
   const {

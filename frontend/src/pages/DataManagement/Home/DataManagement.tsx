@@ -75,7 +75,6 @@ export default function DatasetManagementPage() {
         },
       ],
     };
-    console.log(statistics);
     setStatisticsData(statistics);
   }
 
@@ -183,20 +182,51 @@ export default function DatasetManagementPage() {
       title: "类型",
       dataIndex: "type",
       key: "type",
-      render: (type: string) => datasetTypeMap[type]?.label || type,
       width: 100,
     },
     {
       title: "大小",
-      dataIndex: "fileSize",
-      key: "fileSize",
+      dataIndex: "size",
+      key: "size",
       width: 120,
     },
     {
-      title: "数据项",
+      title: "文件数",
       dataIndex: "fileCount",
       key: "fileCount",
       width: 100,
+    },
+    {
+      title: "创建者",
+      dataIndex: "createdBy",
+      key: "createdBy",
+      width: 120,
+    },
+    {
+      title: "存储路径",
+      dataIndex: "targetLocation",
+      key: "targetLocation",
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: "创建时间",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+    },
+    {
+      title: "更新时间",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      width: 180,
+    },
+    {
+      title: "描述",
+      dataIndex: "description",
+      key: "description",
+      width: 200,
+      ellipsis: true,
     },
     {
       title: "状态",
@@ -257,12 +287,10 @@ export default function DatasetManagementPage() {
   );
 
   return (
-    <div className="space-y-2 h-full flex flex-col">
+    <div className="gap-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">数据管理</h1>
-        </div>
+        <h1 className="text-xl font-bold">数据管理</h1>
         <div className="flex gap-2">
           {/* tasks */}
           <TagManager
@@ -283,7 +311,7 @@ export default function DatasetManagementPage() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 gap-4 mt-4">
+      <div className="grid grid-cols-1 gap-4">
         <Card>
           <div className="grid grid-cols-3">
             {statisticsData.size?.map?.((item) => (
@@ -308,7 +336,6 @@ export default function DatasetManagementPage() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         showViewToggle
-        className="my-4"
         onReload={fetchData}
       />
       {viewMode === "card" ? renderCardView() : renderListView()}

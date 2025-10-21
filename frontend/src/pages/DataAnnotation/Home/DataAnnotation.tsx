@@ -130,14 +130,10 @@ export default function DataAnnotation() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-full gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold">数据标注</span>
-          </div>
-        </div>
+        <h1 className="text-xl font-bold">数据标注</h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -149,7 +145,6 @@ export default function DataAnnotation() {
 
       {/* Filters Toolbar */}
       <SearchControls
-        className="mb-4"
         searchTerm={searchParams.keyword}
         onSearchChange={(keyword) =>
           setSearchParams({ ...searchParams, keyword })

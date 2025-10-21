@@ -99,9 +99,9 @@ export default function OperatorMarketPage() {
   }, [selectedFilters]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col gap-4">
       {/* Header */}
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between">
         <h1 className="text-xl font-bold text-gray-900">算子市场</h1>
         {/* <div className="flex gap-2">
           <TagManagement />

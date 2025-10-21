@@ -71,10 +71,10 @@ export default function DatasetDetail() {
     filesOperation.fetchFiles();
   }, []);
 
-  const handleRefresh = async () => {
+  const handleRefresh = async (showMessage = true) => {
     fetchDataset();
     filesOperation.fetchFiles();
-    message.success({ content: "数据刷新成功" });
+    if (showMessage) message.success({ content: "数据刷新成功" });
   };
 
   const handleExportFormat = async ({ type }) => {
@@ -86,10 +86,13 @@ export default function DatasetDetail() {
     const refreshDataset = () => {
       fetchDataset();
     };
-    window.addEventListener("update:dataset", handleRefresh);
-    window.addEventListener("update:dataset-status", refreshDataset);
+    const refreshData = () => {
+      handleRefresh(false);
+    };
+    window.addEventListener("update:dataset", refreshData);
+    window.addEventListener("update:dataset-status", () => refreshDataset());
     return () => {
-      window.removeEventListener("update:dataset", handleRefresh);
+      window.removeEventListener("update:dataset", refreshData);
       window.removeEventListener("update:dataset-status", refreshDataset);
     };
   }, []);
@@ -181,12 +184,15 @@ export default function DatasetDetail() {
           onCreateAndTag: async (tagName) => {
             const res = await createDatasetTagUsingPost({ name: tagName });
             if (res.data) {
+              await updateDatasetByIdUsingPut(dataset.id, {
+                tags: [...dataset.tags.map((tag) => tag.name), res.data.name],
+              });
               handleRefresh();
             }
           },
           onAddTag: async (tag) => {
             const res = await updateDatasetByIdUsingPut(dataset.id, {
-              tags: [tag],
+              tags: [...dataset.tags.map((tag) => tag.name), tag],
             });
             if (res.data) {
               handleRefresh();
