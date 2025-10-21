@@ -1,9 +1,7 @@
 # DataMate 一站式数据工作平台
 
 [![Frontend Docker Image CI](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-frontend.yml/badge.svg)](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-frontend.yml)
-
 [![Backend Docker Image CI](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-backend.yml/badge.svg)](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-backend.yml)
-
 ![GitHub Stars](https://img.shields.io/github/stars/ModelEngine-Group/DataMate)
 ![GitHub Forks](https://img.shields.io/github/forks/ModelEngine-Group/DataMate)
 ![GitHub Issues](https://img.shields.io/github/issues/ModelEngine-Group/DataMate)
