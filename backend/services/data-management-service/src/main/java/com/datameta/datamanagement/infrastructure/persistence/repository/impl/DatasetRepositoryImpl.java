@@ -9,6 +9,7 @@ import com.datameta.datamanagement.infrastructure.persistence.repository.Dataset
 import com.datameta.datamanagement.interfaces.dto.AllDatasetStatisticsResponse;
 import com.datameta.datamanagement.interfaces.dto.DatasetPagingQuery;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.stereotype.Repository;
 
@@ -52,8 +53,8 @@ public class DatasetRepositoryImpl extends CrudRepository<DatasetMapper, Dataset
         LambdaQueryWrapper<Dataset> wrapper = new LambdaQueryWrapper<Dataset>()
             .eq(query.getType() != null, Dataset::getDatasetType, query.getType())
             .eq(query.getStatus() != null, Dataset::getStatus, query.getStatus())
-            .like(query.getKeyword() != null, Dataset::getName, query.getKeyword())
-            .like(query.getKeyword() != null, Dataset::getDescription, query.getKeyword());
+            .like(StringUtils.isNotBlank(query.getKeyword()), Dataset::getName, query.getKeyword())
+            .like(StringUtils.isNotBlank(query.getKeyword()), Dataset::getDescription, query.getKeyword());
 
         /*
           标签过滤 {@link Tag}
