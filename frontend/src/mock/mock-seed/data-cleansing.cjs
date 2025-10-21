@@ -10,6 +10,16 @@ function operatorItem() {
     inputs: Mock.Random.integer(1, 5),
     outputs: Mock.Random.integer(1, 5),
     settings: JSON.stringify({
+      fileLength: {
+        name: "文档字数",
+        description:
+          "过滤字数不在指定范围内的文档，如[10,10000000]。若输入为空，则不对字数上/下限做限制。",
+        type: "range",
+        defaultVal: [10, 10000000],
+        min: 0,
+        max: 10000000000000000,
+        step: 1,
+      },
       host: { type: "input", name: "主机地址", defaultVal: "localhost" },
       limit: {
         type: "range",
@@ -23,6 +33,12 @@ function operatorItem() {
       encoding: {
         type: "select",
         name: "编码",
+        defaultVal: "utf-8",
+        options: ["utf-8", "gbk", "ascii"],
+      },
+      radio: {
+        type: "radio",
+        name: "radio",
         defaultVal: "utf-8",
         options: ["utf-8", "gbk", "ascii"],
       },
