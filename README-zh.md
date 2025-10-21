@@ -9,7 +9,7 @@
 ![GitHub Issues](https://img.shields.io/github/issues/ModelEngine-Group/DataMate)
 ![GitHub License](https://img.shields.io/github/license/ModelEngine-Group/DataMate)
 
-**DataMate是面向模型微调与RAG检索的企业级数据处理平台，支持数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估等核心功能。
+**DataMate是面向模型微调与RAG检索的企业级数据处理平台，支持数据归集、数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估、知识生成等核心功能。
 **
 
 [简体中文](./README-zh.md) | [English](./README.md)
@@ -20,9 +20,7 @@
 
 ## 🌟 核心特性
 
-- **六大核心模块**：数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估
-- **DDD架构**：领域驱动设计，清晰的分层架构
-- **微服务架构**：Spring Boot + 容器化部署
+- **核心模块**：数据归集、数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估、知识生成
 - **可视化编排**：拖拽式数据处理流程设计
 - **算子生态**：丰富的内置算子和自定义算子支持
 

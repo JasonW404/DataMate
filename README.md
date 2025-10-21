@@ -1,4 +1,4 @@
-# DataMate 一站式数据工作平台
+# DataMate All-in-One Data Work Platform
 
 <div align="center">
 
@@ -9,66 +9,69 @@
 ![GitHub Issues](https://img.shields.io/github/issues/ModelEngine-Group/DataMate)
 ![GitHub License](https://img.shields.io/github/license/ModelEngine-Group/DataMate)
 
-**DataMate是面向模型微调与RAG检索的企业级数据处理平台，支持数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估等核心功能。
-**
+**DataMate is an enterprise-level data processing platform for model fine-tuning and RAG retrieval, supporting core
+functions such as data collection, data management, operator marketplace, data cleaning, data synthesis, data
+annotation, data evaluation, and knowledge generation.**
 
 [简体中文](./README-zh.md) | [English](./README.md)
 
-如果您喜欢这个项目，希望您能给我们一个Star⭐️!
+If you like this project, please give it a Star⭐️!
 
 </div>
 
-## 🌟 核心特性
+## 🌟 Core Features
 
-- **六大核心模块**：数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估
-- **DDD架构**：领域驱动设计，清晰的分层架构
-- **微服务架构**：Spring Boot + 容器化部署
-- **可视化编排**：拖拽式数据处理流程设计
-- **算子生态**：丰富的内置算子和自定义算子支持
+- **Core Modules**: Data Collection, Data Management, Operator Marketplace, Data Cleaning, Data Synthesis, Data
+  Annotation, Data Evaluation, Knowledge Generation.
+- **Visual Orchestration**: Drag-and-drop data processing workflow design.
+- **Operator Ecosystem**: Rich built-in operators and support for custom operators.
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 前置条件
+### Prerequisites
 
-- Git (用于拉取源码)
-- Make (用于构建和安装)
-- Docker (用于构建镜像和部署服务)
-- Docker-Compose (用于部署服务-docker方式)
-- kubernetes (用于部署服务-k8s方式)
-- Helm (用于部署服务-k8s方式)
+- Git (for pulling source code)
+- Make (for building and installing)
+- Docker (for building images and deploying services)
+- Docker-Compose (for service deployment - Docker method)
+- Kubernetes (for service deployment - k8s method)
+- Helm (for service deployment - k8s method)
 
-### 拉取代码
+### Clone the Code
 
 ```bash
 git clone git@github.com:ModelEngine-Group/DataMate.git
 ```
 
-### 镜像构建
+### Build Images
 
 ```bash
 make build
 ```
 
-### Docker安装
+### Docker Installation
 
 ```bash
 make install INSTALLER=docker
 ```
 
-### kubernetes安装
+### Kubernetes Installation
 
 ```bash
 make install INSTALLER=k8s
 ```
 
-## 🤝 贡献指南
+## 🤝 Contribution Guidelines
 
-感谢您对本项目的关注！我们非常欢迎社区的贡献，无论是提交 Bug 报告、提出功能建议，还是直接参与代码开发，都能帮助项目变得更好。
+Thank you for your interest in this project! We warmly welcome contributions from the community. Whether it's submitting
+bug reports, suggesting new features, or directly participating in code development, all forms of help make the project
+better.
 
-• 📮 [GitHub Issues](../../issues)：提交 Bug 或功能建议。
+• 📮 [GitHub Issues](../../issues): Submit bugs or feature suggestions.
 
-• 🔧 [GitHub Pull Requests](../../pulls)：贡献代码改进。
+• 🔧 [GitHub Pull Requests](../../pulls): Contribute code improvements.
 
-## 📄 许可证
+## 📄 License
 
-DataMate 基于 [MIT](LICENSE) 开源，您可以在遵守许可证条款的前提下自由使用、修改和分发本项目的代码。
+DataMate is open source under the [MIT](LICENSE) license. You are free to use, modify, and distribute the code of this
+project in compliance with the license terms.
