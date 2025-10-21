@@ -55,14 +55,11 @@ CREATE TABLE IF NOT EXISTS t_clean_result
 
 INSERT IGNORE INTO t_clean_template(id, name, description)
 VALUES ('ac2f2582-a990-11f0-9768-00155d09c825', '空模板', '空模板'),
-       ('fb6d0d76-a990-11f0-92db-00155d09c825', '测试模板', '测试模板'),
        ('26ae585c-8310-4679-adc0-e53215e6e69b', 'text文本清洗模板', 'text文本清洗模板'),
        ('4421504e-c6c9-4760-b55a-509d17429597', '图片清洗模板', '图片清洗模板');
 
 INSERT IGNORE INTO t_operator_instance(instance_id, operator_id, op_index, settings_override)
-VALUES ('fb6d0d76-a990-11f0-92db-00155d09c825', 'TextFormatter', 1, null),
-       ('fb6d0d76-a990-11f0-92db-00155d09c825', 'FileExporter', 2, null),
-       ('26ae585c-8310-4679-adc0-e53215e6e69b', 'TextFormatter', 1, null),
+VALUES ('26ae585c-8310-4679-adc0-e53215e6e69b', 'TextFormatter', 1, null),
        ('26ae585c-8310-4679-adc0-e53215e6e69b', 'FileWithShortOrLongLengthFilter', 2, null),
        ('26ae585c-8310-4679-adc0-e53215e6e69b', 'FileWithHighRepeatWordRateFilter', 3, null),
        ('26ae585c-8310-4679-adc0-e53215e6e69b', 'FileWithHighRepeatPhraseRateFilter', 4, null),
