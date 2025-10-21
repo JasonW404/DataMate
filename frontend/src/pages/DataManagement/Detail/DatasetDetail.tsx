@@ -184,12 +184,15 @@ export default function DatasetDetail() {
           onCreateAndTag: async (tagName) => {
             const res = await createDatasetTagUsingPost({ name: tagName });
             if (res.data) {
+              await updateDatasetByIdUsingPut(dataset.id, {
+                tags: [...dataset.tags.map((tag) => tag.name), res.data.name],
+              });
               handleRefresh();
             }
           },
           onAddTag: async (tag) => {
             const res = await updateDatasetByIdUsingPut(dataset.id, {
-              tags: [tag],
+              tags: [...dataset.tags.map((tag) => tag.name), tag],
             });
             if (res.data) {
               handleRefresh();
