@@ -1,11 +1,11 @@
 # DataMate 一站式数据工作平台
 
 [![Backend CI](https://github.com/ModelEngine-Group/data-platform/actions/workflows/docker-image-backend.yml/badge.svg)](https://github.com/ModelEngine-Group/data-platform/actions/workflows/docker-image-backend.yml)
-![GitHub Stars](https://img.shields.io/github/stars/ModelEngine-Group/datamate)
-![GitHub Forks](https://img.shields.io/github/forks/ModelEngine-Group/datamate)
-![GitHub Issues](https://img.shields.io/github/issues/ModelEngine-Group/datamate)
-![GitHub License](https://img.shields.io/github/license/ModelEngine-Group/datamate)
-![CI](https://github.com/ModelEngine-Group/nexent/actions/workflows/ci.yml/badge.svg)
+![GitHub Stars](https://img.shields.io/github/stars/ModelEngine-Group/data-platform)
+![GitHub Forks](https://img.shields.io/github/forks/ModelEngine-Group/data-platform)
+![GitHub Issues](https://img.shields.io/github/issues/ModelEngine-Group/data-platform)
+![GitHub License](https://img.shields.io/github/license/ModelEngine-Group/data-platform)
+![CI](https://github.com/ModelEngine-Group/data-platform/actions/workflows/ci.yml/badge.svg)
 
 [简体中文](./README-zh.md) | English
 
