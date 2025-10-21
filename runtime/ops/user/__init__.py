@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
 
 import os
 import importlib
@@ -10,7 +7,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from data_platform.common.utils.custom_importer import CustomImporter
+from datamate.common.utils.custom_importer import CustomImporter
 
 # 获取当前目录
 current_dir = os.path.dirname(__file__)

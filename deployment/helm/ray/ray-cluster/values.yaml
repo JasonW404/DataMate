@@ -140,7 +140,7 @@ head:
       imagePullPolicy: IfNotPresent
       command:
         - python
-        - /opt/runtime/data_platform/operator_runtime.py
+        - /opt/runtime/datamate/operator_runtime.py
         - --port
         - "8081"
       env:

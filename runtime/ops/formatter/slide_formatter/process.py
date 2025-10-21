@@ -1,7 +1,5 @@
 # -- encoding: utf-8 --
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 医疗图片解析载入
 Create: 2025/02/08 11:00
@@ -12,7 +10,7 @@ from typing import Dict, Any
 
 from loguru import logger
 
-from data_platform.core.base_op import Mapper
+from datamate.core.base_op import Mapper
 
 
 class SlideFormatter(Mapper):

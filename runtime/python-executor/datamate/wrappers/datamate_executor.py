@@ -10,11 +10,11 @@ import yaml
 from jsonargparse import dict_to_namespace, ArgumentParser
 from loguru import logger
 
-from data_platform.common.utils import check_valid_path
-from data_platform.core.dataset import RayDataset
-from data_platform.sql_manager.persistence_atction import TaskInfoPersistence
+from datamate.common.utils import check_valid_path
+from datamate.core.dataset import RayDataset
+from datamate.sql_manager.persistence_atction import TaskInfoPersistence
 
-import data_platform.ops
+import datamate.ops
 
 
 class RayExecutor:

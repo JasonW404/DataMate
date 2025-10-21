@@ -1,5 +1,5 @@
 beautifulsoup4==4.14.2
-data_platform==0.0.1
+datamate==0.0.1
 datasketch==1.6.5
 email_validator==2.3.0
 emoji==2.2.0

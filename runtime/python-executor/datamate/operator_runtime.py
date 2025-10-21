@@ -9,10 +9,10 @@ from jsonargparse import ArgumentParser
 from loguru import logger
 from pydantic import BaseModel
 
-from data_platform.common.error_code import ErrorCode
-from data_platform.scheduler import cmd_scheduler
-from data_platform.scheduler import func_scheduler
-from data_platform.wrappers import WRAPPERS
+from datamate.common.error_code import ErrorCode
+from datamate.scheduler import cmd_scheduler
+from datamate.scheduler import func_scheduler
+from datamate.wrappers import WRAPPERS
 
 # 日志配置
 LOG_DIR = "/var/log/data-mate/runtime"

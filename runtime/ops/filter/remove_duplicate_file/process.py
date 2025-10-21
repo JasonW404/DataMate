@@ -1,8 +1,6 @@
 #!/user/bin/python
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 文档局部内容去重
 Create: 2025/01/07
@@ -19,9 +17,9 @@ from datasketch import MinHash
 from sqlalchemy import text
 from loguru import logger
 
-from data_platform.sql_manager.sql_manager import SQLManager
-from data_platform.common.utils import get_now_time
-from data_platform.core.base_op import Filter
+from datamate.sql_manager.sql_manager import SQLManager
+from datamate.common.utils import get_now_time
+from datamate.core.base_op import Filter
 
 
 class DuplicateFilesFilter(Filter):

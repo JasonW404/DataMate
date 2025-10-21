@@ -11,7 +11,7 @@ from typing import Dict, Any
 from loguru import logger
 from sqlalchemy import text
 
-from data_platform.sql_manager.sql_manager import SQLManager
+from datamate.sql_manager.sql_manager import SQLManager
 
 
 class TaskInfoPersistence:

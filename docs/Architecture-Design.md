@@ -74,7 +74,7 @@ data-mate-platform/
 │   │   ├── operator_runtime.py
 │   │   ├── wrappers/                  # 各类算子包装器
 │   │   │   ├── data_juicer_wrapper.py
-│   │   │   └── data_platform_wrapper.py
+│   │   │   └── datamate_wrapper.py
 │   │   └── requirements.txt
 │   ├── datax/                         # datax扩展
 │   ├── labelstudio/                         # labelstudio扩展

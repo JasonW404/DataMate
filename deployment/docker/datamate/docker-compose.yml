@@ -60,7 +60,7 @@ services:
       - "8081:8081"
     command:
       - python
-      - /opt/runtime/data_platform/operator_runtime.py
+      - /opt/runtime/datamate/operator_runtime.py
       - --port
       - "8081"
     volumes:

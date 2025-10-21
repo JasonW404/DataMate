@@ -1,8 +1,6 @@
 #!/user/bin/python
 # -- encoding: utf-8 --
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 检查文档字重复率插件
 Create: 2023/11/7 9:26
@@ -14,7 +12,7 @@ from collections import Counter
 from typing import Dict, Any
 from loguru import logger
 
-from data_platform.core.base_op import Filter
+from datamate.core.base_op import Filter
 
 
 class FileWithHighRepeatWordRateFilter(Filter):

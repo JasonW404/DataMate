@@ -12,9 +12,9 @@ from enum import Enum
 from loguru import logger
 from ray import data as rd
 
-from data_platform.core.base_op import Filter, Mapper, Slicer
-from data_platform.core.constant import Fields
-from data_platform.core.base_op import OPERATORS, BaseOp
+from datamate.core.base_op import Filter, Mapper, Slicer
+from datamate.core.constant import Fields
+from datamate.core.base_op import OPERATORS, BaseOp
 
 rd.DataContext.get_current().enable_progress_bars = False
 

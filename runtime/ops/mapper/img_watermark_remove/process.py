@@ -1,7 +1,5 @@
 # # -- encoding: utf-8 --
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 #
 # Description:
 # Create: 2025/01/06
@@ -13,9 +11,9 @@ import cv2
 import numpy as np
 from loguru import logger
 
-from data_platform.common.utils import bytes_to_numpy
-from data_platform.common.utils import numpy_to_bytes
-from data_platform.core.base_op import Mapper
+from datamate.common.utils import bytes_to_numpy
+from datamate.common.utils import numpy_to_bytes
+from datamate.core.base_op import Mapper
 from .watermark_ocr_model import WatermarkOcrModel
 
 DEFAULT_MAX_CHARACTERS = 10

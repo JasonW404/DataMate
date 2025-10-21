@@ -1,8 +1,6 @@
 #!/user/bin/python
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 过滤语言概率太低的文档（支持自定义阈值）
 Create: 2023/12/7 15:43
@@ -14,8 +12,8 @@ from typing import Dict, Any
 
 from loguru import logger
 
-from data_platform.core.base_op import Filter
-from data_platform.common.utils.aho_corasick import build_trie, add_fail_pointer
+from datamate.core.base_op import Filter
+from datamate.common.utils.aho_corasick import build_trie, add_fail_pointer
 
 sys.setrecursionlimit(5000)
 

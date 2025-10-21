@@ -1,8 +1,6 @@
 #!/user/bin/python
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: Json文本抽取
 Create: 2024/06/06 15:43
@@ -13,9 +11,9 @@ import uuid
 from typing import Tuple, Dict, Any
 from loguru import logger
 
-from data_platform.core.constant import Fields
-from data_platform.core.base_op import Mapper
-from data_platform.common.utils import check_valid_path
+from datamate.core.constant import Fields
+from datamate.core.base_op import Mapper
+from datamate.common.utils import check_valid_path
 
 
 class FileExporter(Mapper):

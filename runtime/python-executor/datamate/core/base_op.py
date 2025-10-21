@@ -7,12 +7,12 @@ from typing import List, Dict, Any, Tuple
 
 from loguru import logger
 
-from data_platform.common.error_code import ERROR_CODE_TABLE, UNKNOWN_ERROR_CODE
-from data_platform.common.utils.llm_request import LlmReq
-from data_platform.common.utils.registry import Registry
-from data_platform.common.utils import check_valid_path
-from data_platform.core.constant import Fields
-from data_platform.sql_manager.persistence_atction import TaskInfoPersistence
+from datamate.common.error_code import ERROR_CODE_TABLE, UNKNOWN_ERROR_CODE
+from datamate.common.utils.llm_request import LlmReq
+from datamate.common.utils.registry import Registry
+from datamate.common.utils import check_valid_path
+from datamate.core.constant import Fields
+from datamate.sql_manager.persistence_atction import TaskInfoPersistence
 
 OPERATORS = Registry('Operators')
 

@@ -1,7 +1,5 @@
 # -- encoding: utf-8 --
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 图像亮度增强算子。
 Create: 2025/01/13
@@ -15,9 +13,9 @@ import numpy as np
 import cv2
 from loguru import logger
 
-from data_platform.common.utils import bytes_transform
+from datamate.common.utils import bytes_transform
 
-from data_platform.core.base_op import Mapper
+from datamate.core.base_op import Mapper
 
 
 class ImgBrightness(Mapper):

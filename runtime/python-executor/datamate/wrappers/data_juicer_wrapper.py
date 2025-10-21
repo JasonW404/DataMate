@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from data_platform.scheduler import cmd_scheduler
+from datamate.scheduler import cmd_scheduler
 
 
 async def submit(task_id, config_path):
