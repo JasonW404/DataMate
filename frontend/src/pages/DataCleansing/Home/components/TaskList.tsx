@@ -75,22 +75,14 @@ export default function TaskList() {
     const pauseBtn = {
       key: "pause",
       label: "暂停",
-      icon: isRunning ? (
-        <PauseCircleOutlined style={{ color: "#faad14" }} />
-      ) : (
-        <PlayCircleOutlined color="#52c41a" />
-      ),
+      icon: isRunning ? <PauseCircleOutlined /> : <PlayCircleOutlined />,
       onClick: pauseTask, // implement pause/play logic
     };
 
     const startBtn = {
       key: "start",
       label: "启动",
-      icon: isRunning ? (
-        <PauseCircleOutlined style={{ color: "#faad14" }} />
-      ) : (
-        <PlayCircleOutlined style={{ color: "#52c41a" }} />
-      ),
+      icon: isRunning ? <PauseCircleOutlined /> : <PlayCircleOutlined />,
       onClick: startTask, // implement pause/play logic
     };
     return [
@@ -229,7 +221,6 @@ export default function TaskList() {
     <>
       {/* Search and Filters */}
       <SearchControls
-        className="mb-4"
         searchTerm={searchParams.keyword}
         onSearchChange={(keyword) =>
           setSearchParams({ ...searchParams, keyword })

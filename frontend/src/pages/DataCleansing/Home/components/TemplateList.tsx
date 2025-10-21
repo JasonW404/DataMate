@@ -17,7 +17,7 @@ export default function TemplateList() {
     mapTemplate
   );
 
-  const DeleteTemplate = async (template: CleansingTemplate) => {
+  const deleteTemplate = async (template: CleansingTemplate) => {
     if (!template.id) {
       return;
     }
@@ -32,7 +32,7 @@ export default function TemplateList() {
       key: "delete",
       label: "删除模板",
       icon: <DeleteOutlined style={{ color: "#f5222d" }} />,
-      onClick: (template: CleansingTemplate) => DeleteTemplate(template), // 可实现删除逻辑
+      onClick: (template: CleansingTemplate) => deleteTemplate(template), // 可实现删除逻辑
     },
   ];
 

@@ -196,13 +196,14 @@ export function mapDataset(dataset: Dataset) {
   const IconComponent = datasetTypeMap[dataset?.datasetType]?.icon || null;
   return {
     ...dataset,
+    type: datasetTypeMap[dataset.datasetType]?.label || "未知",
     size: formatBytes(dataset.totalSize || 0),
     createdAt: formatDateTime(dataset.createdAt) || "--",
     updatedAt: formatDateTime(dataset?.updatedAt) || "--",
     icon: IconComponent ? <IconComponent className="w-4 h-4" /> : <Database />,
     status: datasetStatusMap[dataset.status],
     statistics: [
-      { label: "数据项", value: dataset.fileCount || 0 },
+      { label: "文件数", value: dataset.fileCount || 0 },
       { label: "大小", value: formatBytes(dataset.totalSize || 0) },
     ],
     lastModified: dataset.updatedAt,

@@ -79,9 +79,8 @@ export default function useFetchData<T>(
         result = data?.content.map(mapDataFunc) ?? [];
       }
       setTableData(result);
-      console.log(data, result.map(mapDataFunc));
     } catch (error) {
-      console.log(error)
+      console.error(error)
       message.error("数据获取失败，请稍后重试");
     } finally {
       Loading.hide();
