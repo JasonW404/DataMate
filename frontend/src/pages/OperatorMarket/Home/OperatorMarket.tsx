@@ -23,16 +23,7 @@ export default function OperatorMarketPage() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
 
-  const filterOptions = [
-    {
-      key: "tag",
-      label: "标签",
-      options: [
-        { label: "免费", value: "free" },
-        { label: "付费", value: "paid" },
-      ],
-    },
-  ];
+  const filterOptions = [];
 
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
