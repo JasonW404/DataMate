@@ -49,7 +49,7 @@ export default function DatasetManagementPage() {
         },
         {
           title: "文件总数",
-          value: data?.size?.image || "0 MB",
+          value: data?.totalFiles?.image || "0 MB",
         },
         {
           title: "总大小",
@@ -188,8 +188,8 @@ export default function DatasetManagementPage() {
     },
     {
       title: "大小",
-      dataIndex: "size",
-      key: "size",
+      dataIndex: "fileSize",
+      key: "fileSize",
       width: 120,
     },
     {

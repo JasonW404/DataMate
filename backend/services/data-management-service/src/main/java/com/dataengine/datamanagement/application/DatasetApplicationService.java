@@ -88,6 +88,10 @@ public class DatasetApplicationService {
         if (Objects.nonNull(updateDatasetRequest.getStatus())) {
             dataset.setStatus(updateDatasetRequest.getStatus());
         }
+        if (StringUtils.hasText(updateDatasetRequest.getDataSource())) {
+            // 数据源id不为空，使用异步线程进行文件扫盘落库
+            processDataSourceAsync(dataset.getId(), updateDatasetRequest.getDataSource());
+        }
         datasetRepository.updateById(dataset);
         return dataset;
     }

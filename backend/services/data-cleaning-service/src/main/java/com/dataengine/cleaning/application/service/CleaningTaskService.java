@@ -148,7 +148,7 @@ public class CleaningTaskService {
             }
             List<Map<String, Object>> files = datasetFile.getContent().stream()
                     .map(content -> Map.of("fileName", (Object) content.getFileName(),
-                            "fileSize", content.getSize(),
+                            "fileSize", content.getFileSize(),
                             "filePath", content.getFilePath(),
                             "fileType", content.getFileType(),
                             "fileId", content.getId()))

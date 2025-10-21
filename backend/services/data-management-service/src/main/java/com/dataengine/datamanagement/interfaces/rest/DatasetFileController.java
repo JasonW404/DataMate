@@ -1,9 +1,11 @@
 package com.dataengine.datamanagement.interfaces.rest;
 
+import com.dataengine.common.infrastructure.common.IgnoreResponseWrap;
 import com.dataengine.common.infrastructure.common.Response;
 import com.dataengine.common.infrastructure.exception.SystemErrorCode;
 import com.dataengine.datamanagement.application.DatasetFileApplicationService;
 import com.dataengine.datamanagement.domain.model.dataset.DatasetFile;
+import com.dataengine.datamanagement.interfaces.converter.DatasetConverter;
 import com.dataengine.datamanagement.interfaces.dto.DatasetFileResponse;
 import com.dataengine.datamanagement.interfaces.dto.PagedDatasetFileResponse;
 import com.dataengine.datamanagement.interfaces.dto.UploadFileRequest;
@@ -22,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.ZoneOffset;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +55,7 @@ public class DatasetFileController {
 
         PagedDatasetFileResponse response = new PagedDatasetFileResponse();
         response.setContent(filesPage.getContent().stream()
-            .map(this::convertToResponse)
+            .map(DatasetConverter.INSTANCE::convertToResponse)
             .collect(Collectors.toList()));
         response.setPage(filesPage.getNumber());
         response.setSize(filesPage.getSize());
@@ -75,7 +76,7 @@ public class DatasetFileController {
             DatasetFile datasetFile = datasetFileApplicationService.uploadFile(
                 datasetId, file, description, "system");
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(convertToResponse(datasetFile)));
+            return ResponseEntity.status(HttpStatus.CREATED).body(Response.ok(DatasetConverter.INSTANCE.convertToResponse(datasetFile)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         } catch (Exception e) {
@@ -90,7 +91,7 @@ public class DatasetFileController {
         @PathVariable("fileId") String fileId) {
         try {
             DatasetFile datasetFile = datasetFileApplicationService.getDatasetFile(datasetId, fileId);
-            return ResponseEntity.ok(Response.ok(convertToResponse(datasetFile)));
+            return ResponseEntity.ok(Response.ok(DatasetConverter.INSTANCE.convertToResponse(datasetFile)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
@@ -102,12 +103,13 @@ public class DatasetFileController {
         @PathVariable("fileId") String fileId) {
         try {
             datasetFileApplicationService.deleteDatasetFile(datasetId, fileId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.error(SystemErrorCode.UNKNOWN_ERROR, null));
         }
     }
 
+    @IgnoreResponseWrap
     @GetMapping(value = "/{fileId}/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> downloadDatasetFile(
         @PathVariable("datasetId") String datasetId,
@@ -128,24 +130,6 @@ public class DatasetFileController {
         }
     }
 
-        private DatasetFileResponse convertToResponse(DatasetFile datasetFile) {
-        DatasetFileResponse response = new DatasetFileResponse();
-        response.setId(datasetFile.getId());
-        response.setFileName(datasetFile.getFileName());
-        response.setOriginalName(null);
-        response.setFileType(datasetFile.getFileType());
-        response.setSize(datasetFile.getFileSize());
-        response.setStatus(datasetFile.getStatus());
-        response.setDescription(null);
-        response.setFilePath(datasetFile.getFilePath());
-        if (datasetFile.getUploadTime() != null) {
-            response.setUploadedAt(datasetFile.getUploadTime().atOffset(ZoneOffset.UTC).toLocalDateTime());
-        }
-        response.setLastAccessTime(datasetFile.getLastAccessTime());
-        response.setUploadedBy(null);
-        return response;
-    }
-
     /**
      * 文件上传请求
      *
@@ -154,6 +138,7 @@ public class DatasetFileController {
      */
     @PostMapping("/upload/pre-upload")
     public ResponseEntity<Response<String>> preUpload(@PathVariable("datasetId") String datasetId, @RequestBody @Valid UploadFilesPreRequest request) {
+
         return ResponseEntity.ok(Response.ok(datasetFileApplicationService.preUpload(request, datasetId)));
     }
 

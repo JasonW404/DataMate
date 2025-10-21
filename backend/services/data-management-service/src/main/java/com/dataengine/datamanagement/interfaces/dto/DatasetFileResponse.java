@@ -20,7 +20,7 @@ public class DatasetFileResponse {
     /** 文件类型 */
     private String fileType;
     /** 文件大小（字节） */
-    private Long size;
+    private Long fileSize;
     /** 文件状态 */
     private String status;
     /** 文件描述 */
@@ -28,7 +28,7 @@ public class DatasetFileResponse {
     /** 文件路径 */
     private String filePath;
     /** 上传时间 */
-    private LocalDateTime uploadedAt;
+    private LocalDateTime uploadTime;
     /** 最后更新时间 */
     private LocalDateTime lastAccessTime;
     /** 上传者 */
