@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS t_clean_result
 INSERT IGNORE INTO t_clean_template(id, name, description)
 VALUES ('ac2f2582-a990-11f0-9768-00155d09c825', '空模板', '空模板'),
        ('fb6d0d76-a990-11f0-92db-00155d09c825', '测试模板', '测试模板'),
-       ('26ae585c-8310-4679-adc0-e53215e6e69b', 'text文本清洗模板', 'text文本清洗模板');
+       ('26ae585c-8310-4679-adc0-e53215e6e69b', 'text文本清洗模板', 'text文本清洗模板'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', '图片清洗模板', '图片清洗模板');
 
 INSERT IGNORE INTO t_operator_instance(instance_id, operator_id, op_index, settings_override)
 VALUES ('fb6d0d76-a990-11f0-92db-00155d09c825', 'TextFormatter', 1, '{}'),
@@ -88,4 +89,18 @@ VALUES ('fb6d0d76-a990-11f0-92db-00155d09c825', 'TextFormatter', 1, '{}'),
        ('26ae585c-8310-4679-adc0-e53215e6e69b', 'AnonymizedIpAddress', 25, '{}'),
        ('26ae585c-8310-4679-adc0-e53215e6e69b', 'AnonymizedIdNumber', 26, '{}'),
        ('26ae585c-8310-4679-adc0-e53215e6e69b', 'AnonymizedUrlCleaner', 27, '{}'),
-       ('26ae585c-8310-4679-adc0-e53215e6e69b', 'FileExporter', 28, '{}');
+       ('26ae585c-8310-4679-adc0-e53215e6e69b', 'FileExporter', 28, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgFormatter', 1, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgBlurredImagesCleaner', 2, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgDuplicatedImagesCleaner', 3, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgSimilarImagesCleaner', 4, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgBrightness', 5, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgContrast', 6, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgSaturation', 7, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgSharpness', 8, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgDenoise', 9, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgShadowRemove', 10, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgPerspectiveTransformation', 11, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgResize', 12, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'ImgTypeUnify', 13, '{}'),
+       ('4421504e-c6c9-4760-b55a-509d17429597', 'FileExporter', 14, '{}');
