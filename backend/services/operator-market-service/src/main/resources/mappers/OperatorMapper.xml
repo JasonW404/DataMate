@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dataengine.operator.infrastructure.persistence.mapper.OperatorMapper">
-    <select id="findAllOperators" resultType="com.dataengine.operator.domain.modal.Operator">
+<mapper namespace="com.datamate.operator.infrastructure.persistence.mapper.OperatorMapper">
+    <select id="findAllOperators" resultType="com.datamate.operator.domain.modal.Operator">
       SELECT id, name, description, version, inputs, outputs, runtime, settings, is_star, created_at, updated_at FROM
         t_operator
     </select>
 
-    <select id="findOperatorsByCriteria" parameterType="map" resultType="com.dataengine.operator.domain.modal.Operator">
+    <select id="findOperatorsByCriteria" parameterType="map" resultType="com.datamate.operator.domain.modal.Operator">
         SELECT operator_id as id, operator_name as name, description, version, inputs, outputs, runtime, settings,
             is_star, created_at, updated_at, GROUP_CONCAT(category_id ORDER BY created_at DESC SEPARATOR ',') AS categories
         FROM v_operator
@@ -50,19 +50,19 @@
         </where>
     </select>
 
-    <select id="findOperatorById" parameterType="string" resultType="com.dataengine.operator.domain.modal.Operator">
+    <select id="findOperatorById" parameterType="string" resultType="com.datamate.operator.domain.modal.Operator">
         SELECT operator_id as id, operator_name as name, description, version, inputs, outputs, runtime, settings,
             is_star, created_at, updated_at, GROUP_CONCAT(category_id ORDER BY created_at DESC SEPARATOR ',') AS categories
         FROM v_operator
         WHERE operator_id = #{id}
     </select>
 
-    <insert id="insertOperator" parameterType="com.dataengine.operator.domain.modal.Operator">
+    <insert id="insertOperator" parameterType="com.datamate.operator.domain.modal.Operator">
         INSERT INTO t_operator (id, name, description, version, inputs, outputs, runtime, settings, is_star, created_at, updated_at)
         VALUES (#{id}, #{name}, #{description}, #{version}, #{inputs}, #{outputs}, #{runtime}, #{settings}, #{isStar}, NOW(), NOW())
     </insert>
 
-    <update id="updateOperator" parameterType="com.dataengine.operator.domain.modal.Operator">
+    <update id="updateOperator" parameterType="com.datamate.operator.domain.modal.Operator">
         UPDATE t_operator
         <set>
             <if test="name != null and name != ''">

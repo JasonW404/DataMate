@@ -1,4 +1,4 @@
-dataengine:
+datamate:
   datamanagement:
     file-storage:
       upload-dir: ${FILE_UPLOAD_DIR:./uploads}

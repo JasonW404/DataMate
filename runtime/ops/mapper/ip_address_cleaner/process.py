@@ -1,8 +1,6 @@
 #!/user/bin/python
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 身份证号码匿名化插件
 Create: 2024/12/26 15:43
@@ -14,7 +12,7 @@ from typing import Dict, Any
 
 from loguru import logger
 
-from data_platform.core.base_op import Mapper
+from datamate.core.base_op import Mapper
 
 
 class AnonymizedIpAddress(Mapper):

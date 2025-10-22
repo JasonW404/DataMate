@@ -1,7 +1,5 @@
 # -- encoding: utf-8 --
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 医疗图片按坐标切片
 Create: 2025/02/08 11:00
@@ -16,9 +14,9 @@ from loguru import logger
 from openslide import OpenSlide
 import numpy as np
 
-from data_platform.core.base_op import Slicer
+from datamate.core.base_op import Slicer
 
-from data_platform.common.utils import bytes_transform
+from datamate.common.utils import bytes_transform
 
 
 class SimpleSlicer(Slicer):

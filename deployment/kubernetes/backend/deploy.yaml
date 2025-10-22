@@ -88,19 +88,19 @@ spec:
         - name: flow-volume
           mountPath: /flow
         - name: log-volume
-          mountPath: /var/log/data-platform
+          mountPath: /var/log/data-mate
       volumes:
       - name: dataset-volume
         hostPath:
-          path: /opt/data-platform/data/dataset
+          path: /opt/data-mate/data/dataset
           type: DirectoryOrCreate
       - name: flow-volume
         hostPath:
-          path: /opt/data-platform/data/flow
+          path: /opt/data-mate/data/flow
           type: DirectoryOrCreate
       - name: log-volume
         hostPath:
-          path: /opt/data-platform/data/log
+          path: /opt/data-mate/data/log
           type: DirectoryOrCreate
 
 ---

@@ -5,6 +5,7 @@
 # 在各个服务的pom.xml中添加以下插件配置：
 
 ```xml
+
 <plugin>
     <groupId>org.openapitools</groupId>
     <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -18,8 +19,8 @@
                 <inputSpec>${project.basedir}/../../openapi/specs/${project.artifactId}.yaml</inputSpec>
                 <generatorName>spring</generatorName>
                 <output>${project.build.directory}/generated-sources/openapi</output>
-                <apiPackage>com.dataengine.${project.name}.interfaces.api</apiPackage>
-                <modelPackage>com.dataengine.${project.name}.interfaces.dto</modelPackage>
+                <apiPackage>com.datamate.${project.name}.interfaces.api</apiPackage>
+                <modelPackage>com.datamate.${project.name}.interfaces.dto</modelPackage>
                 <configOptions>
                     <interfaceOnly>true</interfaceOnly>
                     <useTags>true</useTags>
@@ -50,8 +51,8 @@ openApiGenerate {
     generatorName = "spring"
     inputSpec = "$rootDir/openapi/specs/${project.name}.yaml"
     outputDir = "$buildDir/generated-sources/openapi"
-    apiPackage = "com.dataengine.${project.name}.interfaces.api"
-    modelPackage = "com.dataengine.${project.name}.interfaces.dto"
+    apiPackage = "com.datamate.${project.name}.interfaces.api"
+    modelPackage = "com.datamate.${project.name}.interfaces.dto"
     configOptions = [
         interfaceOnly: "true",
         useTags: "true",
@@ -79,7 +80,7 @@ openapi-generator-cli generate \
   -i openapi/specs/data-annotation-service.yaml \
   -g typescript-axios \
   -o frontend/packages/api-client/src/generated/annotation \
-  --additional-properties=supportsES6=true,npmName=@dataengine/annotation-api,npmVersion=1.0.0
+  --additional-properties=supportsES6=true,npmName=@datamate/annotation-api,npmVersion=1.0.0
 ```
 
 ## Usage in Services
@@ -90,9 +91,9 @@ openapi-generator-cli generate \
 @RestController
 @RequestMapping("/api/v1/annotation")
 public class AnnotationTaskController implements AnnotationTasksApi {
-    
+
     private final AnnotationTaskApplicationService annotationTaskService;
-    
+
     @Override
     public ResponseEntity<AnnotationTaskPageResponse> getAnnotationTasks(
             Integer page, Integer size, String status) {
@@ -106,7 +107,7 @@ public class AnnotationTaskController implements AnnotationTasksApi {
 ```java
 @Service
 public class AnnotationTaskApplicationService {
-    
+
     public AnnotationTaskPageResponse getTasks(Integer page, Integer size, String status) {
         // 业务逻辑实现
         // 使用生成的DTO类型
@@ -124,7 +125,7 @@ public class AnnotationTaskApplicationService {
 OPENAPI_DIR="openapi/specs"
 SERVICES=(
     "data-annotation-service"
-    "data-management-service" 
+    "data-management-service"
     "operator-market-service"
     "data-cleaning-service"
     "data-synthesis-service"

@@ -1,7 +1,7 @@
 # 数据引擎平台 - 主应用配置
 spring:
   application:
-    name: data-engine-platform
+    name: data-mate-platform
 
   # 暂时排除Spring Security自动配置（开发阶段使用）
   autoconfigure:
@@ -12,7 +12,7 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:3306/dataengine?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql:3306/datamate?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:Huawei@123}
     hikari:
@@ -81,8 +81,8 @@ mybatis-plus:
   mapper-locations:
     - classpath*:mappers/**/*.xml
   type-aliases-package:
-    - com.dataengine.collection.domain.model
-    - com.dataengine.datamanagement.domain.model.dataset
+    - com.datamate.collection.domain.model
+    - com.datamate.datamanagement.domain.model.dataset
 
 # 应用配置
 server:
@@ -112,10 +112,10 @@ management:
       enabled: false  # 禁用Elasticsearch健康检查
 
 # 平台配置
-dataengine:
+datamate:
   # JWT配置
   jwt:
-    secret: ${JWT_SECRET:dataEngineSecretKey2024ForJWTTokenGeneration}
+    secret: ${JWT_SECRET:dataMateSecretKey2024ForJWTTokenGeneration}
     expiration: ${JWT_EXPIRATION:86400} # 24小时，单位秒
     header: Authorization
     prefix: "Bearer "
@@ -129,7 +129,7 @@ dataengine:
       endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
       access-key: ${MINIO_ACCESS_KEY:minioadmin}
       secret-key: ${MINIO_SECRET_KEY:minioadmin}
-      bucket-name: ${MINIO_BUCKET:data-engine}
+      bucket-name: ${MINIO_BUCKET:data-mate}
 
   # Ray执行器配置
   ray:

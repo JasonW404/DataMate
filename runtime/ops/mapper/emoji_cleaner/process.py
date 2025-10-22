@@ -1,6 +1,4 @@
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 文档表情去除
 Create: 2023/12/7 15:43
@@ -11,7 +9,7 @@ from typing import Dict, Any
 import emoji
 from loguru import logger
 
-from data_platform.core.base_op import Mapper
+from datamate.core.base_op import Mapper
 
 
 class EmojiCleaner(Mapper):

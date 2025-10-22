@@ -22,7 +22,7 @@
 ## 项目结构
 
 ```
-src/main/java/com/dataengine/collection/
+src/main/java/com/datamate/collection/
 ├── DataCollectionApplication.java          # 应用启动类
 ├── domain/                                  # 领域层
 │   ├── model/                              # 领域模型

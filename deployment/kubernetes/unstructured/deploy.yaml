@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: unstructured
-        image: downloads.unstructured.io/unstructured-io/unstructured:app
+        image: unstructured
         imagePullPolicy: IfNotPresent
         command:
           - python
@@ -26,11 +26,11 @@ spec:
         - containerPort: 8000
         volumeMounts:
         - name: tmp
-          mountPath: /tmp/data-platform
+          mountPath: /tmp/data-mate
       volumes:
       - name: tmp
         hostPath:
-          path: /tmp/data-platform
+          path: /tmp/data-mate
 
 ---
 apiVersion: v1

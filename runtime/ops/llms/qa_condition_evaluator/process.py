@@ -1,7 +1,5 @@
 # -- encoding: utf-8 --
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 基于LLM通过用户设置维度和相应描述进行QA对评估
 Create: 2023/11/7 9:26
@@ -15,7 +13,7 @@ from typing import List, Dict, Any
 from loguru import logger
 
 
-from data_platform.core.base_op import LLM
+from datamate.core.base_op import LLM
 
 
 class QAConditionEvaluator(LLM):

@@ -1,8 +1,6 @@
 #!/user/bin/python
 # -*- coding: utf-8 -*-
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description: 繁体转简体
 Create: 2025/01/15
@@ -13,7 +11,7 @@ from typing import Dict, Any
 from zhconv import convert
 from loguru import logger
 
-from data_platform.core.base_op import Mapper
+from datamate.core.base_op import Mapper
 
 
 class TraditionalChineseCleaner(Mapper):

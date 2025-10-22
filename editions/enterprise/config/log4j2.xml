@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
-        <Property name="LOG_PATH">/var/log/data-platform/backend</Property>
+        <Property name="LOG_PATH">/var/log/data-mate/backend</Property>
         <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n</Property>
         <Property name="MAX_FILE_SIZE">100MB</Property>
         <Property name="MAX_HISTORY">30</Property>
@@ -28,7 +28,7 @@
 
     <Loggers>
         <!-- 自定义日志器 -->
-        <Logger name="com.dataengine" level="${LOG_LEVEL}" />
+        <Logger name="com.datamate" level="${LOG_LEVEL}" />
         <Logger name="org.springframework.security" level="${LOG_LEVEL}" />
         <Logger name="org.hibernate.SQL" level="${SQL_LOG_LEVEL}" />
         <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="${SQL_LOG_LEVEL}" />

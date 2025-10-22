@@ -4,14 +4,11 @@ info:
   description: 数据标注服务API - 智能预标注、人工平台、主动学习
   version: 1.0.0
   contact:
-    name: Data Engine Platform Team
-    email: dev@dataengine.com
+    name: Data Mate Platform Team
 
 servers:
-  - url: http://localhost:8083
+  - url: http://localhost:8080
     description: Development server
-  - url: https://api.dataengine.com/annotation
-    description: Production server
 
 tags:
   - name: annotation-tasks

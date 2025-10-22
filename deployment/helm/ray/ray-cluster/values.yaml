@@ -76,7 +76,7 @@ head:
     - name: MYSQL_PASSWORD
       value: "Huawei@123"
     - name: MYSQL_DATABASE
-      value: "dataengine"
+      value: "datamate"
   # - name: EXAMPLE_ENV
   #   value: "1"
   envFrom: []
@@ -114,15 +114,15 @@ head:
   volumes:
     - name: log-volume
       hostPath:
-        path: /opt/data-platform/data/log
+        path: /opt/data-mate/data/log
         type: DirectoryOrCreate
     - name: dataset-volume
       hostPath:
-        path: /opt/data-platform/data/dataset
+        path: /opt/data-mate/data/dataset
         type: DirectoryOrCreate
     - name: flow-volume
       hostPath:
-        path: /opt/data-platform/data/flow
+        path: /opt/data-mate/data/flow
         type: DirectoryOrCreate
   volumeMounts:
     - mountPath: /tmp/ray
@@ -140,7 +140,7 @@ head:
       imagePullPolicy: IfNotPresent
       command:
         - python
-        - /opt/runtime/data_platform/operator_runtime.py
+        - /opt/runtime/datamate/operator_runtime.py
         - --port
         - "8081"
       env:
@@ -153,14 +153,14 @@ head:
         - name: MYSQL_PASSWORD
           value: "Huawei@123"
         - name: MYSQL_DATABASE
-          value: "dataengine"
+          value: "datamate"
       ports:
         - containerPort: 8081
       volumeMounts:
         - mountPath: /tmp/ray
           name: log-volume
           subPath: ray/head
-        - mountPath: /var/log/data-platform
+        - mountPath: /var/log/data-mate
           name: log-volume
         - mountPath: /dataset
           name: dataset-volume
@@ -220,7 +220,7 @@ worker:
     - name: MYSQL_PASSWORD
       value: "Huawei@123"
     - name: MYSQL_DATABASE
-      value: "dataengine"
+      value: "datamate"
   # - name: EXAMPLE_ENV
   #   value: "1"
   envFrom: []
@@ -257,15 +257,15 @@ worker:
   volumes:
     - name: log-volume
       hostPath:
-        path: /opt/data-platform/data/log
+        path: /opt/data-mate/data/log
         type: DirectoryOrCreate
     - name: dataset-volume
       hostPath:
-        path: /opt/data-platform/data/dataset
+        path: /opt/data-mate/data/dataset
         type: DirectoryOrCreate
     - name: flow-volume
       hostPath:
-        path: /opt/data-platform/data/flow
+        path: /opt/data-mate/data/flow
         type: DirectoryOrCreate
   volumeMounts:
     - mountPath: /tmp/ray
@@ -350,15 +350,15 @@ additionalWorkerGroups:
     volumes:
       - name: log-volume
         hostPath:
-          path: /opt/data-platform/data/log
+          path: /opt/data-mate/data/log
           type: DirectoryOrCreate
       - name: dataset-volume
         hostPath:
-          path: /opt/data-platform/data/dataset
+          path: /opt/data-mate/data/dataset
           type: DirectoryOrCreate
       - name: flow-volume
         hostPath:
-          path: /opt/data-platform/data/flow
+          path: /opt/data-mate/data/flow
           type: DirectoryOrCreate
     volumeMounts:
       - mountPath: /tmp/ray

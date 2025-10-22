@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-#  Copyright (c) 2025. Huawei Technologies Co., Ltd. All rights reserved.
-#  This file is a part of the ModelEngine Project.
-#  Licensed under the MIT License. See License.txt in the project root for license information.
+
 """
 Description:
 Create: 2024/1/22 20:49
@@ -14,8 +12,8 @@ import cv2
 import numpy as np
 from loguru import logger
 
-from data_platform.common.utils import bytes_transform
-from data_platform.core.base_op import Filter
+from datamate.common.utils import bytes_transform
+from datamate.core.base_op import Filter
 
 from .wechat_qrcode_model import WechatQRCodeModel
 

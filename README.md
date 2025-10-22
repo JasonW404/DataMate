@@ -1,36 +1,77 @@
-# Data-Engine 一站式数据工作平台
+# DataMate All-in-One Data Work Platform
 
-> 面向模型微调与RAG检索的企业级数据处理平台，支持数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估等核心功能。
+<div align="center">
 
-## 🌟 核心特性
+[![Backend CI](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-backend.yml/badge.svg)](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-backend.yml)
+[![Frontend CI](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-frontend.yml/badge.svg)](https://github.com/ModelEngine-Group/DataMate/actions/workflows/docker-image-frontend.yml)
+![GitHub Stars](https://img.shields.io/github/stars/ModelEngine-Group/DataMate)
+![GitHub Forks](https://img.shields.io/github/forks/ModelEngine-Group/DataMate)
+![GitHub Issues](https://img.shields.io/github/issues/ModelEngine-Group/DataMate)
+![GitHub License](https://img.shields.io/github/license/ModelEngine-Group/DataMate)
 
-- **六大核心模块**：数据管理、算子市场、数据清洗、数据合成、数据标注、数据评估
-- **双版本支持**：社区版(CE)和企业版(EE)
-- **DDD架构**：领域驱动设计，清晰的分层架构
-- **微服务架构**：Spring Boot + 容器化部署
-- **可视化编排**：拖拽式数据处理流程设计
-- **算子生态**：丰富的内置算子和自定义算子支持
+**DataMate is an enterprise-level data processing platform for model fine-tuning and RAG retrieval, supporting core
+functions such as data collection, data management, operator marketplace, data cleaning, data synthesis, data
+annotation, data evaluation, and knowledge generation.**
 
-## 🚀 快速开始
+[简体中文](./README-zh.md) | [English](./README.md)
 
-### 社区版部署
+If you like this project, please give it a Star⭐️!
+
+</div>
+
+## 🌟 Core Features
+
+- **Core Modules**: Data Collection, Data Management, Operator Marketplace, Data Cleaning, Data Synthesis, Data
+  Annotation, Data Evaluation, Knowledge Generation.
+- **Visual Orchestration**: Drag-and-drop data processing workflow design.
+- **Operator Ecosystem**: Rich built-in operators and support for custom operators.
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Git (for pulling source code)
+- Make (for building and installing)
+- Docker (for building images and deploying services)
+- Docker-Compose (for service deployment - Docker method)
+- Kubernetes (for service deployment - k8s method)
+- Helm (for service deployment - k8s method)
+
+### Clone the Code
+
 ```bash
-make install
+git clone git@github.com:ModelEngine-Group/DataMate.git
 ```
-详见 [安装部署指导](docs/Installation.md)
 
-## 📁 项目结构
+### Build Images
 
-详见 [代码架构设计](docs/Architecture-Design.md)
+```bash
+make build
+```
 
-## 🤝 贡献指南
+### Docker Installation
 
-1. Fork 项目
-2. 创建特性分支
-3. 提交变更
-4. 推送到分支
-5. 创建 Pull Request
+```bash
+make install INSTALLER=docker
+```
 
-## 📄 许可证
+### Kubernetes Installation
 
-[MIT License](LICENSE)
+```bash
+make install INSTALLER=k8s
+```
+
+## 🤝 Contribution Guidelines
+
+Thank you for your interest in this project! We warmly welcome contributions from the community. Whether it's submitting
+bug reports, suggesting new features, or directly participating in code development, all forms of help make the project
+better.
+
+• 📮 [GitHub Issues](../../issues): Submit bugs or feature suggestions.
+
+• 🔧 [GitHub Pull Requests](../../pulls): Contribute code improvements.
+
+## 📄 License
+
+DataMate is open source under the [MIT](LICENSE) license. You are free to use, modify, and distribute the code of this
+project in compliance with the license terms.

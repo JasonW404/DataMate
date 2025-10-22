@@ -1,7 +1,7 @@
 -- 数据归集服务数据库初始化脚本
--- 适用于dataengine数据库
+-- 适用于datamate数据库
 
-USE dataengine;
+USE datamate;
 
 -- =====================================
 -- DDL语句 - 数据库表结构定义

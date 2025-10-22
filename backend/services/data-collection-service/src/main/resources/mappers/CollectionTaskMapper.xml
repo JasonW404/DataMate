@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.dataengine.collection.infrastructure.persistence.mapper.CollectionTaskMapper">
+<mapper namespace="com.datamate.collection.infrastructure.persistence.mapper.CollectionTaskMapper">
 
   <!-- Result Map -->
-  <resultMap id="CollectionTaskResultMap" type="com.dataengine.collection.domain.model.CollectionTask">
+  <resultMap id="CollectionTaskResultMap" type="com.datamate.collection.domain.model.CollectionTask">
     <id property="id" column="id"/>
     <result property="name" column="name"/>
     <result property="description" column="description"/>
@@ -25,7 +25,7 @@
   </resultMap>
 
   <!-- 结果映射 (模板) -->
-  <resultMap id="DataxTemplateResultMap" type="com.dataengine.collection.domain.model.DataxTemplate">
+  <resultMap id="DataxTemplateResultMap" type="com.datamate.collection.domain.model.DataxTemplate">
     <id column="id" property="id" jdbcType="VARCHAR"/>
     <result column="name" property="name" jdbcType="VARCHAR"/>
     <result column="source_type" property="sourceType" jdbcType="VARCHAR"/>
@@ -53,7 +53,7 @@
   </sql>
 
   <!-- Insert -->
-  <insert id="insert" parameterType="com.dataengine.collection.domain.model.CollectionTask">
+  <insert id="insert" parameterType="com.datamate.collection.domain.model.CollectionTask">
     INSERT INTO t_dc_collection_tasks (id, name, description, config, status, sync_mode,
                                        schedule_expression, retry_count, timeout_seconds, max_records, sort_field,
                                        last_execution_id, created_at, updated_at, created_by, updated_by)
@@ -63,7 +63,7 @@
   </insert>
 
   <!-- Update -->
-  <update id="update" parameterType="com.dataengine.collection.domain.model.CollectionTask">
+  <update id="update" parameterType="com.datamate.collection.domain.model.CollectionTask">
     UPDATE t_dc_collection_tasks
     SET name                = #{name},
         description         = #{description},

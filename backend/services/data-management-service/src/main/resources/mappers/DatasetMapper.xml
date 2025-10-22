@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dataengine.datamanagement.infrastructure.persistence.mapper.DatasetMapper">
+<mapper namespace="com.datamate.datamanagement.infrastructure.persistence.mapper.DatasetMapper">
 
   <sql id="Base_Column_List">
     id, name, description, dataset_type, category, path, format, schema_info, size_bytes, file_count, record_count,
@@ -33,14 +33,14 @@
         d.updated_by AS updated_by
   </sql>
 
-  <select id="findById" parameterType="string" resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+  <select id="findById" parameterType="string" resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT <include refid="Base_Column_List"/>
         FROM t_dm_datasets
         WHERE id = #{id}
     </select>
 
   <select id="findByName" parameterType="string"
-          resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+          resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT <include refid="Base_Column_List"/>
         FROM t_dm_datasets
         WHERE name = #{name}
@@ -48,28 +48,28 @@
     </select>
 
   <select id="findByStatus" parameterType="string"
-          resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+          resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT <include refid="Base_Column_List"/>
         FROM t_dm_datasets
         WHERE status = #{status}
         ORDER BY updated_at DESC
     </select>
 
-  <select id="findByCreatedBy" resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+  <select id="findByCreatedBy" resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT <include refid="Base_Column_List"/>
         FROM t_dm_datasets
         WHERE created_by = #{createdBy}
         ORDER BY created_at DESC
     </select>
 
-  <select id="findByTypeCode" resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+  <select id="findByTypeCode" resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT <include refid="Base_Column_List"/>
         FROM t_dm_datasets
         WHERE dataset_type = #{typeCode}
         ORDER BY created_at DESC
     </select>
 
-  <select id="findByTagNames" resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+  <select id="findByTagNames" resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT DISTINCT <include refid="Alias_D_Column_List"/>
         FROM t_dm_datasets d
         JOIN t_dm_dataset_tags dt ON d.id = dt.dataset_id
@@ -81,7 +81,7 @@
         ORDER BY d.created_at DESC
     </select>
 
-  <select id="findByKeyword" resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+  <select id="findByKeyword" resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT <include refid="Base_Column_List"/>
         FROM t_dm_datasets
         WHERE name LIKE CONCAT('%', #{keyword}, '%')
@@ -89,7 +89,7 @@
         ORDER BY created_at DESC
     </select>
 
-  <select id="findByCriteria" resultType="com.dataengine.datamanagement.domain.model.dataset.Dataset">
+  <select id="findByCriteria" resultType="com.datamate.datamanagement.domain.model.dataset.Dataset">
         SELECT DISTINCT <include refid="Alias_D_Column_List"/>
         FROM t_dm_datasets d
         LEFT JOIN t_dm_dataset_tags dt ON d.id = dt.dataset_id
@@ -142,7 +142,7 @@
         DELETE FROM t_dm_datasets WHERE id = #{id}
     </delete>
 
-    <select id="getAllDatasetStatistics" resultType="com.dataengine.datamanagement.interfaces.dto.AllDatasetStatisticsResponse">
+    <select id="getAllDatasetStatistics" resultType="com.datamate.datamanagement.interfaces.dto.AllDatasetStatisticsResponse">
       SELECT
         COUNT(*) AS total_datasets,
         SUM(size_bytes) AS total_size,
